@@ -1,0 +1,41 @@
+[config]
+schemaVersion = "0.0.1"
+
+[package]
+namespace = "deB"
+name = "WILDCARD_REPO"
+versionNumber = "0.0.1"
+description = "Adds content based on YouTube org WILDCARD!"
+websiteUrl = "https://github.com/TheDebbyCase/REPOWildCardMod"
+containsNsfwContent = false
+[package.dependencies]
+BepInEx-BepInExPack = "5.4.2100"
+Zehs-REPOLib = "1.0.2"
+
+[build]
+icon = "./icon.png"
+readme = "./README.md"
+outdir = "."
+
+[[build.copy]]
+source = "./REPOWildCardMod/Builds/netstandard2.1/REPOWildCardMod.dll"
+target = "BepInEx/plugins/WildCardMod/REPOWildCardMod.dll"
+
+[[build.copy]]
+source = "./Builds/wildcardmod"
+target = "D:\Stuff\Unity\REPO Mod\Assets\AssetBundles/wildcardmod"
+
+[[build.copy]]
+source = "./CHANGELOG.md"
+target = "./CHANGELOG.md"
+
+[[build.copy]]
+source = "./LICENSE"
+target = "./LICENSE"
+
+[publish]
+communities = ["repo"]
+[publish.categories]
+repo = ["bepinex", "mods", "items", "serverside", "clientside"]
+
+
