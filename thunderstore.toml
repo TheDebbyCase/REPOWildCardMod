@@ -22,8 +22,8 @@ source = "./REPOWildCardMod/Builds/netstandard2.1/REPOWildCardMod.dll"
 target = "BepInEx/plugins/WildCardMod/REPOWildCardMod.dll"
 
 [[build.copy]]
-source = "./Builds/wildcardmod"
-target = "D:\Stuff\Unity\REPO Mod\Assets\AssetBundles/wildcardmod"
+source = "./REPOWildCardMod/Builds/wildcardmod"
+target = "BepInEx/plugins/WildCardMod/wildcardmod"
 
 [[build.copy]]
 source = "./CHANGELOG.md"
@@ -36,6 +36,6 @@ target = "./LICENSE"
 [publish]
 communities = ["repo"]
 [publish.categories]
-repo = ["bepinex", "mods", "items", "serverside", "clientside"]
+repo = ["mods", "items", "serverside", "clientside"]
 
 
