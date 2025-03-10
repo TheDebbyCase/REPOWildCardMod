@@ -1,30 +1,12 @@
-﻿using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class FixatedNose : MonoBehaviour
     {
-        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
-        public AudioSource source;
-        public float lerp;
-        public AnimationCurve curve;
-        public void Awake()
+        public ParticleScriptExplosion explodeScript;
+        public void NoseExplode()
         {
-            log.LogDebug("Fixated Nose has Spawned!");
-        }
-        public void Honk(bool breaking)
-        {
-            source.Play();
-            if (breaking)
-            {
-                StartCoroutine(HonkCoroutine());
-            }
-        }
-        public IEnumerator HonkCoroutine()
-        {
-            yield return null;
-            source.pitch = Mathf.Lerp(1f, 0f, curve.Evaluate(lerp));
-            lerp += Time.deltaTime * 2f;
+            explodeScript.Spawn(this.transform.position, 0.245f, 5, 5, 2.5f);
         }
     }
 }
