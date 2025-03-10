@@ -12,7 +12,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 
 ## Content so far!
 
+- Valuables
+	<details>
+	<summary>Fixated Nose</summary>
+	
+	Original design by [iamfixated](https://bsky.app/profile/iamfixated.bsky.social),  
+	Honk
 
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/FixatedNosePreview.png)
+	
+	</details>
 
 I hope to add more soon! Make suggestions on BlueSky!
 
