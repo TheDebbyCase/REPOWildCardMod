@@ -22,14 +22,25 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/FixatedNosePreview.png)
 	
 	</details>
+	
+	<details>
+	<summary>Giwi Worm</summary>
+	
+	Original design by [Giwi](https://www.twitch.tv/giwi),  
+	She writhes
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/GiwiWormPreview.png)
+	
+	</details>
+
 
 I hope to add more soon! Make suggestions on BlueSky!
 
 ## WILDCARD
 
-Thank you to WILDCARD and all members for making such great content and being a source of comfort and joy for me and many others. I can't lie and say I don't have my favourites (guess who) but I do hope to eventually have something to represent everyone!
+Unfortunately the group is disbanding, but certain members will more than likely continue making content around R.E.P.O, and all will, of course, keep making content!
 
-Subscribe to [WILDCARD](https://www.youtube.com/@WILDCARDorg)!
+Subscribe to [WILDCARD](https://www.youtube.com/@WILDCARDorg) members by looking at the channel's recommended channels!
 
 ## Extra Credits
 
