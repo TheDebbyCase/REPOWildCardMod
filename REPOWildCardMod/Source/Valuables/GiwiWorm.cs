@@ -1,4 +1,5 @@
-﻿using Photon.Pun;
+﻿using HarmonyLib;
+using Photon.Pun;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
@@ -15,7 +16,6 @@ namespace REPOWildCardMod.Valuables
         public float startTime = 0.5f;
         public float targetTime = 0.5f;
         public float animSpeed;
-        public PhysGrabber lastGrabber;
         private readonly System.Random random = new System.Random();
         public void Start()
         {
@@ -27,14 +27,12 @@ namespace REPOWildCardMod.Valuables
                 }
             }
             giwiSounds.Source.outputAudioMixerGroup = AudioManager.instance.SoundMasterGroup;
-            physGrabObject.OverrideGrabStrength(1.75f);
         }
         public void FixedUpdate()
         {
             if (physGrabObject.grabbedLocal)
             {
-                lastGrabber = PhysGrabber.instance;
-                lastGrabber.OverridePullDistanceIncrement(-0.5f * Time.fixedDeltaTime);
+                PhysGrabber.instance.OverridePullDistanceIncrement(-0.5f * Time.fixedDeltaTime);
             }
             if (physGrabObject.grabbed)
             {
@@ -43,7 +41,7 @@ namespace REPOWildCardMod.Valuables
                     for (int i = 1; i < rigidBodies.Length; i++)
                     {
                         Rigidbody rigidBody = rigidBodies[i];
-                        rigidBody.AddForce((Random.insideUnitSphere + (Vector3.up * 0.05f)) * 0.5f, ForceMode.Impulse);
+                        rigidBody.AddForce((Random.insideUnitSphere + (Vector3.up * 0.05f)) * 0.25f, ForceMode.Impulse);
                         rigidBody.AddTorque(Random.insideUnitSphere, ForceMode.Impulse);
                     }
                 }
@@ -54,17 +52,20 @@ namespace REPOWildCardMod.Valuables
                     log.LogDebug($"{giwiSounds.Source.clip.name}");
                 }
             }
-            else if (giwiSounds.Source.isPlaying)
+            else
             {
-                giwiSounds.Stop();
+                if (giwiSounds.Source.isPlaying)
+                {
+                    giwiSounds.Stop();
+                }
             }
             if (animTimer <= 0)
             {
                 animLerp = 0f;
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
-                    animTimer = (float)random.Next(5, 20) / 10f;
-                    float speed = Random.value + 1f;
+                    animTimer = (float)random.Next(5, 21) / 10f;
+                    float speed = Random.value * 2f;
                     float motionTime = Random.value;
                     if (GameManager.Multiplayer())
                     {

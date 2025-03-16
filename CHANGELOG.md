@@ -1,3 +1,8 @@
+## 0.2.1
+- Slightly improved Giwi Worm's physics
+- Giwi Worm can now be grabbed anywhere on her body
+- Made Fixated's Nose more bouncy, and worth more to compensate
+
 ## 0.2.0
 - Added Giwi Worm!
 

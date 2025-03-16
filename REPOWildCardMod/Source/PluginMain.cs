@@ -6,6 +6,7 @@ using System.Reflection;
 using System.IO;
 using System.Collections.Generic;
 using REPOWildCardMod.Config;
+using HarmonyLib;
 namespace REPOWildCardMod
 {
     [BepInPlugin(modGUID, modName, modVersion)]
@@ -14,7 +15,8 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.2.0";
+        internal const string modVersion = "0.2.1";
+        private readonly Harmony harmony = new Harmony(modGUID);
         internal static ManualLogSource log = null!;
         public static WildCardMod Instance;
         internal static WildCardConfig ModConfig {get; private set;} = null!;
@@ -73,6 +75,7 @@ namespace REPOWildCardMod
                     log.LogInfo($"{valList[i].name} valuable was disabled!");
                 }
             }
+            harmony.PatchAll();
             log.LogInfo("WILDCARD REPO Successfully Loaded");
         }
     }
