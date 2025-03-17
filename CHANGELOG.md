@@ -1,3 +1,8 @@
+## 0.3.0
+- Added Moo Cow!
+- Further improved Giwi Worm's physics
+- Increased Fixated's Nose's durability
+
 ## 0.2.1
 - Slightly improved Giwi Worm's physics
 - Giwi Worm can now be grabbed anywhere on her body

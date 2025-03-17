@@ -33,6 +33,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Moo Cow</summary>
+	
+	Original design by [kael](https://www.twitch.tv/kael),  
+	Don't let it fly away!
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/MooCowPreview.png)
+	
+	</details>
+
 
 I hope to add more soon! Make suggestions on BlueSky!
 

@@ -32,7 +32,7 @@
 		<PackageReference Include="System.Collections.Immutable" Version="9.0.0" />
 		<PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
 		<PackageReference Include="Unity3D" Version="3.0.0" />
-		<PackageReference Include="Zehs.REPOLib" Version="1.*" />
+		<PackageReference Include="Zehs.REPOLib" Version="1.4.2" />
 		<PackageReference Include="BepInEx.AssemblyPublicizer.MSBuild" Version="0.4.1">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
