@@ -43,6 +43,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Pixel Jars</summary>
+	
+	Original designs by [kael](https://www.twitch.tv/kael),  
+	Tasty...
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/PixelJarPreview.png)
+	
+	</details>
+
 
 I hope to add more soon! Make suggestions on BlueSky!
 

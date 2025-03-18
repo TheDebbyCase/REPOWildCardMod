@@ -1,3 +1,7 @@
+## 0.4.0
+- Added Pixel Jars!
+- Adjusted Moo Cow and Giwi Worm's starting positions
+
 ## 0.3.0
 - Added Moo Cow!
 - Further improved Giwi Worm's physics

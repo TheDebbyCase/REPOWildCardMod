@@ -15,7 +15,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.3.0";
+        internal const string modVersion = "0.4.0";
         private readonly Harmony harmony = new Harmony(modGUID);
         internal static ManualLogSource log = null!;
         public static WildCardMod Instance;
