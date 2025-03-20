@@ -8,16 +8,14 @@ namespace REPOWildCardMod.Patches
         static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
         static readonly WildCardUtils utils = WildCardMod.utils;
         [HarmonyPatch(nameof(PlayerVoiceChat.Update))]
-        [HarmonyPrefix]
-        public static bool StopVoice(PlayerVoiceChat __instance)
+        [HarmonyPostfix]
+        public static void StopVoice(PlayerVoiceChat __instance)
         {
             if (utils.pauseVoice)
             {
                 log.LogDebug($"Pausing {__instance.playerAvatar.playerName}'s voice");
-                __instance.clipCheckTimer = 0.001f;
-                __instance.clipLoudness = 0f;
+                __instance.recorder.TransmitEnabled = false;
             }
-            return true;
         }
     }
 }

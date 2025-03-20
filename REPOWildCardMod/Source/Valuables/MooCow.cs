@@ -37,31 +37,6 @@ namespace REPOWildCardMod.Valuables
                 {
                     mooTimer -= Time.deltaTime;
                 }
-                if (!utils.pauseVoice)
-                {
-                    utils.pauseVoice = true;
-                }
-                else if (physGrabObject.grabbedLocal && PlayerVoiceChat.instance.audioSource.clip != null && playerMooTimer <= 0)
-                {
-                    int mooNum = new System.Random().Next(-3, 5);
-                    if (mooNum <= 0)
-                    {
-                        mooNum = 1;
-                    }
-                    string mooString = "moo ";
-                    for (int i = 1; i < mooNum; i++)
-                    {
-                        mooString += mooString;
-                    }
-                    ChatManager.instance.PossessChatScheduleStart(9);
-                    ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, mooString, 2f, Color.blue);
-                    ChatManager.instance.PossessChatScheduleEnd();
-                    playerMooTimer = (Random.value + 0.25f) * (Random.value + 1f);
-                }
-                else
-                {
-                    playerMooTimer -= Time.deltaTime;
-                }
             }
             else
             {
@@ -72,6 +47,37 @@ namespace REPOWildCardMod.Valuables
                 if (utils.pauseVoice)
                 {
                     utils.pauseVoice = false;
+                }
+            }
+        }
+        public void Update()
+        {
+            if (physGrabObject.grabbedLocal && SemiFunc.IsMultiplayer())
+            {
+                if (!utils.pauseVoice)
+                {
+                    utils.pauseVoice = true;
+                }
+                if (PhysGrabber.instance.playerAvatar.voiceChat.isTalking && playerMooTimer <= 0 && !ChatManager.instance.chatActive)
+                {
+                    int mooNum = new System.Random().Next(-3, 5);
+                    if (mooNum <= 0)
+                    {
+                        mooNum = 1;
+                    }
+                    string mooString = "moooo ";
+                    for (int i = 1; i < mooNum; i++)
+                    {
+                        mooString += mooString;
+                    }
+                    ChatManager.instance.PossessChatScheduleStart(9);
+                    ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, mooString, 2f, Color.blue);
+                    ChatManager.instance.PossessChatScheduleEnd();
+                    playerMooTimer = (Random.value + 0.5f) * (Random.value + 1f);
+                }
+                if (playerMooTimer >= 0f && !ChatManager.instance.chatActive)
+                {
+                    playerMooTimer -= Time.deltaTime;
                 }
             }
         }

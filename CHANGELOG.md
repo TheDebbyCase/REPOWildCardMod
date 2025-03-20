@@ -1,3 +1,7 @@
+## 0.5.1
+- Fixed Pixel Jars floaters not working properly
+- Fixed Pixel Jars and Moo Cow voice effects not working properly
+
 ## 0.5.0
 - Added Smith Halo as a shop item! Subject to change, feels undercooked rn
 - Gave Moo Cow and Pixel Jars some special voice effects

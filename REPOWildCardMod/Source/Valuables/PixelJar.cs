@@ -23,25 +23,22 @@ namespace REPOWildCardMod.Valuables
         public float bobLerp;
         public float verticalSpeed;
         public float horizontalSpeed;
-        public bool pickingUp;
+        public bool pickingUp = true;
         public PhotonView photonView;
+        private readonly System.Random random = new System.Random();
         public void Start()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                StartCoroutine(FloaterCoroutine(new System.Random().Next(0, floaterVariants.Length)));
-            }
-        }
-        public IEnumerator FloaterCoroutine(int index)
-        {
-            yield return new WaitUntil(() => LevelGenerator.Instance.Generated);
-            if (SemiFunc.IsMultiplayer())
-            {
-                photonView.RPC("FloaterTextureRPC", RpcTarget.All, index);
-            }
-            else
-            {
-                SetTexture(index);
+                int index = random.Next(0, floaterVariants.Length);
+                if (SemiFunc.IsMultiplayer())
+                {
+                    photonView.RPC("FloaterTextureRPC", RpcTarget.All, index);
+                }
+                else
+                {
+                    SetTexture(index);
+                }
             }
         }
         public void FixedUpdate()
@@ -67,8 +64,9 @@ namespace REPOWildCardMod.Valuables
                 animator.SetLayerWeight(2, 0.25f);
                 bobLerp = 0.25f;
             }
-            if (physGrabObject.grabbedLocal && pickingUp)
+            if (physGrabObject.grabbedLocal && pickingUp && SemiFunc.IsMultiplayer())
             {
+                pickingUp = false;
                 string message = " ON TOP";
                 Color colour = new Color();
                 switch (floater)
@@ -100,6 +98,10 @@ namespace REPOWildCardMod.Valuables
                 ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, message, 2f, colour);
                 ChatManager.instance.PossessChatScheduleEnd();
             }
+            else if (!physGrabObject.grabbedLocal && !pickingUp)
+            {
+                pickingUp = true;
+            }
         }
         public void ImpactBob()
         {
@@ -128,19 +130,20 @@ namespace REPOWildCardMod.Valuables
         }
         public void SetTexture(int index)
         {
-            switch (index)
+            string name = floaterVariants[index].name;
+            switch (name)
             {
-                case 0:
+                case "v0":
                     {
                         floater = JarFloater.V0;
                         break;
                     }
-                case 1:
+                case "v1":
                     {
                         floater = JarFloater.V1;
                         break;
                     }
-                case 2:
+                case "v2":
                     {
                         floater = JarFloater.V2;
                         break;
@@ -151,8 +154,8 @@ namespace REPOWildCardMod.Valuables
                         break;
                     }
             }
-            particleRenderer.material.mainTexture = floaterVariants[index];
-            particleRenderer.material.SetTexture("_EmissionMap", floaterVariants[index]);
+            particleRenderer.sharedMaterial.mainTexture = floaterVariants[index];
+            particleRenderer.sharedMaterial.SetTexture("_EmissionMap", floaterVariants[index]);
             RandomSpeed();
         }
         [PunRPC]
