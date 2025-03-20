@@ -1,8 +1,16 @@
 ﻿using Photon.Pun;
 using System.Collections;
 using UnityEngine;
+using static UnityEngine.InputSystem.InputRemoting;
 namespace REPOWildCardMod.Valuables
 {
+    public enum JarFloater
+    {
+        Other,
+        V0,
+        V1,
+        V2
+    }
     public class PixelJar : MonoBehaviour
     {
         public ParticleSystem particle;
@@ -11,10 +19,11 @@ namespace REPOWildCardMod.Valuables
         public bool settled = true;
         public PhysGrabObject physGrabObject;
         public Texture2D[] floaterVariants;
-        public int floaterID;
+        public JarFloater floater;
         public float bobLerp;
         public float verticalSpeed;
         public float horizontalSpeed;
+        public bool pickingUp;
         public PhotonView photonView;
         public void Start()
         {
@@ -58,6 +67,39 @@ namespace REPOWildCardMod.Valuables
                 animator.SetLayerWeight(2, 0.25f);
                 bobLerp = 0.25f;
             }
+            if (physGrabObject.grabbedLocal && pickingUp)
+            {
+                string message = " ON TOP";
+                Color colour = new Color();
+                switch (floater)
+                {
+                    case JarFloater.V0:
+                        {
+                            message = "V0" + message;
+                            colour = Color.green;
+                            break;
+                        }
+                    case JarFloater.V1:
+                        {
+                            message = "V1" + message;
+                            colour = Color.cyan;
+                            break;
+                        }
+                    case JarFloater.V2:
+                        {
+                            message = "V2" + message;
+                            colour = new Color(0.5f, 0f, 1f);
+                            break;
+                        }
+                    case JarFloater.Other:
+                        {
+                            return;
+                        }
+                }
+                ChatManager.instance.PossessChatScheduleStart(9);
+                ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, message, 2f, colour);
+                ChatManager.instance.PossessChatScheduleEnd();
+            }
         }
         public void ImpactBob()
         {
@@ -86,9 +128,31 @@ namespace REPOWildCardMod.Valuables
         }
         public void SetTexture(int index)
         {
-            floaterID = index;
-            particleRenderer.material.mainTexture = floaterVariants[floaterID];
-            particleRenderer.material.SetTexture("_EmissionMap", floaterVariants[floaterID]);
+            switch (index)
+            {
+                case 0:
+                    {
+                        floater = JarFloater.V0;
+                        break;
+                    }
+                case 1:
+                    {
+                        floater = JarFloater.V1;
+                        break;
+                    }
+                case 2:
+                    {
+                        floater = JarFloater.V2;
+                        break;
+                    }
+                default:
+                    {
+                        floater = JarFloater.Other;
+                        break;
+                    }
+            }
+            particleRenderer.material.mainTexture = floaterVariants[index];
+            particleRenderer.material.SetTexture("_EmissionMap", floaterVariants[index]);
             RandomSpeed();
         }
         [PunRPC]

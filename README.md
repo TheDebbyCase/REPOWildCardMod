@@ -53,6 +53,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+- Shop Items
+	<details>
+	<summary>Smith Halo</summary>
+	
+	Original designs by [kael](https://www.twitch.tv/kael),  
+	It may be melting but it still packs a punch
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/SmithHaloPreview.png)
+	
+	</details>
 
 I hope to add more soon! Make suggestions on BlueSky!
 

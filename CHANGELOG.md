@@ -1,3 +1,7 @@
+## 0.5.0
+- Added Smith Halo as a shop item! Subject to change, feels undercooked rn
+- Gave Moo Cow and Pixel Jars some special voice effects
+
 ## 0.4.0
 - Added Pixel Jars!
 - Adjusted Moo Cow and Giwi Worm's starting positions

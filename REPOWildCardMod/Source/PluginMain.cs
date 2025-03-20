@@ -7,6 +7,7 @@ using System.IO;
 using System.Collections.Generic;
 using REPOWildCardMod.Config;
 using HarmonyLib;
+using REPOWildCardMod.Utils;
 namespace REPOWildCardMod
 {
     [BepInPlugin(modGUID, modName, modVersion)]
@@ -15,12 +16,14 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.4.0";
+        internal const string modVersion = "0.5.0";
         private readonly Harmony harmony = new Harmony(modGUID);
         internal static ManualLogSource log = null!;
+        public static WildCardUtils utils = new WildCardUtils();
         public static WildCardMod Instance;
         internal static WildCardConfig ModConfig {get; private set;} = null!;
         public static List<GameObject> valList = new List<GameObject>();
+        public static List<Item> itemList = new List<Item>();
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
 
         private void Awake()
@@ -50,9 +53,14 @@ namespace REPOWildCardMod
                 string assetPath = allAssetPaths[i][..allAssetPaths[i].LastIndexOf("/")];
                 switch (assetPath)
                 {
-                    case "assets/my creations/valuables":
+                    case "assets/my creations/resources/valuables":
                         {
                             valList.Add(bundle.LoadAsset<GameObject>(allAssetPaths[i]));
+                            break;
+                        }
+                    case "assets/my creations/resources/items":
+                        {
+                            itemList.Add(bundle.LoadAsset<Item>(allAssetPaths[i]));
                             break;
                         }
                     default:
@@ -62,7 +70,7 @@ namespace REPOWildCardMod
                         }
                 }
             }
-            ModConfig = new WildCardConfig(base.Config, valList);
+            ModConfig = new WildCardConfig(base.Config, valList, itemList);
             for (int i = 0; i < valList.Count; i++)
             {
                 if (ModConfig.isValEnabled[i].Value)
@@ -73,6 +81,18 @@ namespace REPOWildCardMod
                 else
                 {
                     log.LogInfo($"{valList[i].name} valuable was disabled!");
+                }
+            }
+            for (int i = 0; i < itemList.Count; i++)
+            {
+                if (ModConfig.isItemEnabled[i].Value)
+                {
+                    REPOLib.Modules.Items.RegisterItem(itemList[i]);
+                    log.LogDebug($"{itemList[i].name} item was loaded!");
+                }
+                else
+                {
+                    log.LogInfo($"{itemList[i].name} item was disabled!");
                 }
             }
             harmony.PatchAll();

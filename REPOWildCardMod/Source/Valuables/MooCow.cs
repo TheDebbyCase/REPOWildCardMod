@@ -1,13 +1,16 @@
-﻿using UnityEngine;
+﻿using REPOWildCardMod.Utils;
+using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class MooCowValuable : MonoBehaviour
     {
+        public WildCardUtils utils = WildCardMod.utils;
         public PhysGrabObject physGrabObject;
         public Animator animator;
         public PhysicMaterial physMat;
         public Sound cowSounds;
         public float mooTimer;
+        public float playerMooTimer;
         public void Start()
         {
             physGrabObject.OverrideMaterial(physMat, -123f);
@@ -34,12 +37,41 @@ namespace REPOWildCardMod.Valuables
                 {
                     mooTimer -= Time.deltaTime;
                 }
+                if (!utils.pauseVoice)
+                {
+                    utils.pauseVoice = true;
+                }
+                else if (physGrabObject.grabbedLocal && PlayerVoiceChat.instance.audioSource.clip != null && playerMooTimer <= 0)
+                {
+                    int mooNum = new System.Random().Next(-3, 5);
+                    if (mooNum <= 0)
+                    {
+                        mooNum = 1;
+                    }
+                    string mooString = "moo ";
+                    for (int i = 1; i < mooNum; i++)
+                    {
+                        mooString += mooString;
+                    }
+                    ChatManager.instance.PossessChatScheduleStart(9);
+                    ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, mooString, 2f, Color.blue);
+                    ChatManager.instance.PossessChatScheduleEnd();
+                    playerMooTimer = (Random.value + 0.25f) * (Random.value + 1f);
+                }
+                else
+                {
+                    playerMooTimer -= Time.deltaTime;
+                }
             }
             else
             {
                 if (animator.GetBool("Grabbed"))
                 {
                     animator.SetBool("Grabbed", false);
+                }
+                if (utils.pauseVoice)
+                {
+                    utils.pauseVoice = false;
                 }
             }
         }
