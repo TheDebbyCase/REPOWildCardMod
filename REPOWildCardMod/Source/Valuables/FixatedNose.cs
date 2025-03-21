@@ -6,10 +6,16 @@ namespace REPOWildCardMod.Valuables
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
         public ParticleScriptExplosion explodeScript;
         public PhysicMaterial physMat;
+        public Animator animator;
         public override void Start()
         {
             base.Start();
             physGrabObject.OverrideMaterial(physMat, -123f);
+        }
+        public void ImpactSquish()
+        {
+            animator.SetLayerWeight(1, Mathf.Clamp01(physGrabObject.impactDetector.impactForce / 150f));
+            animator.SetTrigger("Squish");
         }
         public void NoseExplode()
         {
@@ -18,7 +24,8 @@ namespace REPOWildCardMod.Valuables
             {
                 CameraGlitch.Instance.PlayTiny();
             }
-            explodeScript.Spawn(this.transform.position, 0.245f, 5, 5, 2.5f);
+            log.LogDebug($"{gameObject.name} is exploding!");
+            explodeScript.Spawn(transform.position, 0.245f, 5, 5, 2.5f);
         }
     }
 }

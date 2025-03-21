@@ -29,13 +29,11 @@ namespace REPOWildCardMod.Valuables
                     rigidBodies[i].collisionDetectionMode = CollisionDetectionMode.Discrete;
                 }
             }
-            allTransforms = GetComponentsInChildren<Transform>();
         }
-        public void FixedUpdate()
+        public void Update()
         {
-            if (physGrabObject.grabbedLocal)
+            if (physGrabObject.grabbed)
             {
-                PhysGrabber.instance.OverridePullDistanceIncrement(-0.5f * Time.fixedDeltaTime);
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
                     AddTransformRPC(Array.IndexOf(allTransforms, PhysGrabber.instance.grabbedObjectTransform));
@@ -44,41 +42,20 @@ namespace REPOWildCardMod.Valuables
                 {
                     photonView.RPC("AddTransformRPC", RpcTarget.MasterClient, Array.IndexOf(allTransforms, PhysGrabber.instance.grabbedObjectTransform));
                 }
+                if (PhysGrabber.instance != null && physGrabObject.playerGrabbing.Contains(PhysGrabber.instance))
+                {
+                    PhysGrabber.instance.OverridePullDistanceIncrement(-0.5f * Time.fixedDeltaTime);
+                }
+                if (!giwiSounds.Source.isPlaying)
+                {
+                    EnemyDirector.instance.SetInvestigate(transform.position, 10f);
+                    giwiSounds.Play(rigidBodies[10].transform.position);
+                    log.LogDebug($"{giwiSounds.Source.clip.name}");
+                }
             }
             else if (SemiFunc.IsMasterClientOrSingleplayer() && heldTransforms.Count > 0)
             {
                 heldTransforms.Clear();
-            }
-            if (physGrabObject.grabbed)
-            {
-                if (SemiFunc.IsMasterClientOrSingleplayer())
-                {
-                    Vector3 massCenter = Vector3.zero;
-                    for (int i = 0; i < heldTransforms.Count; i++)
-                    {
-                        if (i == 0)
-                        {
-                            massCenter = heldTransforms[i].position;
-                        }
-                        else
-                        {
-                            massCenter = (massCenter + heldTransforms[i].position) / 2f;
-                        }
-                    }
-                    physGrabObject.rb.centerOfMass = physGrabObject.rb.transform.InverseTransformPoint(massCenter);
-                    for (int i = 1; i < rigidBodies.Length; i++)
-                    {
-                        Rigidbody rigidBody = rigidBodies[i];
-                        rigidBody.AddForce((UnityEngine.Random.insideUnitSphere + (Vector3.up * 0.05f)) * 0.25f, ForceMode.Impulse);
-                        rigidBody.AddTorque(UnityEngine.Random.insideUnitSphere, ForceMode.Impulse);
-                    }
-                }
-                if (!giwiSounds.Source.isPlaying)
-                {
-                    EnemyDirector.instance.SetInvestigate(this.transform.position, 10f);
-                    giwiSounds.Play(rigidBodies[10].transform.position);
-                    log.LogDebug($"{giwiSounds.Source.clip.name}");
-                }
             }
             else
             {
@@ -97,31 +74,58 @@ namespace REPOWildCardMod.Valuables
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
                     animTimer = (float)random.Next(5, 21) / 10f;
-                    float speed = UnityEngine.Random.value * 2f;
+                    float speed = Mathf.Max(UnityEngine.Random.value, 0.125f) * 2f;
                     float motionTime = UnityEngine.Random.value;
                     if (GameManager.Multiplayer())
                     {
-                        photonView.RPC("TargetTimeRPC", RpcTarget.All, motionTime, targetTime, speed);
+                        photonView.RPC("TargetTimeRPC", RpcTarget.All, motionTime, targetTime, speed, animTimer);
                     }
                     else
                     {
-                        TargetTimeRPC(motionTime, targetTime, speed);
+                        TargetTimeRPC(motionTime, targetTime, speed, animTimer);
                     }
                 }
             }
             else if (animLerp < 1f)
             {
-                animator.SetFloat("Motion Time", Mathf.Lerp(startTime, targetTime, animLerp));
+                animator.SetFloat("Motion Time", Mathf.Lerp(startTime, targetTime, Mathf.Clamp01(animLerp)));
                 animLerp += Time.deltaTime * animSpeed;
             }
             animTimer -= Time.deltaTime;
         }
-        [PunRPC]
-        public void TargetTimeRPC(float tTime, float sTime, float speed)
+        public void FixedUpdate()
         {
+            if (physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                Vector3 massCenter = Vector3.zero;
+                for (int i = 0; i < heldTransforms.Count; i++)
+                {
+                    if (i == 0)
+                    {
+                        massCenter = heldTransforms[i].position;
+                    }
+                    else
+                    {
+                        massCenter = (massCenter + heldTransforms[i].position) / 2f;
+                    }
+                }
+                physGrabObject.rb.centerOfMass = physGrabObject.rb.transform.InverseTransformPoint(massCenter);
+                for (int i = 1; i < rigidBodies.Length; i++)
+                {
+                    Rigidbody rigidBody = rigidBodies[i];
+                    rigidBody.AddForce((UnityEngine.Random.insideUnitSphere + (Vector3.up * 0.05f)) * 0.25f, ForceMode.Impulse);
+                    rigidBody.AddTorque(UnityEngine.Random.insideUnitSphere, ForceMode.Impulse);
+                }
+            }
+        }
+        [PunRPC]
+        public void TargetTimeRPC(float tTime, float sTime, float speed, float animTime)
+        {
+            log.LogDebug($"{gameObject.name}'s Animation Values: \"{tTime}\", \"{sTime}\", \"{speed}\", \"{animTime}\"");
             targetTime = tTime;
             startTime = sTime;
             animSpeed = speed;
+            animTimer = animTime;
         }
         [PunRPC]
         public void AddTransformRPC(int id)
@@ -129,6 +133,7 @@ namespace REPOWildCardMod.Valuables
             if (!heldTransforms.Contains(allTransforms[id]))
             {
                 heldTransforms.Add(allTransforms[id]);
+                log.LogDebug($"{gameObject.name}'s {allTransforms[id].gameObject.name} has been added to the heldTransforms list!");
             }
         }
     }

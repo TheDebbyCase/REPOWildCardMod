@@ -1,7 +1,5 @@
 ﻿using Photon.Pun;
-using System.Collections;
 using UnityEngine;
-using static UnityEngine.InputSystem.InputRemoting;
 namespace REPOWildCardMod.Valuables
 {
     public enum JarFloater
@@ -13,6 +11,7 @@ namespace REPOWildCardMod.Valuables
     }
     public class PixelJar : MonoBehaviour
     {
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
         public ParticleSystem particle;
         public ParticleSystemRenderer particleRenderer;
         public Animator animator;
@@ -94,6 +93,7 @@ namespace REPOWildCardMod.Valuables
                             return;
                         }
                 }
+                log.LogDebug($"{gameObject.name} making player chat: \"{message}\"");
                 ChatManager.instance.PossessChatScheduleStart(9);
                 ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, message, 2f, colour);
                 ChatManager.instance.PossessChatScheduleEnd();
@@ -115,9 +115,7 @@ namespace REPOWildCardMod.Valuables
         }
         public void RandomSpeed()
         {
-            bool negative;
-            negative = Random.value > 0.5f;
-            if (negative)
+            if (Random.value > 0.5f)
             {
                 verticalSpeed = (Random.value + 1f) * -1f;
                 horizontalSpeed = Random.value + 1f;
@@ -127,10 +125,12 @@ namespace REPOWildCardMod.Valuables
                 verticalSpeed = Random.value + 1f;
                 horizontalSpeed = (Random.value + 1f) * -1f;
             }
+            log.LogDebug($"{gameObject.name} selecting new speeds: Up/Down \"{verticalSpeed}\", Left/Right \"{horizontalSpeed}\"");
         }
         public void SetTexture(int index)
         {
             string name = floaterVariants[index].name;
+            log.LogDebug($"{gameObject.name}'s selected floater was \"{name}\"");
             switch (name)
             {
                 case "v0":

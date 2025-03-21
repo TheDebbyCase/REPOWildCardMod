@@ -2,6 +2,6 @@
 {
     public class WildCardUtils
     {
-        public bool pauseVoice = false;
+        public static WildCardUtils instance;
     }
 }

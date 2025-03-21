@@ -1,3 +1,11 @@
+## 0.5.3
+- Fixed Giwi Worm desyncs
+- Fixed Moo Cow player mooing not working properly
+- Centered the Moo Cow bounce animation
+- Added a button toggle to the Smith Halo to thrust it forwards
+- Added a bounce animation to Fixated's Nose
+- Added a bunch of debug lines
+
 ## 0.5.2
 - Fixed Pixel Jars materials being global
 - Improved visuals and audio of Smith Halo

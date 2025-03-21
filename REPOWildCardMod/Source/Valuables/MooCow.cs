@@ -1,16 +1,14 @@
-﻿using REPOWildCardMod.Utils;
-using UnityEngine;
+﻿using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class MooCowValuable : MonoBehaviour
     {
-        public WildCardUtils utils = WildCardMod.utils;
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
         public PhysGrabObject physGrabObject;
         public Animator animator;
         public PhysicMaterial physMat;
         public Sound cowSounds;
         public float mooTimer;
-        public float playerMooTimer;
         public void Start()
         {
             physGrabObject.OverrideMaterial(physMat, -123f);
@@ -29,7 +27,7 @@ namespace REPOWildCardMod.Valuables
                 }
                 if (!cowSounds.Source.isPlaying && mooTimer <= 0f)
                 {
-                    EnemyDirector.instance.SetInvestigate(this.transform.position, 15f);
+                    EnemyDirector.instance.SetInvestigate(transform.position, 15f);
                     cowSounds.Play(physGrabObject.rb.worldCenterOfMass);
                     mooTimer = (Random.value + 0.25f) * 2f;
                 }
@@ -44,41 +42,30 @@ namespace REPOWildCardMod.Valuables
                 {
                     animator.SetBool("Grabbed", false);
                 }
-                if (utils.pauseVoice)
-                {
-                    utils.pauseVoice = false;
-                }
             }
         }
         public void Update()
         {
-            if (physGrabObject.grabbedLocal && SemiFunc.IsMultiplayer())
+            if (!SemiFunc.IsMultiplayer() || PhysGrabber.instance == null || !PhysGrabber.instance.grabbed || PhysGrabber.instance.grabbedPhysGrabObject == null || PhysGrabber.instance.grabbedPhysGrabObject != physGrabObject)
             {
-                if (!utils.pauseVoice)
+                return;
+            }
+            if (PlayerVoiceChat.instance.isTalking && !ChatManager.instance.chatActive)
+            {
+                int mooNum = new System.Random().Next(-3, 5);
+                if (mooNum <= 0)
                 {
-                    utils.pauseVoice = true;
+                    mooNum = 1;
                 }
-                if (PhysGrabber.instance.playerAvatar.voiceChat.isTalking && playerMooTimer <= 0 && !ChatManager.instance.chatActive)
+                string mooString = "moooo ";
+                for (int i = 1; i < mooNum; i++)
                 {
-                    int mooNum = new System.Random().Next(-3, 5);
-                    if (mooNum <= 0)
-                    {
-                        mooNum = 1;
-                    }
-                    string mooString = "moooo ";
-                    for (int i = 1; i < mooNum; i++)
-                    {
-                        mooString += mooString;
-                    }
-                    ChatManager.instance.PossessChatScheduleStart(9);
-                    ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, mooString, 2f, Color.blue);
-                    ChatManager.instance.PossessChatScheduleEnd();
-                    playerMooTimer = (Random.value + 0.5f) * (Random.value + 1f);
+                    mooString += mooString;
                 }
-                if (playerMooTimer >= 0f && !ChatManager.instance.chatActive)
-                {
-                    playerMooTimer -= Time.deltaTime;
-                }
+                log.LogDebug($"{gameObject.name} making player chat: \"{mooString}\"");
+                ChatManager.instance.PossessChatScheduleStart(9);
+                ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, mooString, 2f, Color.blue);
+                ChatManager.instance.PossessChatScheduleEnd();
             }
         }
         public void ImpactSquish()
