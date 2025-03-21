@@ -7,7 +7,8 @@ namespace REPOWildCardMod.Items
         public ItemMelee itemMelee;
         public Rigidbody rigidBody;
         public Animator animator;
-        public ParticleSystem particleSystem;
+        public ParticleSystem hitParticles;
+        public ParticleSystem dripParticles;
         public void Update()
         {
             if (physGrabObject.grabbedLocal)
@@ -29,10 +30,18 @@ namespace REPOWildCardMod.Items
             {
                 animator.SetFloat("Speed", 0.125f);
             }
+            if (itemMelee.isBroken && dripParticles.isPlaying)
+            {
+                dripParticles.Stop();
+            }
+            else if (!itemMelee.isBroken && !dripParticles.isPlaying)
+            {
+                dripParticles.Play();
+            }
         }
         public void Hit()
         {
-            particleSystem.Play();
+            hitParticles.Play();
         }
     }
 }

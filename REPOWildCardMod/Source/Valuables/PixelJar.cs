@@ -154,8 +154,8 @@ namespace REPOWildCardMod.Valuables
                         break;
                     }
             }
-            particleRenderer.sharedMaterial.mainTexture = floaterVariants[index];
-            particleRenderer.sharedMaterial.SetTexture("_EmissionMap", floaterVariants[index]);
+            particleRenderer.material.mainTexture = floaterVariants[index];
+            particleRenderer.material.SetTexture("_EmissionMap", floaterVariants[index]);
             RandomSpeed();
         }
         [PunRPC]

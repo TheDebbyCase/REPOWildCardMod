@@ -1,3 +1,8 @@
+## 0.5.2
+- Fixed Pixel Jars materials being global
+- Improved visuals and audio of Smith Halo
+- Updated preview image for Smith Halo
+
 ## 0.5.1
 - Fixed Pixel Jars floaters not working properly
 - Fixed Pixel Jars and Moo Cow voice effects not working properly
