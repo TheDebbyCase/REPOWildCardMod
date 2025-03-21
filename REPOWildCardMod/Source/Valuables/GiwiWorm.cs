@@ -32,7 +32,7 @@ namespace REPOWildCardMod.Valuables
         }
         public void Update()
         {
-            if (physGrabObject.grabbed)
+            if (physGrabObject.grabbedLocal)
             {
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
@@ -42,20 +42,16 @@ namespace REPOWildCardMod.Valuables
                 {
                     photonView.RPC("AddTransformRPC", RpcTarget.MasterClient, Array.IndexOf(allTransforms, PhysGrabber.instance.grabbedObjectTransform));
                 }
-                if (PhysGrabber.instance != null && physGrabObject.playerGrabbing.Contains(PhysGrabber.instance))
-                {
-                    PhysGrabber.instance.OverridePullDistanceIncrement(-0.5f * Time.fixedDeltaTime);
-                }
+                PhysGrabber.instance.OverridePullDistanceIncrement(-0.5f * Time.fixedDeltaTime);
+            }
+            if (physGrabObject.grabbed)
+            {
                 if (!giwiSounds.Source.isPlaying)
                 {
                     EnemyDirector.instance.SetInvestigate(transform.position, 10f);
                     giwiSounds.Play(rigidBodies[10].transform.position);
                     log.LogDebug($"{giwiSounds.Source.clip.name}");
                 }
-            }
-            else if (SemiFunc.IsMasterClientOrSingleplayer() && heldTransforms.Count > 0)
-            {
-                heldTransforms.Clear();
             }
             else
             {
@@ -66,6 +62,10 @@ namespace REPOWildCardMod.Valuables
                 if (physGrabObject.rb.centerOfMass != Vector3.zero)
                 {
                     physGrabObject.rb.centerOfMass = Vector3.zero;
+                }
+                if (SemiFunc.IsMasterClientOrSingleplayer() && heldTransforms.Count > 0)
+                {
+                    heldTransforms.Clear();
                 }
             }
             if (animTimer <= 0)
