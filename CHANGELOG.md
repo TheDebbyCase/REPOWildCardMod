@@ -1,3 +1,6 @@
+## 0.5.6
+- Fixed Giwi Worm eye animation stuttering
+
 ## 0.5.5
 - Potential fix for Giwi Worm audio and incorrect physics
 - Added a config option to disable patches related to Giwi Worm

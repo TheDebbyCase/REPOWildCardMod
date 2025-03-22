@@ -91,7 +91,10 @@ namespace REPOWildCardMod.Valuables
                 animator.SetFloat("Motion Time", Mathf.Lerp(startTime, targetTime, Mathf.Clamp01(animLerp)));
                 animLerp += Time.deltaTime * animSpeed;
             }
-            animTimer -= Time.deltaTime;
+            else
+            {
+                animTimer -= Time.deltaTime;
+            }
         }
         public void FixedUpdate()
         {
