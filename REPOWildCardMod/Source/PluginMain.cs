@@ -16,7 +16,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.5.4";
+        internal const string modVersion = "0.5.5";
         private readonly Harmony harmony = new Harmony(modGUID);
         internal static ManualLogSource log = null!;
         public static WildCardUtils utils = new WildCardUtils();
@@ -95,7 +95,15 @@ namespace REPOWildCardMod
                     log.LogInfo($"{itemList[i].name} item was disabled!");
                 }
             }
-            harmony.PatchAll();
+            if (ModConfig.harmonyPatches.Value)
+            {
+                log.LogDebug("Patching Game");
+                harmony.PatchAll();
+            }
+            else
+            {
+                log.LogInfo("Disabled Harmony Patches");
+            }
             log.LogInfo("WILDCARD REPO Successfully Loaded");
         }
     }

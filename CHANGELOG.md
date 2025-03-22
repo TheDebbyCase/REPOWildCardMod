@@ -1,3 +1,10 @@
+## 0.5.5
+- Potential fix for Giwi Worm audio and incorrect physics
+- Added a config option to disable patches related to Giwi Worm
+
+## 0.5.4
+- Potential fix for Giwi Worm audio
+
 ## 0.5.3
 - Fixed Giwi Worm desyncs
 - Fixed Moo Cow player mooing not working properly
