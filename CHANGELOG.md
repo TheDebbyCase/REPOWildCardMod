@@ -1,3 +1,6 @@
+## 0.5.7
+- FINALLY ACTUALLY FIXED GIWI
+
 ## 0.5.6
 - Fixed Giwi Worm eye animation stuttering
 
