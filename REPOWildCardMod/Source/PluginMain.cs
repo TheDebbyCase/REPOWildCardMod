@@ -7,7 +7,7 @@ using System.IO;
 using System.Collections.Generic;
 using REPOWildCardMod.Config;
 using HarmonyLib;
-using REPOWildCardMod.Utils;
+//using REPOWildCardMod.Utils;
 namespace REPOWildCardMod
 {
     [BepInPlugin(modGUID, modName, modVersion)]
@@ -19,7 +19,7 @@ namespace REPOWildCardMod
         internal const string modVersion = "0.5.7";
         private readonly Harmony harmony = new Harmony(modGUID);
         internal static ManualLogSource log = null!;
-        public static WildCardUtils utils = new WildCardUtils();
+        //public static WildCardUtils utils = new WildCardUtils();
         public static WildCardMod Instance;
         internal static WildCardConfig ModConfig {get; private set;} = null!;
         public static List<GameObject> valList = new List<GameObject>();

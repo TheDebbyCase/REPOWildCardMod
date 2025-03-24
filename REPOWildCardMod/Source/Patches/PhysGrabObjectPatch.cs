@@ -1,5 +1,6 @@
 ﻿using HarmonyLib;
 using Photon.Pun;
+using REPOWildCardMod.Valuables;
 using UnityEngine;
 namespace REPOWildCardMod.Patches
 {
@@ -11,35 +12,39 @@ namespace REPOWildCardMod.Patches
         [HarmonyPrefix]
         public static bool GrabLinkColliders(PhysGrabObject __instance, ref int playerPhotonID, ref int colliderID, ref UnityEngine.Vector3 point, ref UnityEngine.Vector3 cameraRelativeGrabbedForward, ref UnityEngine.Vector3 cameraRelativeGrabbedUp)
         {
-            log.LogDebug($"Replacing {nameof(PhysGrabObject.GrabLinkRPC)}");
-            PhysGrabber component = PhotonView.Find(playerPhotonID).GetComponent<PhysGrabber>();
-            component.physGrabPoint.position = point;
-            component.grabbedPhysGrabObjectColliderID = colliderID;
-            component.grabbedObjectTransform = __instance.FindColliderFromID(component.grabbedPhysGrabObjectColliderID);
-            component.localGrabPosition = component.grabbedObjectTransform.InverseTransformPoint(point);
-            component.grabbedPhysGrabObjectCollider = component.grabbedObjectTransform.GetComponent<Collider>();
-            component.grabbed = true;
-            Transform localCameraTransform = component.playerAvatar.localCameraTransform;
-            if (__instance.playerGrabbing.Count != 0)
+            if (__instance.transform.GetComponent<GiwiWormValuable>())
             {
-                component.cameraRelativeGrabbedForward = localCameraTransform.InverseTransformDirection(component.grabbedObjectTransform.forward);
-                component.cameraRelativeGrabbedUp = localCameraTransform.InverseTransformDirection(component.grabbedObjectTransform.up);
+                log.LogDebug($"Replacing {nameof(PhysGrabObject.GrabLinkRPC)}");
+                PhysGrabber component = PhotonView.Find(playerPhotonID).GetComponent<PhysGrabber>();
+                component.physGrabPoint.position = point;
+                component.grabbedPhysGrabObjectColliderID = colliderID;
+                component.grabbedObjectTransform = __instance.FindColliderFromID(component.grabbedPhysGrabObjectColliderID);
+                component.localGrabPosition = component.grabbedObjectTransform.InverseTransformPoint(point);
+                component.grabbedPhysGrabObjectCollider = component.grabbedObjectTransform.GetComponent<Collider>();
+                component.grabbed = true;
+                Transform localCameraTransform = component.playerAvatar.localCameraTransform;
+                if (__instance.playerGrabbing.Count != 0)
+                {
+                    component.cameraRelativeGrabbedForward = localCameraTransform.InverseTransformDirection(component.grabbedObjectTransform.forward);
+                    component.cameraRelativeGrabbedUp = localCameraTransform.InverseTransformDirection(component.grabbedObjectTransform.up);
+                }
+                else
+                {
+                    component.cameraRelativeGrabbedForward = localCameraTransform.InverseTransformDirection(component.grabbedObjectTransform.forward);
+                    component.cameraRelativeGrabbedUp = localCameraTransform.InverseTransformDirection(component.grabbedObjectTransform.up);
+                    __instance.camRelForward = component.grabbedObjectTransform.InverseTransformDirection(component.grabbedObjectTransform.forward);
+                    __instance.camRelUp = component.grabbedObjectTransform.InverseTransformDirection(component.grabbedObjectTransform.up);
+                }
+                component.cameraRelativeGrabbedForward = component.cameraRelativeGrabbedForward.normalized;
+                component.cameraRelativeGrabbedUp = component.cameraRelativeGrabbedUp.normalized;
+                if (component.photonView.IsMine)
+                {
+                    Vector3 localGrabPosition = component.localGrabPosition;
+                    __instance.photonView.RPC("GrabPointSyncRPC", RpcTarget.All, playerPhotonID, localGrabPosition);
+                }
+                return false;
             }
-            else
-            {
-                component.cameraRelativeGrabbedForward = localCameraTransform.InverseTransformDirection(component.grabbedObjectTransform.forward);
-                component.cameraRelativeGrabbedUp = localCameraTransform.InverseTransformDirection(component.grabbedObjectTransform.up);
-                __instance.camRelForward = component.grabbedObjectTransform.InverseTransformDirection(component.grabbedObjectTransform.forward);
-                __instance.camRelUp = component.grabbedObjectTransform.InverseTransformDirection(component.grabbedObjectTransform.up);
-            }
-            component.cameraRelativeGrabbedForward = component.cameraRelativeGrabbedForward.normalized;
-            component.cameraRelativeGrabbedUp = component.cameraRelativeGrabbedUp.normalized;
-            if (component.photonView.IsMine)
-            {
-                Vector3 localGrabPosition = component.localGrabPosition;
-                __instance.photonView.RPC("GrabPointSyncRPC", RpcTarget.All, playerPhotonID, localGrabPosition);
-            }
-            return false;
+            return true;
         }
     }
 }
