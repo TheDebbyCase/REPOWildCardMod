@@ -1,3 +1,6 @@
+## 0.5.8
+- Made the Giwi fix dependant on Giwi as it breaks all other items
+
 ## 0.5.7
 - FINALLY ACTUALLY FIXED GIWI
 
