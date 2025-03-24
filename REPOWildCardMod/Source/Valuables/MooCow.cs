@@ -9,6 +9,7 @@ namespace REPOWildCardMod.Valuables
         public PhysicMaterial physMat;
         public Sound cowSounds;
         public float mooTimer;
+        public float playerMooTimer = 0f;
         public void Start()
         {
             physGrabObject.OverrideMaterial(physMat, -123f);
@@ -50,14 +51,14 @@ namespace REPOWildCardMod.Valuables
             {
                 return;
             }
-            if (PlayerVoiceChat.instance.isTalking && !ChatManager.instance.chatActive)
+            if (PlayerVoiceChat.instance.isTalking && !ChatManager.instance.chatActive && playerMooTimer == 0f)
             {
                 int mooNum = new System.Random().Next(-3, 5);
                 if (mooNum <= 0)
                 {
                     mooNum = 1;
                 }
-                string mooString = "moooo ";
+                string mooString = "moo ";
                 for (int i = 1; i < mooNum; i++)
                 {
                     mooString += mooString;
@@ -66,6 +67,15 @@ namespace REPOWildCardMod.Valuables
                 ChatManager.instance.PossessChatScheduleStart(9);
                 ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, mooString, 2f, Color.blue);
                 ChatManager.instance.PossessChatScheduleEnd();
+                playerMooTimer = 0.25f;
+            }
+            else if (playerMooTimer < 0f)
+            {
+                playerMooTimer = 0f;
+            }
+            else
+            {
+                playerMooTimer -= Time.deltaTime;
             }
         }
         public void ImpactSquish()

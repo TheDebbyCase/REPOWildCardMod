@@ -1,3 +1,7 @@
+## 0.6.0
+- Added Smith Note! Untested in multiplayer, expect issues as of right now
+- Fixed issue where Moo Cow would make the player moo too much
+
 ## 0.5.8
 - Made the Giwi fix dependant on Giwi as it breaks all other items
 

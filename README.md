@@ -64,6 +64,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Smith Note</summary>
+	
+	Original designs by me!  
+	Not to be taken seriously
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/SmithNotePreview.png)
+	
+	</details>
+
 I hope to add more soon! Make suggestions on BlueSky!
 
 ## WILDCARD

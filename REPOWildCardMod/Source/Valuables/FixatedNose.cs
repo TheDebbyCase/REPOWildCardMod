@@ -20,7 +20,7 @@ namespace REPOWildCardMod.Valuables
         public void NoseExplode()
         {
             enemyInvestigateRange = 15f;
-            if (Vector3.Distance(transform.position, PlayerController.instance.playerAvatar.transform.position) < 15f)
+            if (Vector3.Distance(transform.position, PlayerAvatar.instance.clientPosition) < 15f)
             {
                 CameraGlitch.Instance.PlayTiny();
             }

@@ -7,7 +7,7 @@ using System.IO;
 using System.Collections.Generic;
 using REPOWildCardMod.Config;
 using HarmonyLib;
-//using REPOWildCardMod.Utils;
+using REPOWildCardMod.Utils;
 namespace REPOWildCardMod
 {
     [BepInPlugin(modGUID, modName, modVersion)]
@@ -16,12 +16,12 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.5.8";
+        internal const string modVersion = "0.6.0";
         private readonly Harmony harmony = new Harmony(modGUID);
         internal static ManualLogSource log = null!;
-        //public static WildCardUtils utils = new WildCardUtils();
+        public static WildCardUtils utils = new WildCardUtils();
         public static WildCardMod Instance;
-        internal static WildCardConfig ModConfig {get; private set;} = null!;
+        internal static WildCardConfig ModConfig { get; private set; } = null!;
         public static List<GameObject> valList = new List<GameObject>();
         public static List<Item> itemList = new List<Item>();
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
