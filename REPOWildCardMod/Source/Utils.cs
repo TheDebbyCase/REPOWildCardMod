@@ -19,6 +19,10 @@
             {
                 return true;
             }
+            else if (first == second[1..] || first == second[..(second.Length - 2)])
+            {
+                return true;
+            }
             else if (firstReplaced == secondReplaced)
             {
                 return true;
@@ -28,6 +32,10 @@
                 return true;
             }
             else if (firstReplaced == secondReplaced.TrimStart() || firstReplaced == secondReplaced.TrimEnd())
+            {
+                return true;
+            }
+            else if (firstReplaced == secondReplaced[1..] || firstReplaced == secondReplaced[..(secondReplaced.Length - 2)])
             {
                 return true;
             }

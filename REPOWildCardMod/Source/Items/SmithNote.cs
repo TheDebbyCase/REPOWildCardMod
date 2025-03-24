@@ -308,20 +308,26 @@ namespace REPOWildCardMod.Items
         {
             int id = Array.FindIndex(pageText, (x) => x.text.Contains(name));
             string newText;
+            string previousString = string.Empty;
             for (int i = 1; i < name.Length; i++)
             {
-                if (i > 1)
+                if (i == 1)
+                {
+                    newText = pageText[id].text.Replace(name, $"<color=\"red\"><s>{name[..i]}</s>{name[i..]}</color>");
+                }
+                else
                 {
                     yield return new WaitForSeconds(2f / (name.Length - 1));
+                    newText = pageText[id].text.Replace(previousString, $"<color=\"red\"><s>{name[..i]}</s>{name[i..]}</color>");
                 }
-                newText = pageText[id].text.Replace(name, $"<color=\"red\"><s>{name[..i]}</s>{name[i..]}</color>");
                 SetPageText(id, newText);
+                previousString = newText;
             }
             crawlerCoroutine = null;
         }
         public IEnumerator KillCoroutine(string killer)
         {
-            log.LogDebug($"Smith Note kill sent by player: {killer}");
+            log.LogDebug($"Smith Note kill sent by player: {SemiFunc.PlayerGetFromSteamID(killer).playerName}");
             bookSound.Sounds = new AudioClip[] { audioClips[4] };
             bookSound.Play(CameraGlitch.Instance.transform.position, 0.5f);
             KillerSoundRPC(false, killer);
@@ -329,7 +335,7 @@ namespace REPOWildCardMod.Items
             if (SemiFunc.IsMultiplayer())
             {
                 ChatManager.instance.PossessSelfDestruction();
-                photonView.RPC("KillerSoundRPC", RpcTarget.All, killer);
+                photonView.RPC("KillerSoundRPC", RpcTarget.All, true, killer);
             }
             else
             {

@@ -1,3 +1,6 @@
+## 0.6.1
+- Fixed an error and some minor issues with the Smith Note
+
 ## 0.6.0
 - Added Smith Note! Untested in multiplayer, expect issues as of right now
 - Fixed issue where Moo Cow would make the player moo too much
