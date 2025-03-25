@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using REPOWildCardMod.Config;
 using HarmonyLib;
 using REPOWildCardMod.Utils;
+using REPOWildCardMod.Valuables;
 namespace REPOWildCardMod
 {
     [BepInPlugin(modGUID, modName, modVersion)]
@@ -16,7 +17,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.6.0";
+        internal const string modVersion = "0.6.3";
         private readonly Harmony harmony = new Harmony(modGUID);
         internal static ManualLogSource log = null!;
         public static WildCardUtils utils = new WildCardUtils();
@@ -75,8 +76,32 @@ namespace REPOWildCardMod
             {
                 if (ModConfig.isValEnabled[i].Value)
                 {
-                    REPOLib.Modules.Valuables.RegisterValuable(valList[i]);
-                    log.LogDebug($"{valList[i].name} valuable was loaded!");
+                    bool register = true;
+                    if (valList[i].TryGetComponent(out DummyValuable dummy))
+                    {
+                        switch (dummy.script.GetType().ToString())
+                        {
+                            case "Item":
+                                {
+                                    itemList.Add((Item)dummy.script);
+                                    break;
+                                }
+                            default:
+                                {
+                                    register = false;
+                                    break;
+                                }
+                        }
+                    }
+                    if (register)
+                    {
+                        REPOLib.Modules.Valuables.RegisterValuable(valList[i]);
+                        log.LogDebug($"{valList[i].name} valuable was loaded!");
+                    }
+                    else
+                    {
+                        log.LogInfo($"{valList[i].name} dummy did not have a valid setup");
+                    }
                 }
                 else
                 {
@@ -85,7 +110,7 @@ namespace REPOWildCardMod
             }
             for (int i = 0; i < itemList.Count; i++)
             {
-                if (ModConfig.isItemEnabled[i].Value)
+                if (i >= ModConfig.isItemEnabled.Count || ModConfig.isItemEnabled[i].Value)
                 {
                     REPOLib.Modules.Items.RegisterItem(itemList[i]);
                     log.LogDebug($"{itemList[i].name} item was loaded!");

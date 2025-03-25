@@ -1,3 +1,7 @@
+## 0.6.3
+- Removed the Smith Note from the shop, instead made it spawn on runs!
+- Fixed Smith Note text not working properly upon killing someone (probably)
+
 ## 0.6.2
 - Made the Smith Note unusable in the shop in singleplayer
 - Removed the ability to spam kill on the same player using the Smith Note

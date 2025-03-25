@@ -12,9 +12,11 @@ namespace REPOWildCardMod.Items
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
         public PhotonView photonView;
         public PhysGrabObject physGrabObject;
+        public ItemAttributes itemAttributes;
         public ItemBattery itemBattery;
         public ItemToggle itemToggle;
         public ItemEquippable itemEquippable;
+        public RoomVolumeCheck roomVolumeCheck;
         public Sound bookSound;
         public Sound musicSound;
         public bool musicPlaying;
@@ -51,6 +53,10 @@ namespace REPOWildCardMod.Items
         }
         public void Update()
         {
+            if (SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.RunIsLevel() && RoundDirector.instance.allExtractionPointsCompleted && (roomVolumeCheck.inTruck || itemEquippable.isEquipped) && StatsManager.instance.itemsPurchased[itemAttributes.item.itemAssetName] == 0)
+            {
+                StatsManager.instance.ItemPurchase(itemAttributes.item.itemAssetName);
+            }
             if (physGrabObject.grabbedLocal && !overriding && itemEquippable.currentState == ItemEquippable.ItemState.Idle && (!PhysGrabber.instance.overrideGrab || PhysGrabber.instance.overrideGrabTarget != physGrabObject))
             {
                 itemEquippable.ForceGrab();
@@ -169,7 +175,7 @@ namespace REPOWildCardMod.Items
                 {
                     animNormal = 1f;
                 }
-                if (!SemiFunc.IsMultiplayer() && itemToggle.toggleState && charged && !SemiFunc.RunIsShop() && !playersDead[PlayerAvatar.instance.playerName])
+                if (!SemiFunc.IsMultiplayer() && itemToggle.toggleState && charged && SemiFunc.RunIsLevel() && !playersDead[PlayerAvatar.instance.playerName])
                 {
                     KillPlayer(PlayerAvatar.instance.playerName);
                 }
@@ -325,20 +331,22 @@ namespace REPOWildCardMod.Items
         {
             int id = Array.FindIndex(pageText, (x) => x.text.Contains(name));
             string newText;
-            string previousString = string.Empty;
-            for (int i = 1; i < name.Length; i++)
+            string prevReplacer = string.Empty;
+            if (name.Length >= 2)
             {
-                if (i == 1)
-                {
-                    newText = pageText[id].text.Replace(name, $"<color=\"red\"><s>{name[..i]}</s>{name[i..]}</color>");
-                }
-                else
-                {
-                    yield return new WaitForSeconds(2f / (name.Length - 1));
-                    newText = pageText[id].text.Replace(previousString, $"<color=\"red\"><s>{name[..i]}</s>{name[i..]}</color>");
-                }
+                prevReplacer = $"<color=\"red\"><s>{name[..1]}</s>{name[1..]}</color>";
+                newText = pageText[id].text.Replace(name, prevReplacer);
+            }
+            else
+            {
+                newText = pageText[id].text.Replace(name, $"<color=\"red\"><s>{name}</s></color>");
+            }
+            for (int i = 2; i < name.Length; i++)
+            {
+                yield return new WaitForSeconds(2f / (name.Length - 1));
+                newText = pageText[id].text.Replace(prevReplacer, $"<color=\"red\"><s>{name[..i]}</s>{name[i..]}</color>");
                 SetPageText(id, newText);
-                previousString = newText;
+                prevReplacer = $"<color=\"red\"><s>{name[..i]}</s>{name[i..]}</color>";
             }
             crawlerCoroutine = null;
         }
