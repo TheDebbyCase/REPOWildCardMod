@@ -1,3 +1,7 @@
+## 0.6.4
+- Added the ability for Smith Note to target enemies
+- In singleplayer, the Smith Note will select a random enemy to kill rather than killing the player
+
 ## 0.6.3
 - Removed the Smith Note from the shop, instead made it spawn on runs!
 - Fixed Smith Note text not working properly upon killing someone (probably)

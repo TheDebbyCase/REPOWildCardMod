@@ -27,12 +27,18 @@ namespace REPOWildCardMod.Items
         public ParticleSystem[] particleSystems;
         public Color particlesStartColor;
         public Dictionary<string, bool> playersDead = new Dictionary<string, bool>();
+        public Dictionary<string, List<EnemyParent>> spawnedEnemies = new Dictionary<string, List<EnemyParent>>();
         public float animNormal = 0f;
         public bool opened;
         public bool charged;
         public bool overriding = false;
         public Coroutine crawlerCoroutine = null;
         public Vector3 forceRotation = new Vector3(-75f, 0f, 15f);
+        private System.Random random;
+        public void Start()
+        {
+            random = new System.Random();
+        }
         public void FixedUpdate()
         {
             if (physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
@@ -70,84 +76,15 @@ namespace REPOWildCardMod.Items
             }
             if (physGrabObject.grabbed && !opened)
             {
-                RefreshPlayerListRPC();
                 bookSound.Sounds = new AudioClip[] { audioClips[0] };
                 bookSound.Play(transform.position);
+                if (SemiFunc.IsMasterClientOrSingleplayer())
+                {
+                    RefreshLists();
+                }
                 for (int i = 0; i < pageText.Length; i++)
                 {
                     pageText[i].gameObject.SetActive(true);
-                }
-                if (SemiFunc.IsMasterClientOrSingleplayer())
-                {
-                    string pageOneString = string.Empty;
-                    string pageTwoString = string.Empty;
-                    List<string> playerNames = playersDead.Keys.ToList();
-                    playerNames.Sort();
-                    if (playersDead.Count <= 6)
-                    {
-                        for (int i = 0; i < Mathf.Min(playersDead.Count, 3); i++)
-                        {
-                            if (playersDead[playerNames[i]])
-                            {
-                                pageOneString += $"<color=\"red\"><s>{playerNames[i]}<s></color>\n";
-                            }
-                            else
-                            {
-                                pageOneString += $"{playerNames[i]}\n";
-                            }
-                        }
-                        pageOneString.Remove(pageOneString.Length - 2);
-                        SetPageText(0, pageOneString);
-                        if (playersDead.Count > 3)
-                        {
-                            for (int i = 3; i < Mathf.Min(playersDead.Count, 6); i++)
-                            {
-                                if (playersDead[playerNames[i]])
-                                {
-                                    pageTwoString += $"<color=\"red\"><s>{playerNames[i]}<s></color>\n";
-                                }
-                                else
-                                {
-                                    pageTwoString += $"{playerNames[i]}\n";
-                                }
-                            }
-                            pageTwoString.Remove(pageTwoString.Length - 2);
-                            SetPageText(1, pageTwoString);
-                        }
-                        else
-                        {
-                            SetPageText(1, string.Empty);
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < Mathf.Max(Mathf.FloorToInt((float)playersDead.Count / 2f), 6); i++)
-                        {
-                            if (playersDead[playerNames[i]])
-                            {
-                                pageOneString += $"<color=\"red\"><s>{playerNames[i]}<s></color>\n";
-                            }
-                            else
-                            {
-                                pageOneString += $"{playerNames[i]}\n";
-                            }
-                        }
-                        pageOneString.Remove(pageOneString.Length - 2);
-                        SetPageText(0, pageOneString);
-                        for (int i = Mathf.Max(Mathf.FloorToInt((float)playersDead.Count / 2f), 6); i < playersDead.Count; i++)
-                        {
-                            if (playersDead[playerNames[i]])
-                            {
-                                pageTwoString += $"<s>{playerNames[i]}<s>\n";
-                            }
-                            else
-                            {
-                                pageTwoString += $"{playerNames[i]}\n";
-                            }
-                        }
-                        pageTwoString.Remove(pageTwoString.Length - 2);
-                        SetPageText(1, pageTwoString);
-                    }
                 }
                 opened = true;
             }
@@ -177,7 +114,8 @@ namespace REPOWildCardMod.Items
                 }
                 if (!SemiFunc.IsMultiplayer() && itemToggle.toggleState && charged && SemiFunc.RunIsLevel() && !playersDead[PlayerAvatar.instance.playerName])
                 {
-                    KillPlayer(PlayerAvatar.instance.playerName);
+                    RefreshLists();
+                    KillMessage(spawnedEnemies.ElementAt(random.Next(0, spawnedEnemies.Count)).Key);
                 }
             }
             else
@@ -191,6 +129,7 @@ namespace REPOWildCardMod.Items
                     if (crawlerCoroutine != null)
                     {
                         StopCoroutine(crawlerCoroutine);
+                        CalculatePages();
                         crawlerCoroutine = null;
                     }
                     for (int i = 0; i < pageText.Length; i++)
@@ -243,25 +182,120 @@ namespace REPOWildCardMod.Items
                 }
             }
         }
-        public void RefreshPlayerList()
+        public void CalculatePages()
         {
-            if (GameManager.Multiplayer())
+            string pageOneString = string.Empty;
+            string pageTwoString = string.Empty;
+            List<string> playerNames = playersDead.Keys.ToList();
+            List<string> enemyNames = spawnedEnemies.Keys.ToList();
+            playerNames.Sort();
+            if (playersDead.Count <= 12)
             {
-                photonView.RPC("RefreshPlayerListRPC", RpcTarget.All);
+                for (int i = 0; i < playersDead.Count; i++)
+                {
+                    if (playersDead[playerNames[i]])
+                    {
+                        pageOneString += $"<color=\"red\"><s>{playerNames[i]}<s></color>\n";
+                    }
+                    else
+                    {
+                        pageOneString += $"{playerNames[i]}\n";
+                    }
+                }
+                pageOneString.TrimEnd('\n');
+                SetPageText(0, pageOneString);
+                for (int i = 0; i < Mathf.Min(enemyNames.Count, 12); i++)
+                {
+                    pageTwoString += $"{enemyNames[i]}\n";
+                }
+                pageTwoString.TrimEnd('\n');
+                SetPageText(1, pageTwoString);
             }
             else
             {
-                RefreshPlayerListRPC();
+                List<string> combinedList = (List<string>)playerNames.Concat(enemyNames);
+                for (int i = 0; i < Mathf.Min(Mathf.FloorToInt((float)combinedList.Count / 2f), 12); i++)
+                {
+                    if (playersDead.ContainsKey(combinedList[i]) && playersDead[combinedList[i]])
+                    {
+                        pageOneString += $"<color=\"red\"><s>{combinedList[i]}<s></color>\n";
+                    }
+                    else
+                    {
+                        pageOneString += $"{combinedList[i]}\n";
+                    }
+                }
+                pageOneString.TrimEnd('\n');
+                SetPageText(0, pageOneString);
+                for (int i = 0; i < Mathf.Min(Mathf.CeilToInt((float)combinedList.Count / 2f), 12); i++)
+                {
+                    if (playersDead.ContainsKey(combinedList[i]) && playersDead[combinedList[i]])
+                    {
+                        pageTwoString += $"<color=\"red\"><s>{combinedList[i]}<s></color>\n";
+                    }
+                    else
+                    {
+                        pageTwoString += $"{combinedList[i]}\n";
+                    }
+                }
+                pageTwoString.TrimEnd('\n');
+                SetPageText(1, pageTwoString);
+            }
+        }
+        public void RefreshLists()
+        {
+            if (GameManager.Multiplayer())
+            {
+                photonView.RPC("RefreshListsRPC", RpcTarget.All);
+            }
+            else
+            {
+                RefreshListsRPC();
             }
         }
         [PunRPC]
-        public void RefreshPlayerListRPC()
+        public void RefreshListsRPC()
         {
             if (crawlerCoroutine != null)
             {
                 StopCoroutine(crawlerCoroutine);
+                CalculatePages();
                 crawlerCoroutine = null;
             }
+            RefreshPlayerList();
+            if (SemiFunc.RunIsLevel())
+            {
+                RefreshEnemiesList();
+            }
+            else
+            {
+                spawnedEnemies.Clear();
+            }
+        }
+        public void RefreshEnemiesList()
+        {
+            Dictionary<string, List<EnemyParent>> newDict = new Dictionary<string, List<EnemyParent>>();
+            int enemyCount = EnemyDirector.instance.enemiesSpawned.Count;
+            for (int i = 0; i < enemyCount; i++)
+            {
+                EnemyParent enemy = EnemyDirector.instance.enemiesSpawned[i];
+                if (!newDict.ContainsKey(enemy.enemyName))
+                {
+                    newDict.Add(enemy.enemyName, new List<EnemyParent> { enemy });
+                }
+                else
+                {
+                    newDict[enemy.enemyName].Add(enemy);
+                }
+                log.LogDebug($"{enemy.enemyName} added to Smith Note list");
+            }
+            if (spawnedEnemies != newDict)
+            {
+                spawnedEnemies = newDict;
+            }
+        }
+        public void RefreshPlayerList()
+        {
             Dictionary<string, bool> newDict = new Dictionary<string, bool>();
             for (int i = 0; i < GameDirector.instance.PlayerList.Count; i++)
             {
@@ -291,40 +325,110 @@ namespace REPOWildCardMod.Items
             log.LogDebug($"Page {id} text: \"{text}\"");
             pageText[id].text = text;
         }
-        public void KillPlayer(string player)
+        public void KillMessage(string message)
         {
-            RefreshPlayerList();
-            player = playersDead.Keys.ToList().Find((x) => WildCardMod.utils.TextIsSimilar(player, x));
-            log.LogDebug($"Smith Note killing player: {player}");
-            bookSound.Sounds = new AudioClip[] { audioClips[1] };
-            bookSound.Play(transform.position);
-            if (crawlerCoroutine != null)
+            RefreshLists();
+            string player = playersDead.Keys.ToList().Find((x) => WildCardMod.utils.TextIsSimilar(message, x));
+            string enemy = spawnedEnemies.Keys.ToList().Find((x) => WildCardMod.utils.TextIsSimilar(message, x));
+            if ((player == null || player == string.Empty) && (enemy == null || enemy == string.Empty))
             {
-                StopCoroutine(crawlerCoroutine);
-                crawlerCoroutine = null;
-            }
-            crawlerCoroutine = StartCoroutine(CrawlingCrossCoroutine(player));
-            if (SemiFunc.IsMultiplayer())
-            {
-                photonView.RPC("KillPlayerRPC", RpcTarget.All, player, PlayerAvatar.instance.steamID);
+                log.LogDebug($"Message reading \"{message}\" was not one of the Smith Note's targets");
+                return;
             }
             else
             {
-                KillPlayerRPC(player, PlayerAvatar.instance.steamID);
+                bookSound.Sounds = new AudioClip[] { audioClips[1] };
+                bookSound.Play(transform.position);
+                log.LogDebug($"Smith Note killing {message}");
+                if (crawlerCoroutine != null)
+                {
+                    StopCoroutine(crawlerCoroutine);
+                    CalculatePages();
+                    crawlerCoroutine = null;
+                }
+            }
+            if (player != null && player != string.Empty)
+            {
+                crawlerCoroutine = StartCoroutine(CrawlingCrossCoroutine(player));
+                if (SemiFunc.IsMultiplayer())
+                {
+                    photonView.RPC("KillPlayerRPC", RpcTarget.All, player, PlayerAvatar.instance.steamID);
+                }
+                else
+                {
+                    KillPlayerRPC(player, PlayerAvatar.instance.steamID);
+                }
+            }
+            else
+            {
+                if (SemiFunc.IsMultiplayer())
+                {
+                    photonView.RPC("KillEnemyRPC", RpcTarget.MasterClient, enemy, PlayerAvatar.instance.steamID);
+                }
+                else
+                {
+                    KillEnemyRPC(enemy, PlayerAvatar.instance.steamID);
+                }
+            }
+        }
+        [PunRPC]
+        public void KillEnemyRPC(string enemy, string killer)
+        {
+            StartCoroutine(KillEnemyCoroutine(enemy, killer));
+        }
+        public IEnumerator KillEnemyCoroutine(string enemy, string killer)
+        {
+            log.LogDebug($"Smith Note kill for enemy: {enemy}, sent by player: {SemiFunc.PlayerGetFromSteamID(killer).playerName}");
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC("KilledRPC", RpcTarget.All, false, killer);
+            }
+            else
+            {
+                KilledRPC(false, killer);
+            }
+            yield return new WaitForSeconds(5f);
+            EnemyParent selectedEnemy = spawnedEnemies[enemy].ElementAt(random.Next(0, spawnedEnemies[enemy].Count));
+            EnemyHealth enemyHealth = selectedEnemy.GetComponentInChildren<EnemyHealth>();
+            if (selectedEnemy.enemyName == "Gnome" || selectedEnemy.enemyName == "Banger")
+            {
+                for (int i = 0; i < spawnedEnemies[enemy].Count; i++)
+                {
+                    enemyHealth = spawnedEnemies[enemy][i].GetComponentInChildren<EnemyHealth>();
+                    if (enemyHealth != null)
+                    {
+                        enemyHealth.Death(Vector3.down);
+                    }
+                    else
+                    {
+                        log.LogDebug($"Smith Note failed to kill a {selectedEnemy.enemyName}");
+                    }
+                }
+            }
+            else if (enemyHealth != null)
+            {
+                enemyHealth.Death(Vector3.down);
+            }
+            else
+            {
+                log.LogDebug($"Smith Note failed to kill {selectedEnemy.enemyName}");
+            }
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC("KilledRPC", RpcTarget.All, true, killer);
+            }
+            else
+            {
+                KilledRPC(true, killer);
             }
         }
         [PunRPC]
         public void KillPlayerRPC(string player, string killer)
         {
-            if (player != null && playersDead.ContainsKey(player))
+            playersDead[player] = true;
+            if (PlayerAvatar.instance == SemiFunc.PlayerGetFromName(player))
             {
-                playersDead[player] = true;
-                if (PlayerAvatar.instance == SemiFunc.PlayerGetFromName(player))
-                {
-                    StartCoroutine(KillCoroutine(killer));
-                }
-                itemBattery.SetBatteryLife(0);
-                itemToggle.ToggleItem(toggle: false);
+                StartCoroutine(KillPlayerCoroutine(killer));
             }
         }
         public IEnumerator CrawlingCrossCoroutine(string name)
@@ -348,14 +452,22 @@ namespace REPOWildCardMod.Items
                 SetPageText(id, newText);
                 prevReplacer = $"<color=\"red\"><s>{name[..i]}</s>{name[i..]}</color>";
             }
+            CalculatePages();
             crawlerCoroutine = null;
         }
-        public IEnumerator KillCoroutine(string killer)
+        public IEnumerator KillPlayerCoroutine(string killer)
         {
             log.LogDebug($"Smith Note kill sent by player: {SemiFunc.PlayerGetFromSteamID(killer).playerName}");
             bookSound.Sounds = new AudioClip[] { audioClips[4] };
             bookSound.Play(CameraGlitch.Instance.transform.position, 0.5f);
-            KilledRPC(false, killer);
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC("KilledRPC", RpcTarget.All, false, killer);
+            }
+            else
+            {
+                KilledRPC(false, killer);
+            }
             yield return new WaitForSeconds(5f);
             if (SemiFunc.IsMultiplayer())
             {
@@ -372,9 +484,17 @@ namespace REPOWildCardMod.Items
         [PunRPC]
         public void KilledRPC(bool dead, string killer)
         {
+            if (!dead)
+            {
+                itemBattery.SetBatteryLife(0);
+                itemToggle.ToggleItem(toggle: false);
+            }
+            else
+            {
+                RefreshLists();
+            }
             if (PlayerAvatar.instance == SemiFunc.PlayerAvatarGetFromSteamID(killer))
             {
-                RefreshPlayerList();
                 if (dead)
                 {
                     bookSound.Sounds = new AudioClip[] { audioClips[3] };
