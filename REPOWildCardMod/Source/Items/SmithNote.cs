@@ -300,8 +300,9 @@ namespace REPOWildCardMod.Items
             for (int i = 0; i < GameDirector.instance.PlayerList.Count; i++)
             {
                 PlayerAvatar player = GameDirector.instance.PlayerList[i];
-                newDict.Add(player.playerName, player.deadSet || (playersDead.Count > 0 && playersDead[player.playerName]));
-                log.LogDebug($"{player.playerName} added to Smith Note list, dead: {newDict[player.playerName]}");
+                string name = WildCardMod.utils.CleanText(player.playerName);
+                newDict.Add(name, player.deadSet || (playersDead.Count > 0 && playersDead[name]));
+                log.LogDebug($"{name} added to Smith Note list, dead: {newDict[name]}");
             }
             if (playersDead != newDict)
             {

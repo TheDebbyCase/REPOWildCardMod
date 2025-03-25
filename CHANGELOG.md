@@ -1,3 +1,6 @@
+## 0.6.5
+- Added a text cleaner to make untypeable steam usernames typeable into the Smith Note
+
 ## 0.6.4
 - Added the ability for Smith Note to target enemies
 - In singleplayer, the Smith Note will select a random enemy to kill rather than killing the player

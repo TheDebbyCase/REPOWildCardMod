@@ -1,4 +1,5 @@
-﻿namespace REPOWildCardMod.Utils
+﻿using System.Text.RegularExpressions;
+namespace REPOWildCardMod.Utils
 {
     public class WildCardUtils
     {
@@ -40,6 +41,15 @@
                 return true;
             }
             return false;
+        }
+        public string CleanText(string text)
+        {
+            string newText = Regex.Replace(text, @"[^\u0000-\u007F]+", string.Empty);
+            if (newText == string.Empty)
+            {
+                newText = $"this is nicer {text.Length}";
+            }
+            return newText;
         }
     }
 }
