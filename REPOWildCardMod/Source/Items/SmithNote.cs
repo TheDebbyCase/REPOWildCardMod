@@ -31,10 +31,6 @@ namespace REPOWildCardMod.Items
         public bool overriding = false;
         public Coroutine crawlerCoroutine = null;
         public Vector3 forceRotation = new Vector3(-75f, 0f, 15f);
-        public void Start()
-        {
-            RefreshPlayerList();
-        }
         public void FixedUpdate()
         {
             if (physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
@@ -68,7 +64,7 @@ namespace REPOWildCardMod.Items
             }
             if (physGrabObject.grabbed && !opened)
             {
-                RefreshPlayerList();
+                RefreshPlayerListRPC();
                 bookSound.Sounds = new AudioClip[] { audioClips[0] };
                 bookSound.Play(transform.position);
                 for (int i = 0; i < pageText.Length; i++)
@@ -173,7 +169,7 @@ namespace REPOWildCardMod.Items
                 {
                     animNormal = 1f;
                 }
-                if (!SemiFunc.IsMultiplayer() && itemToggle.toggleState && charged)
+                if (!SemiFunc.IsMultiplayer() && itemToggle.toggleState && charged && !SemiFunc.RunIsShop() && !playersDead[PlayerAvatar.instance.playerName])
                 {
                     KillPlayer(PlayerAvatar.instance.playerName);
                 }
@@ -186,6 +182,11 @@ namespace REPOWildCardMod.Items
                 }
                 else if (animNormal < 0f)
                 {
+                    if (crawlerCoroutine != null)
+                    {
+                        StopCoroutine(crawlerCoroutine);
+                        crawlerCoroutine = null;
+                    }
                     for (int i = 0; i < pageText.Length; i++)
                     {
                         pageText[i].gameObject.SetActive(false);
@@ -238,6 +239,23 @@ namespace REPOWildCardMod.Items
         }
         public void RefreshPlayerList()
         {
+            if (GameManager.Multiplayer())
+            {
+                photonView.RPC("RefreshPlayerListRPC", RpcTarget.All);
+            }
+            else
+            {
+                RefreshPlayerListRPC();
+            }
+        }
+        [PunRPC]
+        public void RefreshPlayerListRPC()
+        {
+            if (crawlerCoroutine != null)
+            {
+                StopCoroutine(crawlerCoroutine);
+                crawlerCoroutine = null;
+            }
             Dictionary<string, bool> newDict = new Dictionary<string, bool>();
             for (int i = 0; i < GameDirector.instance.PlayerList.Count; i++)
             {
@@ -292,7 +310,6 @@ namespace REPOWildCardMod.Items
         [PunRPC]
         public void KillPlayerRPC(string player, string killer)
         {
-            RefreshPlayerList();
             if (player != null && playersDead.ContainsKey(player))
             {
                 playersDead[player] = true;
@@ -330,25 +347,26 @@ namespace REPOWildCardMod.Items
             log.LogDebug($"Smith Note kill sent by player: {SemiFunc.PlayerGetFromSteamID(killer).playerName}");
             bookSound.Sounds = new AudioClip[] { audioClips[4] };
             bookSound.Play(CameraGlitch.Instance.transform.position, 0.5f);
-            KillerSoundRPC(false, killer);
+            KilledRPC(false, killer);
             yield return new WaitForSeconds(5f);
             if (SemiFunc.IsMultiplayer())
             {
                 ChatManager.instance.PossessSelfDestruction();
-                photonView.RPC("KillerSoundRPC", RpcTarget.All, true, killer);
+                photonView.RPC("KilledRPC", RpcTarget.All, true, killer);
             }
             else
             {
-                KillerSoundRPC(true, killer);
+                KilledRPC(true, killer);
                 PlayerAvatar.instance.playerHealth.health = 0;
                 PlayerAvatar.instance.playerHealth.Hurt(1, savingGrace: false);
             }
         }
         [PunRPC]
-        public void KillerSoundRPC(bool dead, string killer)
+        public void KilledRPC(bool dead, string killer)
         {
             if (PlayerAvatar.instance == SemiFunc.PlayerAvatarGetFromSteamID(killer))
             {
+                RefreshPlayerList();
                 if (dead)
                 {
                     bookSound.Sounds = new AudioClip[] { audioClips[3] };

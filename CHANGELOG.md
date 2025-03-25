@@ -1,3 +1,8 @@
+## 0.6.2
+- Made the Smith Note unusable in the shop in singleplayer
+- Removed the ability to spam kill on the same player using the Smith Note
+- Fixed some desyncs with the Smith Note
+
 ## 0.6.1
 - Fixed an error and some minor issues with the Smith Note
 
