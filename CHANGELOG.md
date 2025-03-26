@@ -1,3 +1,8 @@
+## 0.7.0
+- Added Clover Necklace! They tickle...
+- Adding preview image later
+- Made it so that the Smith Note requires full charge to be used
+
 ## 0.6.6
 - Made Smith Note single use per round for enemies, still unlimited for players
 

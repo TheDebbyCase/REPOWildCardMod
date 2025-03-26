@@ -95,15 +95,15 @@ namespace REPOWildCardMod.Items
             {
                 opened = false;
             }
-            if ((itemBattery.batteryLife <= 0f) && charged)
-            {
-                titleText.text = ":(";
-                charged = false;
-            }
-            else if (itemBattery.batteryLife > 0f && !charged)
+            if ((itemBattery.batteryLife >= 1f) && !charged)
             {
                 titleText.text = "SMITH\nNOTE";
                 charged = true;
+            }
+            else if (charged)
+            {
+                titleText.text = ":(";
+                charged = false;
             }
             if (opened)
             {
@@ -171,7 +171,6 @@ namespace REPOWildCardMod.Items
                             ParticleSystem.MainModule main = particleSystems[i].main;
                             main.startColor = new ParticleSystem.MinMaxGradient(particlesStartColor);
                             main.gravityModifierMultiplier = 1f;
-                            main.loop = true;
                             particleSystems[i].Play();
                         }
                     }
