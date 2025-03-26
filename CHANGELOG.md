@@ -1,3 +1,6 @@
+## 0.6.6
+- Made Smith Note single use per round for enemies, still unlimited for players
+
 ## 0.6.5
 - Added a text cleaner to make untypeable steam usernames typeable into the Smith Note
 
