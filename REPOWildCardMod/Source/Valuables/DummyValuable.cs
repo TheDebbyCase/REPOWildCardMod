@@ -20,11 +20,11 @@ namespace REPOWildCardMod.Valuables
                             log.LogDebug($"Spawning {item.itemName} from dummy!");
                             if (SemiFunc.IsMultiplayer())
                             {
-                                prefab = PhotonNetwork.InstantiateRoomObject(ResourcesHelper.GetItemPrefabPath(item), transform.position, item.spawnRotationOffset, 0);
+                                prefab = PhotonNetwork.InstantiateRoomObject(ResourcesHelper.GetItemPrefabPath(item), new Vector3(transform.position.x, transform.position.y + 0.125f, transform.position.z), item.spawnRotationOffset, 0);
                             }
                             else
                             {
-                                prefab = Instantiate(item.prefab, transform.position, item.spawnRotationOffset, transform.parent);
+                                prefab = Instantiate(item.prefab, new Vector3(transform.position.x, transform.position.y + 0.125f, transform.position.z), item.spawnRotationOffset);
                             }
                             prefab.SetActive(true);
                             log.LogDebug($"Spawned {prefab.name}!");

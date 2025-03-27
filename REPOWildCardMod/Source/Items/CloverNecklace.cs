@@ -54,7 +54,7 @@ namespace REPOWildCardMod.Items
                 itemToggle.ToggleDisable(true);
                 itemToggle.ToggleItem(false);
             }
-            beeAudio.PlayLoop(itemToggle.toggleState, 0.75f, 1f);
+            beeAudio.PlayLoop(itemToggle.toggleState, 1f, 0.25f);
             if (itemToggle.toggleState != itemBattery.batteryActive)
             {
                 log.LogDebug($"Clover Necklace activated? \"{itemToggle.toggleState}\"");

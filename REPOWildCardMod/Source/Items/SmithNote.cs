@@ -152,16 +152,19 @@ namespace REPOWildCardMod.Items
             }
             if (itemToggle.toggleState && charged)
             {
+                musicSound.PlayLoop(true, 0.75f, 0.75f);
                 if (!musicPlaying)
                 {
-                    musicSound.PlayLoop(true, 0.75f, 0.75f);
                     if (enemyExhaust)
                     {
                         for (int i = 0; i < particleSystems.Length; i++)
                         {
                             ParticleSystem.MainModule main = particleSystems[i].main;
                             main.startColor = new ParticleSystem.MinMaxGradient(Color.red);
+                            main.duration = 5f;
+                            main.loop = true;
                             main.gravityModifierMultiplier = 0f;
+                            particleSystems[i].Play();
                         }
                     }
                     else
@@ -170,6 +173,8 @@ namespace REPOWildCardMod.Items
                         {
                             ParticleSystem.MainModule main = particleSystems[i].main;
                             main.startColor = new ParticleSystem.MinMaxGradient(particlesStartColor);
+                            main.duration = 5f;
+                            main.loop = true;
                             main.gravityModifierMultiplier = 1f;
                             particleSystems[i].Play();
                         }
@@ -182,6 +187,12 @@ namespace REPOWildCardMod.Items
                 musicSound.PlayLoop(false, 0.75f, 0.75f);
                 if (musicPlaying)
                 {
+                    for (int i = 0; i < particleSystems.Length; i++)
+                    {
+                        ParticleSystem.MainModule main = particleSystems[i].main;
+                        main.duration = 1f;
+                        main.loop = false;
+                    }
                     musicPlaying = false;
                 }
             }

@@ -1,3 +1,9 @@
+## 0.7.3
+- Adjusted Smith Note spawn position so it doesn't fly outside of the map
+- Made Smith Note particles not follow the book
+- Attempted to fix particles and music not working properly for the Smith Note
+- Made Clover Necklace bee sounds fade out slower
+
 ## 0.7.2
 - Made Smith Halo self balance when not being held
 - Fixed Smith Note not displaying text properly
