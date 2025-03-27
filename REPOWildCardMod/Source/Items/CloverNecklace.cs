@@ -13,8 +13,42 @@ namespace REPOWildCardMod.Items
         public PropLight light;
         public Sound beeAudio;
         public Animator animator;
+        public Vector3 forceRotation = new Vector3(110f, 0f, 180f);
+        public bool holding;
+        public void FixedUpdate()
+        {
+            float animNormal = Mathf.InverseLerp(2.5f, 10f, rigidBody.velocity.magnitude);
+            if (animator.GetFloat("Normal") != animNormal)
+            {
+                animator.SetFloat("Normal", animNormal);
+            }
+            if (physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                int nonRotatingGrabbers = physGrabObject.playerGrabbing.Count;
+                for (int i = 0; i < physGrabObject.playerGrabbing.Count; i++)
+                {
+                    if (physGrabObject.playerGrabbing[i].isRotating)
+                    {
+                        nonRotatingGrabbers--;
+                    }
+                }
+                if (nonRotatingGrabbers == physGrabObject.playerGrabbing.Count)
+                {
+                    physGrabObject.TurnXYZ(Quaternion.Euler(forceRotation.x, 0f, 0f), Quaternion.Euler(0f, forceRotation.y, 0f), Quaternion.Euler(0f, 0f, forceRotation.z));
+                }
+            }
+        }
         public void Update()
         {
+            if (physGrabObject.grabbedLocal && !holding)
+            {
+                PhysGrabber.instance.OverrideGrabDistance(0.5f);
+                holding = true;
+            }
+            else if (!physGrabObject.grabbedLocal)
+            {
+                holding = false;
+            }
             if (itemBattery.batteryLife <= 0f && !itemToggle.disabled)
             {
                 itemToggle.ToggleDisable(true);
@@ -33,14 +67,6 @@ namespace REPOWildCardMod.Items
                 {
                     particleSystem.Play();
                 }
-            }
-        }
-        public void FixedUpdate()
-        {
-            float animNormal = Mathf.InverseLerp(2.5f, 10f, rigidBody.velocity.magnitude);
-            if (animator.GetFloat("Normal") != animNormal)
-            {
-                animator.SetFloat("Normal", animNormal);
             }
         }
         public void EnemyHit()

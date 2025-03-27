@@ -1,3 +1,10 @@
+## 0.7.1
+- Added a preview image for Clover Necklace
+- Made Clover Necklace auto-rotate when held
+- Fixed Clover Necklace being visible on first spawn
+- Fixed Clover Necklace activation causing player to crouch and pushing itself to the ground
+- Updated README
+
 ## 0.7.0
 - Added Clover Necklace! They tickle...
 - Adding preview image later

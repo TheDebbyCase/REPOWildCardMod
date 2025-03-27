@@ -74,6 +74,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Clover Necklace</summary>
+	
+	Original designs by [hodusae](https://hodusae.carrd.co/)  
+	Yes the bees
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/CloverNecklacePreview.png)
+	
+	</details>
+
 I hope to add more soon! Make suggestions on BlueSky!
 
 ## WILDCARD
