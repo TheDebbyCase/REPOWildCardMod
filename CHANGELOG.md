@@ -1,3 +1,8 @@
+## 0.7.2
+- Made Smith Halo self balance when not being held
+- Fixed Smith Note not displaying text properly
+- Changed the enemy list system for the Smith Note so it's more accurate
+
 ## 0.7.1
 - Added a preview image for Clover Necklace
 - Made Clover Necklace auto-rotate when held

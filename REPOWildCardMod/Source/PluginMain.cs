@@ -17,10 +17,10 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.7.1";
+        internal const string modVersion = "0.7.2";
         private readonly Harmony harmony = new Harmony(modGUID);
         internal static ManualLogSource log = null!;
-        public static WildCardUtils utils = new WildCardUtils();
+        public static WildCardUtils utils;
         public static WildCardMod Instance;
         internal static WildCardConfig ModConfig { get; private set; } = null!;
         public static List<GameObject> valList = new List<GameObject>();
@@ -30,6 +30,7 @@ namespace REPOWildCardMod
         private void Awake()
         {
             log = Logger;
+            utils = new WildCardUtils();
             if (Instance == null)
             {
                 Instance = this;

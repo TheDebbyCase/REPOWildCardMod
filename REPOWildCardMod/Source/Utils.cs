@@ -3,7 +3,6 @@ namespace REPOWildCardMod.Utils
 {
     public class WildCardUtils
     {
-        public static WildCardUtils instance;
         public bool TextIsSimilar(string first, string second)
         {
             string firstReplaced = first.Replace(" ", string.Empty);

@@ -10,7 +10,16 @@ namespace REPOWildCardMod.Items
         public Animator animator;
         public ParticleSystem hitParticles;
         public ParticleSystem dripParticles;
+        public float balanceForce = 2.5f;
         public bool debugBool;
+        public void FixedUpdate()
+        {
+            if (!physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
+                physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balanceForce);
+            }
+        }
         public void Update()
         {
             if (physGrabObject.grabbedLocal)

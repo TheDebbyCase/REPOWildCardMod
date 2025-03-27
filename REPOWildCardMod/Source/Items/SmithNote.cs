@@ -28,7 +28,7 @@ namespace REPOWildCardMod.Items
         public ParticleSystem[] particleSystems;
         public Color particlesStartColor;
         public Dictionary<string, bool> playersDead = new Dictionary<string, bool>();
-        public Dictionary<string, List<EnemyParent>> spawnedEnemies = new Dictionary<string, List<EnemyParent>>();
+        public Dictionary<string, List<EnemyParent>> currentEnemies = new Dictionary<string, List<EnemyParent>>();
         public float animNormal = 0f;
         public bool opened;
         public bool charged;
@@ -95,12 +95,12 @@ namespace REPOWildCardMod.Items
             {
                 opened = false;
             }
-            if ((itemBattery.batteryLife >= 1f) && !charged)
+            if (itemBattery.batteryLife >= 1f && !charged)
             {
                 titleText.text = "SMITH\nNOTE";
                 charged = true;
             }
-            else if (charged)
+            else if (itemBattery.batteryLife < 1f && charged)
             {
                 titleText.text = ":(";
                 charged = false;
@@ -118,7 +118,7 @@ namespace REPOWildCardMod.Items
                 if (!SemiFunc.IsMultiplayer() && itemToggle.toggleState && charged && SemiFunc.RunIsLevel() && !playersDead[PlayerAvatar.instance.playerName])
                 {
                     RefreshLists();
-                    KillMessage(spawnedEnemies.ElementAt(random.Next(0, spawnedEnemies.Count)).Key);
+                    KillMessage(currentEnemies.ElementAt(random.Next(0, currentEnemies.Count)).Key);
                 }
             }
             else
@@ -191,7 +191,7 @@ namespace REPOWildCardMod.Items
             string pageOneString = string.Empty;
             string pageTwoString = string.Empty;
             List<string> playerNames = playersDead.Keys.ToList();
-            List<string> enemyNames = spawnedEnemies.Keys.ToList();
+            List<string> enemyNames = currentEnemies.Keys.ToList();
             playerNames.Sort();
             if (playersDead.Count <= 12)
             {
@@ -246,6 +246,39 @@ namespace REPOWildCardMod.Items
                 SetPageText(1, pageTwoString);
             }
         }
+        public IEnumerator FirstSpawnCoroutine(EnemyParent enemy)
+        {
+            while (EnemyDirector.instance.spawnIdlePauseTimer > 0f)
+            {
+                if (!SemiFunc.RunIsLevel())
+                {
+                    yield break;
+                }
+                yield return null;
+            }
+            if (currentEnemies.ContainsKey(enemy.enemyName))
+            {
+                currentEnemies[enemy.enemyName].Add(enemy);
+            }
+            else
+            {
+                currentEnemies.Add(enemy.enemyName, new List<EnemyParent>() { enemy });
+            }
+            log.LogDebug($"{enemy.enemyName} added to current enemies list");
+            yield break;
+        }
+        public void RemoveEnemy(EnemyParent enemy)
+        {
+            if (currentEnemies.ContainsKey(enemy.enemyName))
+            {
+                currentEnemies[enemy.enemyName].Remove(enemy);
+                if (currentEnemies[enemy.enemyName].Count == 0)
+                {
+                    currentEnemies.Remove(enemy.enemyName);
+                }
+                log.LogDebug($"{enemy.enemyName} removed from current enemies list");
+            }
+        }
         public void RefreshLists()
         {
             if (GameManager.Multiplayer())
@@ -263,40 +296,10 @@ namespace REPOWildCardMod.Items
             if (crawlerCoroutine != null)
             {
                 StopCoroutine(crawlerCoroutine);
-                CalculatePages();
                 crawlerCoroutine = null;
             }
             RefreshPlayerList();
-            if (SemiFunc.RunIsLevel())
-            {
-                RefreshEnemiesList();
-            }
-            else
-            {
-                spawnedEnemies.Clear();
-            }
-        }
-        public void RefreshEnemiesList()
-        {
-            Dictionary<string, List<EnemyParent>> newDict = new Dictionary<string, List<EnemyParent>>();
-            int enemyCount = EnemyDirector.instance.enemiesSpawned.Count;
-            for (int i = 0; i < enemyCount; i++)
-            {
-                EnemyParent enemy = EnemyDirector.instance.enemiesSpawned[i];
-                if (!newDict.ContainsKey(enemy.enemyName))
-                {
-                    newDict.Add(enemy.enemyName, new List<EnemyParent> { enemy });
-                }
-                else
-                {
-                    newDict[enemy.enemyName].Add(enemy);
-                }
-                log.LogDebug($"{enemy.enemyName} added to Smith Note list");
-            }
-            if (spawnedEnemies != newDict)
-            {
-                spawnedEnemies = newDict;
-            }
+            CalculatePages();
         }
         public void RefreshPlayerList()
         {
@@ -334,7 +337,7 @@ namespace REPOWildCardMod.Items
         {
             RefreshLists();
             string player = playersDead.Keys.ToList().Find((x) => WildCardMod.utils.TextIsSimilar(message, x));
-            string enemy = spawnedEnemies.Keys.ToList().Find((x) => WildCardMod.utils.TextIsSimilar(message, x));
+            string enemy = currentEnemies.Keys.ToList().Find((x) => WildCardMod.utils.TextIsSimilar(message, x));
             if ((player == null || player == string.Empty) && (enemy == null || enemy == string.Empty))
             {
                 log.LogDebug($"Message reading \"{message}\" was not one of the Smith Note's targets");
@@ -415,13 +418,13 @@ namespace REPOWildCardMod.Items
                 KilledRPC(false, killer, true);
             }
             yield return new WaitForSeconds(5f);
-            EnemyParent selectedEnemy = spawnedEnemies[enemy].ElementAt(random.Next(0, spawnedEnemies[enemy].Count));
+            EnemyParent selectedEnemy = currentEnemies[enemy].ElementAt(random.Next(0, currentEnemies[enemy].Count));
             EnemyHealth enemyHealth = selectedEnemy.GetComponentInChildren<EnemyHealth>();
             if (selectedEnemy.enemyName == "Gnome" || selectedEnemy.enemyName == "Banger")
             {
-                for (int i = 0; i < spawnedEnemies[enemy].Count; i++)
+                for (int i = 0; i < currentEnemies[enemy].Count; i++)
                 {
-                    enemyHealth = spawnedEnemies[enemy][i].GetComponentInChildren<EnemyHealth>();
+                    enemyHealth = currentEnemies[enemy][i].GetComponentInChildren<EnemyHealth>();
                     if (enemyHealth != null)
                     {
                         enemyHealth.Death(Vector3.down);
