@@ -24,7 +24,7 @@ namespace REPOWildCardMod.Valuables
                             }
                             else
                             {
-                                prefab = Instantiate(item.prefab, new Vector3(transform.position.x, transform.position.y + 0.125f, transform.position.z), item.spawnRotationOffset);
+                                prefab = Instantiate(item.prefab, new Vector3(transform.position.x, transform.position.y + 0.125f, transform.position.z + 0.25f), item.spawnRotationOffset);
                             }
                             prefab.SetActive(true);
                             log.LogDebug($"Spawned {prefab.name}!");

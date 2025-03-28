@@ -1,3 +1,8 @@
+## 0.8.0
+- Added Alolan Vulpixie! She doesn't much enjoy hitting the floor
+- Adjusted spawn locations of all my valuables to, hopefully, avoid them spawning inside other colliders
+- Gave all my valuables a cutsom center of mass
+
 ## 0.7.3
 - Adjusted Smith Note spawn position so it doesn't fly outside of the map
 - Made Smith Note particles not follow the book

@@ -53,6 +53,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Alolan Vulpixie</summary>
+	
+	Original designs by [Game Freak](https://www.gamefreak.co.jp),  
+	If you drop her, make sure to drop her again
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/AlolanVulpixiePreview.png)
+	
+	</details>
+
 - Shop Items
 	<details>
 	<summary>Smith Halo</summary>
