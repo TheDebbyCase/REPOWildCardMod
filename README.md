@@ -94,6 +94,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Sleepyhead</summary>
+	
+	Original designs by [Clauvio](https://www.twitch.tv/clauvio)  
+	Shhh they sleepin
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/SleepyheadPreview.png)
+	
+	</details>
+
 I hope to add more soon! Make suggestions on BlueSky!
 
 ## WILDCARD

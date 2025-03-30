@@ -12,18 +12,28 @@ namespace REPOWildCardMod.Valuables
             base.Start();
             physGrabObject.OverrideMaterial(physMat, -123f);
         }
+        public override void Update()
+        {
+            base.Update();
+            if (trapStart && SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                physGrabObject.DestroyPhysGrabObject();
+            }
+        }
         public void ImpactSquish()
         {
             animator.SetLayerWeight(1, Mathf.Clamp01(physGrabObject.impactDetector.impactForce / 150f));
             animator.SetTrigger("Squish");
+            TrapStart();
         }
         public void NoseExplode()
         {
-            enemyInvestigateRange = 15f;
-            if (Vector3.Distance(transform.position, PlayerAvatar.instance.clientPosition) < 15f)
+            if (Vector3.Distance(transform.position, PlayerAvatar.instance.clientPosition) < 10f)
             {
-                CameraGlitch.Instance.PlayTiny();
+                CameraGlitch.Instance.PlayShort();
             }
+            enemyInvestigate = true;
+            enemyInvestigateRange = 10f;
             log.LogDebug($"{gameObject.name} is exploding!");
             explodeScript.Spawn(transform.position, 0.245f, 5, 5, 2.5f);
         }

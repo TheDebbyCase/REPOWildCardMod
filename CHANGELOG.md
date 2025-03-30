@@ -1,3 +1,8 @@
+## 0.9.0
+- Added Clauvio's Sleepyhead!
+- Potential fix for Fixated Nose trap not working
+- Fixed Pixel Jars balance being off
+
 ## 0.8.1
 - Made the Clover Necklace enemy knockback stronger and more energy expensive
 - Clover Necklace can now knockback players
