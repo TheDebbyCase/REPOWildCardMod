@@ -7,7 +7,7 @@ namespace REPOWildCardMod.Config
 {
     public class WildCardConfig
     {
-        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         internal readonly List<ConfigEntry<bool>> isValEnabled = new List<ConfigEntry<bool>>();
         internal readonly List<ConfigEntry<bool>> isItemEnabled = new List<ConfigEntry<bool>>();
         internal readonly ConfigEntry<bool> harmonyPatches;

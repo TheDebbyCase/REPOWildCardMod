@@ -1,5 +1,5 @@
 ﻿using Photon.Pun;
-using System;
+using REPOWildCardMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,8 @@ namespace REPOWildCardMod.Items
 {
     public class SmithNote : MonoBehaviour
     {
-        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        readonly WildCardUtils utils = WildCardMod.instance.utils;
         public PhotonView photonView;
         public PhysGrabObject physGrabObject;
         public ItemAttributes itemAttributes;
@@ -35,13 +36,6 @@ namespace REPOWildCardMod.Items
         public bool overriding = false;
         public Coroutine crawlerCoroutine = null;
         public Vector3 forceRotation = new Vector3(-75f, 0f, 15f);
-        public bool enemyExhaust;
-        private System.Random random;
-        public void Start()
-        {
-            random = new System.Random();
-            enemyExhaust = false;
-        }
         public void FixedUpdate()
         {
             if (physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
@@ -95,15 +89,18 @@ namespace REPOWildCardMod.Items
             {
                 opened = false;
             }
-            if (itemBattery.batteryLife >= 1f && !charged)
+            if (itemBattery.batteryLife >= 100f && !charged)
             {
                 titleText.text = "SMITH\nNOTE";
                 charged = true;
             }
-            else if (itemBattery.batteryLife < 1f && charged)
+            else if (charged && itemBattery.batteryLife > 0f && itemBattery.batteryLife < 100f)
+            {
+                charged = false;
+            }
+            else if (itemBattery.batteryLife <= 0f && titleText.text != ":(")
             {
                 titleText.text = ":(";
-                charged = false;
             }
             if (opened)
             {
@@ -115,10 +112,10 @@ namespace REPOWildCardMod.Items
                 {
                     animNormal = 1f;
                 }
-                if (!SemiFunc.IsMultiplayer() && itemToggle.toggleState && charged && SemiFunc.RunIsLevel() && !playersDead[PlayerAvatar.instance.playerName])
+                if (!SemiFunc.IsMultiplayer() && itemToggle.toggleState && SemiFunc.RunIsLevel() && !playersDead[PlayerAvatar.instance.playerName])
                 {
                     RefreshLists();
-                    KillMessage(currentEnemies.ElementAt(random.Next(0, currentEnemies.Count)).Key);
+                    KillMessage(currentEnemies.ElementAt(Random.Range(0, currentEnemies.Count)).Key);
                 }
             }
             else
@@ -150,34 +147,19 @@ namespace REPOWildCardMod.Items
             {
                 animator.SetFloat("Normal", animNormal);
             }
-            if (itemToggle.toggleState && charged)
+            if (itemToggle.toggleState && itemBattery.batteryLife > 0f)
             {
                 musicSound.PlayLoop(true, 0.75f, 0.75f);
                 if (!musicPlaying)
                 {
-                    if (enemyExhaust)
+                    for (int i = 0; i < particleSystems.Length; i++)
                     {
-                        for (int i = 0; i < particleSystems.Length; i++)
-                        {
-                            ParticleSystem.MainModule main = particleSystems[i].main;
-                            main.startColor = new ParticleSystem.MinMaxGradient(Color.red);
-                            main.duration = 5f;
-                            main.loop = true;
-                            main.gravityModifierMultiplier = 0f;
-                            particleSystems[i].Play();
-                        }
-                    }
-                    else
-                    {
-                        for (int i = 0; i < particleSystems.Length; i++)
-                        {
-                            ParticleSystem.MainModule main = particleSystems[i].main;
-                            main.startColor = new ParticleSystem.MinMaxGradient(particlesStartColor);
-                            main.duration = 5f;
-                            main.loop = true;
-                            main.gravityModifierMultiplier = 1f;
-                            particleSystems[i].Play();
-                        }
+                        ParticleSystem.MainModule main = particleSystems[i].main;
+                        main.startColor = new ParticleSystem.MinMaxGradient(particlesStartColor);
+                        main.duration = 5f;
+                        main.loop = true;
+                        main.gravityModifierMultiplier = 1f;
+                        particleSystems[i].Play();
                     }
                     musicPlaying = true;
                 }
@@ -275,6 +257,7 @@ namespace REPOWildCardMod.Items
             {
                 currentEnemies.Add(enemy.enemyName, new List<EnemyParent>() { enemy });
             }
+            RefreshLists();
             log.LogDebug($"{enemy.enemyName} added to current enemies list");
             yield break;
         }
@@ -287,6 +270,7 @@ namespace REPOWildCardMod.Items
                 {
                     currentEnemies.Remove(enemy.enemyName);
                 }
+                RefreshLists();
                 log.LogDebug($"{enemy.enemyName} removed from current enemies list");
             }
         }
@@ -318,7 +302,7 @@ namespace REPOWildCardMod.Items
             for (int i = 0; i < GameDirector.instance.PlayerList.Count; i++)
             {
                 PlayerAvatar player = GameDirector.instance.PlayerList[i];
-                string name = WildCardMod.utils.CleanText(player.playerName);
+                string name = utils.CleanText(player.playerName);
                 newDict.Add(name, player.deadSet || (playersDead.Count > 0 && playersDead[name]));
                 log.LogDebug($"{name} added to Smith Note list, dead: {newDict[name]}");
             }
@@ -346,9 +330,14 @@ namespace REPOWildCardMod.Items
         }
         public void KillMessage(string message)
         {
+            if (!charged)
+            {
+                BookWiggle();
+                return;
+            }
             RefreshLists();
-            string player = playersDead.Keys.ToList().Find((x) => WildCardMod.utils.TextIsSimilar(message, x));
-            string enemy = currentEnemies.Keys.ToList().Find((x) => WildCardMod.utils.TextIsSimilar(message, x));
+            string player = playersDead.Keys.ToList().Find((x) => utils.TextIsSimilar(message, x));
+            string enemy = currentEnemies.Keys.ToList().Find((x) => utils.TextIsSimilar(message, x));
             if ((player == null || player == string.Empty) && (enemy == null || enemy == string.Empty))
             {
                 log.LogDebug($"Message reading \"{message}\" was not one of the Smith Note's targets");
@@ -378,7 +367,7 @@ namespace REPOWildCardMod.Items
                     KillPlayerRPC(player, PlayerAvatar.instance.steamID);
                 }
             }
-            else if (!enemyExhaust)
+            else
             {
                 if (SemiFunc.IsMultiplayer())
                 {
@@ -389,17 +378,16 @@ namespace REPOWildCardMod.Items
                     KillEnemyRPC(enemy, PlayerAvatar.instance.steamID);
                 }
             }
+        }
+        public void BookWiggle()
+        {
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC("BookWiggleRPC", RpcTarget.All);
+            }
             else
             {
-                log.LogDebug($"Smith note is exhausted and so cannot kill {enemy}!");
-                if (SemiFunc.IsMultiplayer())
-                {
-                    photonView.RPC("BookWiggleRPC", RpcTarget.All);
-                }
-                else
-                {
-                    BookWiggleRPC();
-                }
+                BookWiggleRPC();
             }
         }
         [PunRPC]
@@ -408,8 +396,8 @@ namespace REPOWildCardMod.Items
             notValuableObject.audioPreset.impactHeavy.Play(transform.position);
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                physGrabObject.rb.AddForce(UnityEngine.Random.insideUnitSphere * 2f, ForceMode.Impulse);
-                physGrabObject.rb.AddTorque(UnityEngine.Random.insideUnitSphere * 2f, ForceMode.Impulse);
+                physGrabObject.rb.AddForce(Random.insideUnitSphere * 2f, ForceMode.Impulse);
+                physGrabObject.rb.AddTorque(Random.insideUnitSphere * 2f, ForceMode.Impulse);
             }
         }
         [PunRPC]
@@ -429,7 +417,7 @@ namespace REPOWildCardMod.Items
                 KilledRPC(false, killer, true);
             }
             yield return new WaitForSeconds(5f);
-            EnemyParent selectedEnemy = currentEnemies[enemy].ElementAt(random.Next(0, currentEnemies[enemy].Count));
+            EnemyParent selectedEnemy = currentEnemies[enemy].ElementAt(Random.Range(0, currentEnemies[enemy].Count));
             EnemyHealth enemyHealth = selectedEnemy.GetComponentInChildren<EnemyHealth>();
             if (selectedEnemy.enemyName == "Gnome" || selectedEnemy.enemyName == "Banger")
             {
@@ -474,7 +462,7 @@ namespace REPOWildCardMod.Items
         }
         public IEnumerator CrawlingCrossCoroutine(string name)
         {
-            int id = Array.FindIndex(pageText, (x) => x.text.Contains(name));
+            int id = System.Array.FindIndex(pageText, (x) => x.text.Contains(name));
             string newText;
             string prevReplacer = string.Empty;
             if (name.Length >= 2)
@@ -529,9 +517,12 @@ namespace REPOWildCardMod.Items
             {
                 if (enemy)
                 {
-                    enemyExhaust = true;
+                    itemBattery.SetBatteryLife(0);
                 }
-                itemBattery.SetBatteryLife(0);
+                else
+                {
+                    itemBattery.Drain(20f);
+                }
                 itemToggle.ToggleItem(toggle: false);
             }
             else

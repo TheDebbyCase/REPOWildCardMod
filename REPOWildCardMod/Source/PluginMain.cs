@@ -17,23 +17,22 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.8.0";
+        internal const string modVersion = "0.8.1";
         private readonly Harmony harmony = new Harmony(modGUID);
-        internal static ManualLogSource log = null!;
-        public static WildCardUtils utils;
-        public static WildCardMod Instance;
-        internal static WildCardConfig ModConfig { get; private set; } = null!;
-        public static List<GameObject> valList = new List<GameObject>();
-        public static List<Item> itemList = new List<Item>();
+        internal ManualLogSource log = null!;
+        public WildCardUtils utils;
+        public static WildCardMod instance;
+        internal WildCardConfig ModConfig { get; private set; } = null!;
+        public List<GameObject> valList = new List<GameObject>();
+        public List<Item> itemList = new List<Item>();
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
-
         private void Awake()
         {
             log = Logger;
             utils = new WildCardUtils();
-            if (Instance == null)
+            if (instance == null)
             {
-                Instance = this;
+                instance = this;
             }
             Type[] assemblyTypes = Assembly.GetExecutingAssembly().GetTypes();
             for (int i = 0; i < assemblyTypes.Length; i++)

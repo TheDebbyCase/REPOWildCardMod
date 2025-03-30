@@ -7,9 +7,9 @@ using UnityEngine;
 namespace REPOWildCardMod.Patches
 {
     [HarmonyPatch(typeof(PhysGrabber))]
-    public class PhysGrabberRayCheckPatch
+    public static class PhysGrabberRayCheckPatch
     {
-        static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         [HarmonyPatch(nameof(PhysGrabber.RayCheck))]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {
@@ -29,9 +29,9 @@ namespace REPOWildCardMod.Patches
         }
     }
     [HarmonyPatch(typeof(PhysGrabber))]
-    public class PhysGrabberPatchPhysGrabPointActivate
+    public static class PhysGrabberPatchPhysGrabPointActivate
     {
-        static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         [HarmonyPatch(nameof(PhysGrabber.PhysGrabPointActivate))]
         public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
         {

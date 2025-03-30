@@ -1,3 +1,10 @@
+## 0.8.1
+- Made the Clover Necklace enemy knockback stronger and more energy expensive
+- Clover Necklace can now knockback players
+- Adjusted Moo Cow forced chat
+- Removed the Smith Note killing enemies restriction in favour of battery constraints
+- Made Smith Note killing players much cheaper
+
 ## 0.8.0
 - Added Alolan Vulpixie! She doesn't much enjoy hitting the floor
 - Adjusted spawn locations of all my valuables to, hopefully, avoid them spawning inside other colliders

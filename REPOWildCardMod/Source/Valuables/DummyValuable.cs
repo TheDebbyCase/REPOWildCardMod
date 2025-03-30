@@ -5,7 +5,7 @@ namespace REPOWildCardMod.Valuables
 {
     public class DummyValuable : MonoBehaviour
     {
-        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         public ScriptableObject script;
         public void Awake()
         {

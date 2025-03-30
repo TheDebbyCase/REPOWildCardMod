@@ -3,7 +3,7 @@ namespace REPOWildCardMod.Valuables
 {
     public class FixatedNoseTrap : Trap
     {
-        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         public ParticleScriptExplosion explodeScript;
         public PhysicMaterial physMat;
         public Animator animator;

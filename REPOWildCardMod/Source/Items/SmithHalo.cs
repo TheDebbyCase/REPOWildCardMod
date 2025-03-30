@@ -3,7 +3,7 @@ namespace REPOWildCardMod.Items
 {
     public class SmithHalo : MonoBehaviour
     {
-        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         public PhysGrabObject physGrabObject;
         public ItemMelee itemMelee;
         public Rigidbody rigidBody;

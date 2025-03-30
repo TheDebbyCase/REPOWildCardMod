@@ -5,9 +5,19 @@ using UnityEngine;
 namespace REPOWildCardMod.Patches
 {
     [HarmonyPatch(typeof(PhysGrabObject))]
-    public class PhysGrabObjectGrabLinkRPCPatch
+    public static class PhysGrabObjectGrabLinkRPCPatch
     {
-        static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        [HarmonyPatch(nameof(PhysGrabObject.DestroyPhysGrabObjectRPC))]
+        [HarmonyPrefix]
+        public static bool ActivateDragonBall(PhysGrabObject __instance)
+        {
+            if (RoundDirector.instance.dollarHaulList.Contains(__instance.gameObject) && __instance.transform.TryGetComponent<DragonBall>(out DragonBall dragonBall))
+            {
+                dragonBall.AddPlayerBall();
+            }
+            return true;
+        }
         [HarmonyPatch(nameof(PhysGrabObject.GrabLinkRPC))]
         [HarmonyPrefix]
         public static bool GrabLinkColliders(PhysGrabObject __instance, ref int playerPhotonID, ref int colliderID, ref UnityEngine.Vector3 point, ref UnityEngine.Vector3 cameraRelativeGrabbedForward, ref UnityEngine.Vector3 cameraRelativeGrabbedUp)

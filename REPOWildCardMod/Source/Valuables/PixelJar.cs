@@ -11,7 +11,7 @@ namespace REPOWildCardMod.Valuables
     }
     public class PixelJar : MonoBehaviour
     {
-        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         public ParticleSystem particle;
         public ParticleSystemRenderer particleRenderer;
         public Animator animator;
@@ -24,12 +24,11 @@ namespace REPOWildCardMod.Valuables
         public float horizontalSpeed;
         public bool pickingUp = true;
         public PhotonView photonView;
-        private readonly System.Random random = new System.Random();
         public void Start()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                int index = random.Next(0, floaterVariants.Length);
+                int index = Random.Range(0, floaterVariants.Length);
                 if (SemiFunc.IsMultiplayer())
                 {
                     photonView.RPC("FloaterTextureRPC", RpcTarget.All, index);

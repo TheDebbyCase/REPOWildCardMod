@@ -4,6 +4,7 @@ namespace REPOWildCardMod.Valuables
 {
     public class AlolanVulpixie : MonoBehaviour
     {
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         public PhysGrabObject physGrabObject;
         public GameObject[] pixieMeshes;
         public Sound[] pixieSounds;
@@ -21,6 +22,7 @@ namespace REPOWildCardMod.Valuables
             pixieMeshes[1].SetActive(scrungle);
             pixieMeshes[0].SetActive(!scrungle);
             pixieSounds[index].Play(pixieSounds[index].Source.transform.position);
+            log.LogDebug($"Vulpixie Scrungle: {scrungle}, Vulpixie Sadge: {sad}");
         }
         public void ImpactSquish()
         {

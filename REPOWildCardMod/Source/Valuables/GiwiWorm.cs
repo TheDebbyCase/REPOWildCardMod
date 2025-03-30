@@ -1,12 +1,11 @@
 ﻿using Photon.Pun;
-using System;
 using System.Collections.Generic;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class GiwiWormValuable : MonoBehaviour
     {
-        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         public Rigidbody[] rigidBodies;
         public Transform[] allTransforms;
         public List<Transform> heldTransforms = new List<Transform>();
@@ -20,7 +19,6 @@ namespace REPOWildCardMod.Valuables
         public float startTime = 0.5f;
         public float targetTime = 0.5f;
         public float animSpeed;
-        private readonly System.Random random = new System.Random();
         public void Start()
         {
             if (GameManager.Multiplayer() && !PhotonNetwork.IsMasterClient)
@@ -35,7 +33,7 @@ namespace REPOWildCardMod.Valuables
         {
             if (physGrabObject.grabbedLocal)
             {
-                localHeldTransformIndex = Array.IndexOf(allTransforms, PhysGrabber.instance.grabbedObjectTransform);
+                localHeldTransformIndex = System.Array.IndexOf(allTransforms, PhysGrabber.instance.grabbedObjectTransform);
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
                     AddTransformRPC(localHeldTransformIndex);
@@ -83,9 +81,9 @@ namespace REPOWildCardMod.Valuables
                 animLerp = 0f;
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
-                    animTimer = (float)random.Next(5, 21) / 10f;
-                    float speed = Mathf.Max(UnityEngine.Random.value, 0.125f) * 2f;
-                    float motionTime = UnityEngine.Random.value;
+                    animTimer = Random.Range(0.5f, 2f);
+                    float speed = Mathf.Max(Random.value, 0.125f) * 2f;
+                    float motionTime = Random.value;
                     if (GameManager.Multiplayer())
                     {
                         photonView.RPC("TargetTimeRPC", RpcTarget.All, motionTime, targetTime, speed, animTimer);
@@ -134,8 +132,8 @@ namespace REPOWildCardMod.Valuables
                 for (int i = 1; i < rigidBodies.Length; i++)
                 {
                     Rigidbody rigidBody = rigidBodies[i];
-                    rigidBody.AddForce((UnityEngine.Random.insideUnitSphere + (Vector3.up * 0.05f)) * 0.25f, ForceMode.Impulse);
-                    rigidBody.AddTorque(UnityEngine.Random.insideUnitSphere, ForceMode.Impulse);
+                    rigidBody.AddForce((Random.insideUnitSphere + (Vector3.up * 0.05f)) * 0.25f, ForceMode.Impulse);
+                    rigidBody.AddTorque(Random.insideUnitSphere, ForceMode.Impulse);
                 }
             }
         }

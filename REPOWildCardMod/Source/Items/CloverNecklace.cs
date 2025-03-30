@@ -3,7 +3,7 @@ namespace REPOWildCardMod.Items
 {
     public class CloverNecklace : MonoBehaviour
     {
-        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.log;
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         public PhysGrabObject physGrabObject;
         public ItemBattery itemBattery;
         public ItemToggle itemToggle;
@@ -15,6 +15,7 @@ namespace REPOWildCardMod.Items
         public Animator animator;
         public Vector3 forceRotation = new Vector3(110f, 0f, 180f);
         public bool holding;
+        public PlayerAvatar lastHolder;
         public void FixedUpdate()
         {
             float animNormal = Mathf.InverseLerp(2.5f, 10f, rigidBody.velocity.magnitude);
@@ -40,6 +41,10 @@ namespace REPOWildCardMod.Items
         }
         public void Update()
         {
+            if (physGrabObject.playerGrabbing.Count == 1 && lastHolder != physGrabObject.playerGrabbing[0].playerAvatar)
+            {
+                lastHolder = physGrabObject.playerGrabbing[0].playerAvatar;
+            }
             if (physGrabObject.grabbedLocal && !holding)
             {
                 PhysGrabber.instance.OverrideGrabDistance(0.5f);
@@ -71,10 +76,10 @@ namespace REPOWildCardMod.Items
         }
         public void EnemyHit()
         {
-            itemBattery.Drain(1f);
+            itemBattery.Drain(5f);
             for (int i = 0; i < physGrabObject.playerGrabbing.Count; i++)
             {
-                physGrabObject.playerGrabbing[i].playerAvatar.ForceImpulse((physGrabObject.playerGrabbing[i].playerAvatar.clientPositionCurrent - SemiFunc.EnemyGetNearest(transform.position, 3f, false).CenterTransform.position).normalized * 1.5f);
+                physGrabObject.playerGrabbing[i].playerAvatar.ForceImpulse((physGrabObject.playerGrabbing[i].playerAvatar.clientPositionCurrent - SemiFunc.EnemyGetNearest(transform.position, 3f, false).CenterTransform.position).normalized * 10f);
             }
         }
     }
