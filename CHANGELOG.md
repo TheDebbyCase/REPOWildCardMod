@@ -1,3 +1,6 @@
+## 0.9.1
+- Made Sleepyhead's honk shoo mimimi quieter
+
 ## 0.9.0
 - Added Clauvio's Sleepyhead!
 - Potential fix for Fixated Nose trap not working
