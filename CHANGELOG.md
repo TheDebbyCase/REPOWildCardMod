@@ -1,3 +1,8 @@
+## 0.10.0
+- Added Dragon Balls and Chaos Emeralds! Chaos Emeralds currently have no special function, but collect all the Dragon Balls and have your wish granted...
+- README to be updated later, update untested so expect issues
+- My Unity project had some values reset so some miscellaneous attributes on my items may be different
+
 ## 0.9.1
 - Made Sleepyhead's honk shoo mimimi quieter
 
