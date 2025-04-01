@@ -1,3 +1,6 @@
+## 0.10.3
+- Fixed Smith Note audio error spam
+
 ## 0.10.2
 - My items weren't working properly after my Unity Project reset so the shop was crashing the game, but I have now fixed it
 - Added Dragon Ball and Chaos Emerald to README
