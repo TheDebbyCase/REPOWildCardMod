@@ -1,3 +1,12 @@
+## 0.10.2
+- My items weren't working properly after my Unity Project reset so the shop was crashing the game, but I have now fixed it
+- Added Dragon Ball and Chaos Emerald to README
+- Fixed Dragon Ball upgrade breaking the game
+- Adjusted Dragon Ball and Chaos Emerald's visuals
+
+## 0.10.1
+- Didn't actually include the new items in the last update, I'm so tired
+
 ## 0.10.0
 - Added Dragon Balls and Chaos Emeralds! Chaos Emeralds currently have no special function, but collect all the Dragon Balls and have your wish granted...
 - README to be updated later, update untested so expect issues

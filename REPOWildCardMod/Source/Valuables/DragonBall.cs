@@ -7,7 +7,6 @@ namespace REPOWildCardMod.Valuables
     {
         static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         public PhotonView photonView;
-        public StatsManager statsManager = StatsManager.instance;
         public Mesh[] starMeshes;
         public MeshFilter meshFilter;
         public void Start()
@@ -47,7 +46,7 @@ namespace REPOWildCardMod.Valuables
                 }
             }
             log.LogDebug("Adding a Dragon Ball point");
-            Dictionary<string, int> dictionary = statsManager.dictionaryOfDictionaries["playerUpgradeDragonBalls"];
+            Dictionary<string, int> dictionary = StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"];
             for (int i = 0; i < players.Count; i++)
             {
                 string steamID = SemiFunc.PlayerGetSteamID(players[i]);
@@ -56,12 +55,12 @@ namespace REPOWildCardMod.Valuables
                 {
                     if (SemiFunc.IsMasterClientOrSingleplayer())
                     {
-                        RoundDirector.instance.totalHaul += Mathf.CeilToInt(Mathf.Max(10000, Mathf.Min(50000, (39000 / ((Mathf.Pow((float)dictionary.Count + 3f, 2f)) / 16f)) + 11000)) / (float)dictionary.Count);
+                        RoundDirector.instance.totalHaul += Mathf.CeilToInt(Mathf.Max(10000, Mathf.Min(50000, (39000 / ((Mathf.Pow((float)dictionary.Count + 3f, 2f)) / 16f)) + 11000)) / (float)dictionary.Count) * 2;
                     }
                     dictionary[steamID] = 0;
                 }
             }
-            statsManager.dictionaryOfDictionaries["playerUpgradeDragonBalls"] = dictionary;
+            StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"] = dictionary;
         }
     }
 }

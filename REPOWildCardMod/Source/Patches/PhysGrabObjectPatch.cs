@@ -5,7 +5,7 @@ using UnityEngine;
 namespace REPOWildCardMod.Patches
 {
     [HarmonyPatch(typeof(PhysGrabObject))]
-    public static class PhysGrabObjectGrabLinkRPCPatch
+    public static class PhysGrabObjectPatches
     {
         static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         [HarmonyPatch(nameof(PhysGrabObject.DestroyPhysGrabObjectRPC))]

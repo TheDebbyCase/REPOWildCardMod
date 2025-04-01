@@ -5,6 +5,7 @@ namespace REPOWildCardMod.Valuables
     public class ChaosEmerald : MonoBehaviour
     {
         public PhotonView photonView;
+        public ValuableObject valuableObject;
         public Color[] colors;
         public MeshRenderer meshRenderer;
         public void Start()
@@ -25,13 +26,19 @@ namespace REPOWildCardMod.Valuables
         public void PickColorRPC(int index)
         {
             meshRenderer.material.SetColor("_BaseColor", colors[index]);
+            GradientColorKey[] colorKeys = valuableObject.particleColors.colorKeys;
+            for (int i = 0; i < colorKeys.Length; i++)
+            {
+                colorKeys[i] = new GradientColorKey(colors[index], colorKeys[i].time);
+            }
+            valuableObject.particleColors.colorKeys = colorKeys;
             if (index == 6)
             {
-                meshRenderer.material.SetColor("_EmissionColor", new Color(0.2f, 0.2f, 0.2f, 1f));
+                meshRenderer.material.SetColor("_EmissionColor", new Color(0.4f, 0.4f, 0.4f, 1f));
             }
             else
             {
-                meshRenderer.material.SetColor("_EmissionColor", new Color(colors[index].r / 4f, colors[index].g / 4f, colors[index].b / 4f, 1f));
+                meshRenderer.material.SetColor("_EmissionColor", new Color(colors[index].r / 2f, colors[index].g / 2f, colors[index].b / 2f, 1f));
             }
         }
     }

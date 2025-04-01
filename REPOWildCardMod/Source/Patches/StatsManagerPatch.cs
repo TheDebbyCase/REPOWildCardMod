@@ -7,9 +7,10 @@ namespace REPOWildCardMod.Patches
     {
         [HarmonyPatch(nameof(StatsManager.Start))]
         [HarmonyPrefix]
-        public static void AddDragonBallUpgrade(StatsManager __instance)
+        public static bool AddDragonBallUpgrade(StatsManager __instance)
         {
             __instance.dictionaryOfDictionaries.Add("playerUpgradeDragonBalls", new Dictionary<string, int>());
+            return true;
         }
     }
 }
