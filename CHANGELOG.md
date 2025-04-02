@@ -1,3 +1,7 @@
+## 0.10.4
+- Fixed equippable items icons not generating
+- Fixed Smith Note not working at all, and fixed Smith Note battery drain
+
 ## 0.10.3
 - Fixed Smith Note audio error spam
 

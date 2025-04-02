@@ -40,18 +40,14 @@ namespace REPOWildCardMod.Items
         {
             if (physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
             {
-                int nonRotatingGrabbers = physGrabObject.playerGrabbing.Count;
                 for (int i = 0; i < physGrabObject.playerGrabbing.Count; i++)
                 {
                     if (physGrabObject.playerGrabbing[i].isRotating)
                     {
-                        nonRotatingGrabbers--;
+                        return;
                     }
                 }
-                if (nonRotatingGrabbers == physGrabObject.playerGrabbing.Count)
-                {
-                    physGrabObject.TurnXYZ(Quaternion.Euler(forceRotation.x, 0f, 0f), Quaternion.Euler(0f, forceRotation.y, 0f), Quaternion.Euler(0f, 0f, forceRotation.z));
-                }
+                physGrabObject.TurnXYZ(Quaternion.Euler(forceRotation.x, 0f, 0f), Quaternion.Euler(0f, forceRotation.y, 0f), Quaternion.Euler(0f, 0f, forceRotation.z));
             }
         }
         public void Update()
@@ -89,16 +85,18 @@ namespace REPOWildCardMod.Items
             {
                 opened = false;
             }
-            if (itemBattery.batteryLife >= 100f && !charged)
+            if (charged != itemBattery.batteryLife >= 50f)
             {
-                titleText.text = "SMITH\nNOTE";
-                charged = true;
+                charged = itemBattery.batteryLife >= 50f;
             }
-            else if (charged && itemBattery.batteryLife > 0f && itemBattery.batteryLife < 100f)
+            if (itemBattery.batteryLife > 0f)
             {
-                charged = false;
+                if (titleText.text != "SMITH\nNOTE")
+                {
+                    titleText.text = "SMITH\nNOTE";
+                }
             }
-            else if (itemBattery.batteryLife <= 0f && titleText.text != ":(")
+            else if (titleText.text != ":(")
             {
                 titleText.text = ":(";
             }
@@ -330,11 +328,6 @@ namespace REPOWildCardMod.Items
         }
         public void KillMessage(string message)
         {
-            if (!charged)
-            {
-                BookWiggle();
-                return;
-            }
             RefreshLists();
             string player = playersDead.Keys.ToList().Find((x) => utils.TextIsSimilar(message, x));
             string enemy = currentEnemies.Keys.ToList().Find((x) => utils.TextIsSimilar(message, x));
@@ -369,6 +362,11 @@ namespace REPOWildCardMod.Items
             }
             else
             {
+                if (!charged)
+                {
+                    BookWiggle();
+                    return;
+                }
                 if (SemiFunc.IsMultiplayer())
                 {
                     photonView.RPC("KillEnemyRPC", RpcTarget.MasterClient, enemy, PlayerAvatar.instance.steamID);
@@ -515,13 +513,16 @@ namespace REPOWildCardMod.Items
         {
             if (!dead)
             {
-                if (enemy)
+                if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
-                    itemBattery.SetBatteryLife(0);
-                }
-                else
-                {
-                    itemBattery.Drain(20f);
+                    if (enemy)
+                    {
+                        itemBattery.batteryLife -= Mathf.Min(itemBattery.batteryLife, 50f);
+                    }
+                    else
+                    {
+                        itemBattery.batteryLife -= Mathf.Min(itemBattery.batteryLife, 20f);
+                    }
                 }
                 itemToggle.ToggleItem(toggle: false);
             }
