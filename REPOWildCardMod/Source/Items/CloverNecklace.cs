@@ -66,6 +66,7 @@ namespace REPOWildCardMod.Items
                 itemBattery.BatteryToggle(itemToggle.toggleState);
                 hurtCollider.gameObject.SetActive(itemToggle.toggleState);
                 light.lightComponent.enabled = itemToggle.toggleState;
+                light.halo.enabled = itemToggle.toggleState;
                 ParticleSystem.MainModule main = particleSystem.main;
                 main.loop = itemToggle.toggleState;
                 if (itemToggle.toggleState)

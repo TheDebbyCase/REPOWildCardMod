@@ -17,7 +17,7 @@ namespace REPOWildCardMod.Valuables
             base.Update();
             if (trapStart && SemiFunc.IsMasterClientOrSingleplayer())
             {
-                physGrabObject.DestroyPhysGrabObject();
+                physGrabObject.impactDetector.DestroyObject();
             }
         }
         public void ImpactSquish()
@@ -28,7 +28,7 @@ namespace REPOWildCardMod.Valuables
         }
         public void NoseExplode()
         {
-            if (Vector3.Distance(transform.position, PlayerAvatar.instance.clientPosition) < 10f)
+            if (Vector3.Distance(transform.position, PlayerAvatar.instance.clientPosition) < 10f && !trapStart)
             {
                 CameraGlitch.Instance.PlayShort();
             }

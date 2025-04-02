@@ -1,3 +1,9 @@
+## 0.10.5
+- Made Sleepyhead even quieter
+- Fixed Fixated Nose not exploding
+- Increased Clover Necklace light brightness
+- Decreased Pixel Jar light brightness
+
 ## 0.10.4
 - Fixed equippable items icons not generating
 - Fixed Smith Note not working at all, and fixed Smith Note battery drain
