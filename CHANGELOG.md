@@ -1,3 +1,6 @@
+## 0.10.6
+- Corrected a few mistakes in the README
+
 ## 0.10.5
 - Made Sleepyhead even quieter
 - Fixed Fixated Nose not exploding

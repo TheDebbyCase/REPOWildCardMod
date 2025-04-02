@@ -56,10 +56,40 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	<details>
 	<summary>Alolan Vulpixie</summary>
 	
-	Original designs by [Game Freak](https://www.gamefreak.co.jp),  
+	Original design by [Game Freak](https://www.gamefreak.co.jp),  
 	If you drop her, make sure to drop her again
 
 	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/AlolanVulpixiePreview.png)
+	
+	</details>
+
+	<details>
+	<summary>Sleepyhead</summary>
+	
+	Original design by [Clauvio](https://www.twitch.tv/clauvio)  
+	Shhh they sleepin
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/SleepyheadPreview.png)
+	
+	</details>
+
+	<details>
+	<summary>Dragon Balls</summary>
+	
+	Original designs by [Akira Toriyama](https://en.wikipedia.org/wiki/Akira_Toriyama)  
+	Collect all 7!
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/SleepyheadPreview.png)
+	
+	</details>
+
+	<details>
+	<summary>Chaos Emeralds</summary>
+	
+	Original design by [semiwork](https://semiwork.se/)  
+	No function (yet)
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/ChaosEmeraldPreview.png)
 	
 	</details>
 
@@ -67,7 +97,7 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	<details>
 	<summary>Smith Halo</summary>
 	
-	Original designs by [kael](https://www.twitch.tv/kael),  
+	Original design by [kael](https://www.twitch.tv/kael),  
 	It may be melting but it still packs a punch
 
 	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/SmithHaloPreview.png)
@@ -77,7 +107,7 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	<details>
 	<summary>Smith Note</summary>
 	
-	Original designs by me!  
+	Original design by me!  
 	Not to be taken seriously
 
 	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/SmithNotePreview.png)
@@ -91,16 +121,6 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	Yes the bees
 
 	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/CloverNecklacePreview.png)
-	
-	</details>
-
-	<details>
-	<summary>Sleepyhead</summary>
-	
-	Original designs by [Clauvio](https://www.twitch.tv/clauvio)  
-	Shhh they sleepin
-
-	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/SleepyheadPreview.png)
 	
 	</details>
 
