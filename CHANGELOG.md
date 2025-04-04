@@ -1,3 +1,6 @@
+## 0.10.9
+- Made Dragon Ball wish only use vanilla upgrades
+
 ## 0.10.8
 - Players will now receive a special effect upon selling 7 Chaos Emeralds
 
