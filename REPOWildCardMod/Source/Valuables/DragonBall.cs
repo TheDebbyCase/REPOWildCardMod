@@ -24,12 +24,13 @@ namespace REPOWildCardMod.Valuables
                 {
                     ChooseStarsRPC(Random.Range(0, starMeshes.Length));
                 }
-                wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal())).Keys.ToList();
-                wishableUpgrades.Remove("playerUpgradeDragonBalls");
-                wishableUpgrades.Remove("playerUpgradeChaosEmeralds");
-                wishableUpgrades.Remove("playerUpgradeExtraJump");
-                wishableUpgrades.Remove("playerUpgradeMapPlayerCount");
-                wishableUpgrades.Remove("playerUpgradeThrow");
+                //wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal())).Keys.ToList();
+                wishableUpgrades = new List<string>() { "playerUpgradeHealth", "playerUpgradeStamina", "playerUpgradeLaunch", "playerUpgradeSpeed", "playerUpgradeStrength", "playerUpgradeRange" };
+                //wishableUpgrades.Remove("playerUpgradeDragonBalls");
+                //wishableUpgrades.Remove("playerUpgradeChaosEmeralds");
+                //wishableUpgrades.Remove("playerUpgradeExtraJump");
+                //wishableUpgrades.Remove("playerUpgradeMapPlayerCount");
+                //wishableUpgrades.Remove("playerUpgradeThrow");
             }
         }
         [PunRPC]
@@ -137,30 +138,30 @@ namespace REPOWildCardMod.Valuables
                     }
                 default:
                     {
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            photonView.RPC("MegaUpgradeMiscRPC", RpcTarget.All, upgrade, steamID);
-                        }
-                        else
-                        {
-                            MegaUpgradeMiscRPC(upgrade, steamID);
-                        }
+                        //if (SemiFunc.IsMultiplayer())
+                        //{
+                        //    photonView.RPC("MegaUpgradeMiscRPC", RpcTarget.All, upgrade, steamID);
+                        //}
+                        //else
+                        //{
+                        //    MegaUpgradeMiscRPC(upgrade, steamID);
+                        //}
                         break;
                     }
             }
         }
-        [PunRPC]
-        public void MegaUpgradeMiscRPC(string upgrade, string steamID)
-        {
-            try
-            {
-                StatsManager.instance.dictionaryOfDictionaries[upgrade][steamID] += 10;
-            }
-            catch
-            {
-                log.LogError($"Attempted to upgrade \"{upgrade}\" on player \"{SemiFunc.PlayerAvatarGetFromSteamID(steamID).playerName}\" but something went wrong!");
-            }
-        }
+        //[PunRPC]
+        //public void MegaUpgradeMiscRPC(string upgrade, string steamID)
+        //{
+        //    try
+        //    {
+        //        StatsManager.instance.dictionaryOfDictionaries[upgrade][steamID] += 10;
+        //    }
+        //    catch
+        //    {
+        //        log.LogError($"Attempted to upgrade \"{upgrade}\" on player \"{SemiFunc.PlayerAvatarGetFromSteamID(steamID).playerName}\" but something went wrong!");
+        //    }
+        //}
         [PunRPC]
         public void PropogateBallsRPC(int balls, string masterID)
         {
