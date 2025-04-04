@@ -26,6 +26,7 @@ namespace REPOWildCardMod.Valuables
                 }
                 wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal())).Keys.ToList();
                 wishableUpgrades.Remove("playerUpgradeDragonBalls");
+                wishableUpgrades.Remove("playerUpgradeChaosEmeralds");
                 wishableUpgrades.Remove("playerUpgradeExtraJump");
                 wishableUpgrades.Remove("playerUpgradeMapPlayerCount");
                 wishableUpgrades.Remove("playerUpgradeThrow");

@@ -10,11 +10,15 @@ namespace REPOWildCardMod.Patches
         static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         [HarmonyPatch(nameof(PhysGrabObject.DestroyPhysGrabObjectRPC))]
         [HarmonyPrefix]
-        public static bool ActivateDragonBall(PhysGrabObject __instance)
+        public static bool ActivateValuableUpgrades(PhysGrabObject __instance)
         {
             if (RoundDirector.instance.dollarHaulList.Contains(__instance.gameObject) && __instance.transform.TryGetComponent<DragonBall>(out DragonBall dragonBall))
             {
                 dragonBall.AddPlayerBall();
+            }
+            if (RoundDirector.instance.dollarHaulList.Contains(__instance.gameObject) && __instance.transform.TryGetComponent<ChaosEmerald>(out ChaosEmerald chaosEmerald))
+            {
+                chaosEmerald.AddPlayerEmerald();
             }
             return true;
         }

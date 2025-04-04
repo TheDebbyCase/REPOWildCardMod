@@ -10,6 +10,7 @@ namespace REPOWildCardMod.Patches
         public static bool AddDragonBallUpgrade(StatsManager __instance)
         {
             __instance.dictionaryOfDictionaries.Add("playerUpgradeDragonBalls", new Dictionary<string, int>());
+            __instance.dictionaryOfDictionaries.Add("playerUpgradeChaosEmeralds", new Dictionary<string, int>());
             return true;
         }
     }

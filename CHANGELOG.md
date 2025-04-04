@@ -1,3 +1,6 @@
+## 0.10.8
+- Players will now receive a special effect upon selling 7 Chaos Emeralds
+
 ## 0.10.7
 - Made the Dragon Balls wish better and more exciting
 - Potential fix for Fixated Nose not glitching camera when it explodes
