@@ -1,3 +1,7 @@
+## 0.10.7
+- Made the Dragon Balls wish better and more exciting
+- Potential fix for Fixated Nose not glitching camera when it explodes
+
 ## 0.10.6
 - Corrected a few mistakes in the README
 

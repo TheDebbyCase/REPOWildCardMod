@@ -28,7 +28,7 @@ namespace REPOWildCardMod.Valuables
         }
         public void NoseExplode()
         {
-            if (Vector3.Distance(transform.position, PlayerAvatar.instance.clientPosition) < 10f && !trapStart)
+            if (Vector3.Distance(transform.position, PlayerAvatar.instance.clientPosition) < 10f && !physGrabObject.grabbedLocal)
             {
                 CameraGlitch.Instance.PlayShort();
             }
