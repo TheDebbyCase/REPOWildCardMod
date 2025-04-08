@@ -1,7 +1,7 @@
 ﻿using Photon.Pun;
-using Steamworks;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
@@ -12,8 +12,10 @@ namespace REPOWildCardMod.Valuables
         public Mesh[] starMeshes;
         public MeshFilter meshFilter;
         public List<string> wishableUpgrades;
+        public List<string> upgradeKeys;
         public void Start()
         {
+            upgradeKeys = StatsManager.instance.dictionaryOfDictionaries.Keys.ToList();
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 if (SemiFunc.IsMultiplayer())
@@ -24,13 +26,12 @@ namespace REPOWildCardMod.Valuables
                 {
                     ChooseStarsRPC(Random.Range(0, starMeshes.Length));
                 }
-                //wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal())).Keys.ToList();
-                wishableUpgrades = new List<string>() { "playerUpgradeHealth", "playerUpgradeStamina", "playerUpgradeLaunch", "playerUpgradeSpeed", "playerUpgradeStrength", "playerUpgradeRange" };
-                //wishableUpgrades.Remove("playerUpgradeDragonBalls");
-                //wishableUpgrades.Remove("playerUpgradeChaosEmeralds");
-                //wishableUpgrades.Remove("playerUpgradeExtraJump");
-                //wishableUpgrades.Remove("playerUpgradeMapPlayerCount");
-                //wishableUpgrades.Remove("playerUpgradeThrow");
+                wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal())).Keys.ToList();
+                wishableUpgrades.Remove("Dragon Balls");
+                wishableUpgrades.Remove("Chaos Emeralds");
+                wishableUpgrades.Remove("Extra Jump");
+                wishableUpgrades.Remove("Map Player Count");
+                wishableUpgrades.Remove("Throw");
             }
         }
         [PunRPC]
@@ -85,6 +86,17 @@ namespace REPOWildCardMod.Valuables
                         {
                             upgrades = wishableUpgrades;
                         }
+                        for (int j = 0; j < upgrades.Count; j++)
+                        {
+                            if (j >= upgrades.Count)
+                            {
+                                break;
+                            }
+                            if (StatsManager.instance.dictionaryOfDictionaries[upgradeKeys.Find((x) => x.ToLower().Contains(upgrades[j].Trim().ToLower()))][SemiFunc.PlayerGetSteamID(players[i])] >= StatsManager.instance.itemDictionary[StatsManager.instance.itemDictionary.Keys.ToList().Find((y) => y.Contains(upgrades[j]))].maxAmount)
+                            {
+                                upgrades.RemoveAt(j);
+                            }
+                        }
                         int randomIndex = Random.Range(0, upgrades.Count);
                         MegaUpgrade(SemiFunc.PlayerGetSteamID(players[i]), upgrades[randomIndex]);
                         upgrades.RemoveAt(randomIndex);
@@ -98,70 +110,72 @@ namespace REPOWildCardMod.Valuables
         }
         public void MegaUpgrade(string steamID, string upgrade)
         {
-            switch (upgrade.Replace("playerUpgrade", ""))
+            log.LogDebug($"Dragon Ball Mega Upgrading: \"{upgrade}\"");
+            int max = StatsManager.instance.itemDictionary[StatsManager.instance.itemDictionary.Keys.ToList().Find((y) => y.Contains(upgrade))].maxAmount - StatsManager.instance.dictionaryOfDictionaries[upgradeKeys.Find((x) => x.ToLower().Contains(upgrade.Trim().ToLower()))][steamID];
+            log.LogDebug($"Dragon Ball Max Buy Number: {max}");
+            switch (upgrade)
             {
                 case "Health":
                     {
-                        StatsManager.instance.playerUpgradeHealth[steamID] += 9;
+                        StatsManager.instance.playerUpgradeHealth[steamID] += Mathf.Min(10, max) - 1;
                         PunManager.instance.UpgradePlayerHealth(steamID);
                         break;
                     }
                 case "Stamina":
                     {
-                        StatsManager.instance.playerUpgradeStamina[steamID] += 9;
+                        StatsManager.instance.playerUpgradeStamina[steamID] += Mathf.Min(10, max) - 1;
                         PunManager.instance.UpgradePlayerEnergy(steamID);
                         break;
                     }
                 case "Launch":
                     {
-                        StatsManager.instance.playerUpgradeLaunch[steamID] += 9;
+                        StatsManager.instance.playerUpgradeLaunch[steamID] += Mathf.Min(10, max) - 1;
                         PunManager.instance.UpgradePlayerTumbleLaunch(steamID);
                         break;
                     }
                 case "Speed":
                     {
-                        StatsManager.instance.playerUpgradeSpeed[steamID] += 9;
+                        StatsManager.instance.playerUpgradeSpeed[steamID] += Mathf.Min(10, max) - 1;
                         PunManager.instance.UpgradePlayerSprintSpeed(steamID);
                         break;
                     }
                 case "Strength":
                     {
-                        StatsManager.instance.playerUpgradeStrength[steamID] += 9;
+                        StatsManager.instance.playerUpgradeStrength[steamID] += Mathf.Min(10, max) - 1;
                         PunManager.instance.UpgradePlayerGrabStrength(steamID);
                         break;
                     }
                 case "Range":
                     {
-                        StatsManager.instance.playerUpgradeRange[steamID] += 9;
+                        StatsManager.instance.playerUpgradeRange[steamID] += Mathf.Min(10, max) - 1;
                         PunManager.instance.UpgradePlayerGrabRange(steamID);
                         break;
                     }
                 default:
                     {
-                        //if (SemiFunc.IsMultiplayer())
-                        //{
-                        //    photonView.RPC("MegaUpgradeMiscRPC", RpcTarget.All, upgrade, steamID);
-                        //}
-                        //else
-                        //{
-                        //    MegaUpgradeMiscRPC(upgrade, steamID);
-                        //}
+                        if (WildCardMod.instance.moreUpgradesPresent)
+                        {
+                            MoreUpgradesUpgrade(steamID, upgrade);
+                        }
+                        else
+                        {
+                            log.LogWarning($"Dragon Ball wish for upgrade: {upgrade} failed");
+                        }
                         break;
                     }
             }
         }
-        //[PunRPC]
-        //public void MegaUpgradeMiscRPC(string upgrade, string steamID)
-        //{
-        //    try
-        //    {
-        //        StatsManager.instance.dictionaryOfDictionaries[upgrade][steamID] += 10;
-        //    }
-        //    catch
-        //    {
-        //        log.LogError($"Attempted to upgrade \"{upgrade}\" on player \"{SemiFunc.PlayerAvatarGetFromSteamID(steamID).playerName}\" but something went wrong!");
-        //    }
-        //}
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void MoreUpgradesUpgrade(string steamID, string upgrade)
+        {
+            MoreUpgrades.Classes.UpgradeItem upgradeItem = MoreUpgrades.Plugin.instance.upgradeItems.Find((x) => x.name == upgrade || x.name == new string(upgrade.Where((char y) => !char.IsWhiteSpace(y)).ToArray()));
+            if (upgradeItem == null)
+            {
+                log.LogWarning($"Dragon Ball wish upgrade tried to use MoreUpgrades' \"{upgrade}\" but something went wrong");
+                return;
+            }
+            MoreUpgrades.Classes.MoreUpgradesManager.instance.Upgrade(new string(upgrade.Where((char x) => !char.IsWhiteSpace(x)).ToArray()), steamID, Mathf.Min(10, upgradeItem.upgradeItemBase.maxPurchaseAmount - upgradeItem.playerUpgrades[steamID]));
+        }
         [PunRPC]
         public void PropogateBallsRPC(int balls, string masterID)
         {

@@ -29,7 +29,7 @@ namespace REPOWildCardMod.Patches
         }
     }
     [HarmonyPatch(typeof(PhysGrabber))]
-    public static class PhysGrabberPatchPhysGrabPointActivate
+    public static class PhysGrabberPhysGrabPointActivatePatch
     {
         static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         [HarmonyPatch(nameof(PhysGrabber.PhysGrabPointActivate))]

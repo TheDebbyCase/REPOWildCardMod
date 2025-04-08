@@ -124,6 +124,17 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+- Reskins
+	<details>
+	<summary>Digi-RugCats</summary>
+	
+	Original designs by [kael](https://www.twitch.tv/kael),  
+	Maybe now you want to kill them less..?
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/DigiRugCatPreview.png)
+	
+	</details>
+
 I hope to add more soon! Make suggestions on BlueSky!
 
 ## WILDCARD

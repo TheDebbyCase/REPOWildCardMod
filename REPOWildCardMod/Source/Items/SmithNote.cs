@@ -517,11 +517,18 @@ namespace REPOWildCardMod.Items
                 {
                     if (enemy)
                     {
-                        itemBattery.batteryLife -= Mathf.Min(itemBattery.batteryLife, 50f);
+                        if (WildCardMod.instance.ModConfig.noteDestroy.Value)
+                        {
+                            physGrabObject.impactDetector.DestroyObject();
+                        }
+                        else
+                        {
+                            itemBattery.RemoveFullBar(3);
+                        }
                     }
                     else
                     {
-                        itemBattery.batteryLife -= Mathf.Min(itemBattery.batteryLife, 20f);
+                        itemBattery.batteryLife -= Mathf.Min(itemBattery.batteryLife, 50f);
                     }
                 }
                 itemToggle.ToggleItem(toggle: false);

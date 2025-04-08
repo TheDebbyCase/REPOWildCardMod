@@ -54,7 +54,7 @@ namespace REPOWildCardMod.Valuables
                 {
                     if (physGrabObject.playerGrabbing[i].isLocal)
                     {
-                        PlayerController.instance.OverrideSpeed(3f);
+                        PlayerController.instance.OverrideSpeed(2f);
                     }
                 }
             }
@@ -110,7 +110,7 @@ namespace REPOWildCardMod.Valuables
             newObject.transform.parent = PlayerController.instance.transform;
             newObject.transform.localPosition = Vector3.zero;
             SuperSonic superSonic = newObject.AddComponent<SuperSonic>();
-            superSonic.sonicLoop = sonicLoop;
+            Sound.CopySound(sonicLoop, superSonic.sonicLoop);
         }
         [PunRPC]
         public void PropogateEmeraldsRPC(int emeralds, string masterID)

@@ -24,7 +24,10 @@ namespace REPOWildCardMod.Valuables
         {
             animator.SetLayerWeight(1, Mathf.Clamp01(physGrabObject.impactDetector.impactForce / 150f));
             animator.SetTrigger("Squish");
-            TrapStart();
+            if (!physGrabObject.impactDetector.inCart && !physGrabObject.roomVolumeCheck.inExtractionPoint)
+            {
+                TrapStart();
+            }
         }
         public void NoseExplode()
         {

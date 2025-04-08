@@ -13,10 +13,15 @@ namespace REPOWildCardMod.Valuables
         public ParticleSystem particleSystem;
         public ParticleSystemRenderer particleSystemRenderer;
         public PhysicMaterial physMat;
+        public Animator animator;
+        public ParticleScriptExplosion explodeScript;
         public bool angry = false;
         public float angerTimer = 0f;
         public bool impulse = true;
         public bool pickingUp = true;
+        public bool explodeMode = false;
+        public int explodeCounter = 0;
+        public int timesAngered = 0;
         public override void Start()
         {
             base.Start();
@@ -36,11 +41,11 @@ namespace REPOWildCardMod.Valuables
             }
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                if (trapStart && !angry)
+                if (trapStart && !angry && !explodeMode)
                 {
                     SetState(1);
                 }
-                if (angerTimer <= 0f && angry)
+                else if (angerTimer <= 0f && angry && !explodeMode)
                 {
                     SetState(0);
                 }
@@ -53,6 +58,18 @@ namespace REPOWildCardMod.Valuables
             {
                 StateImpulse(state, angry);
                 impulse = false;
+            }
+            if (explodeMode && !physGrabObject.impactDetector.impactAudio.impactLight.Source.isPlaying)
+            {
+                ImpactSquish();
+                physGrabObject.impactDetector.impactAudio.impactLight.Play(transform.position, 1 + ((float)explodeCounter / 25f));
+                explodeCounter++;
+                if (explodeCounter >= 26)
+                {
+                    explodeScript.Spawn(transform.position, 0.75f, 20, 40, 2.5f);
+                    explodeCounter = 0;
+                    explodeMode = false;
+                }
             }
             mouseSounds[0].PlayLoop(!angry, 1f, 2f);
             mouseSounds[1].PlayLoop(angry, 1f, 2f);
@@ -71,6 +88,11 @@ namespace REPOWildCardMod.Valuables
             }
             else if (!angerState && id == 1)
             {
+                timesAngered++;
+                if (timesAngered >= 3)
+                {
+                    explodeMode = true;
+                }
                 angry = true;
                 enemyInvestigateRange = 10f;
                 enemyInvestigate = true;
@@ -101,6 +123,12 @@ namespace REPOWildCardMod.Valuables
                 impulse = true;
             }
             state = index;
+        }
+        public void ImpactSquish()
+        {
+            animator.SetLayerWeight(1, Mathf.Clamp01(physGrabObject.impactDetector.impactForce / 150f));
+            animator.SetTrigger("Squish");
+            TrapStart();
         }
     }
 }

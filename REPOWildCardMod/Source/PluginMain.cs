@@ -9,22 +9,26 @@ using REPOWildCardMod.Config;
 using HarmonyLib;
 using REPOWildCardMod.Utils;
 using REPOWildCardMod.Valuables;
+using REPOWildCardMod.Patches;
 namespace REPOWildCardMod
 {
     [BepInPlugin(modGUID, modName, modVersion)]
     [BepInDependency(REPOLib.MyPluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.HardDependency)]
+    [BepInDependency("bulletbot.moreupgrades", BepInDependency.DependencyFlags.SoftDependency)]
     public class WildCardMod : BaseUnityPlugin
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.10.9";
+        internal const string modVersion = "0.11.0";
         private readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
         public static WildCardMod instance;
+        public bool moreUpgradesPresent = false;
         internal WildCardConfig ModConfig { get; private set; } = null!;
         public List<GameObject> valList = new List<GameObject>();
         public List<Item> itemList = new List<Item>();
+        public List<Reskin> reskinList = new List<Reskin>();
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private void Awake()
         {
@@ -40,12 +44,24 @@ namespace REPOWildCardMod
                 MethodInfo[] typeMethods = assemblyTypes[i].GetMethods(BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static);
                 for (int j = 0; j < typeMethods.Length; j++)
                 {
-                    object[] methodAttributes = typeMethods[j].GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
+                    object[] methodAttributes;
+                    try
+                    {
+                        methodAttributes = typeMethods[j].GetCustomAttributes(typeof(RuntimeInitializeOnLoadMethodAttribute), false);
+                    }
+                    catch
+                    {
+                        continue;
+                    }
                     if (methodAttributes.Length > 0)
                     {
                         typeMethods[j].Invoke(null, null);
                     }
                 }
+            }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("bulletbot.moreupgrades"))
+            {
+                moreUpgradesPresent = true;
             }
             AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wildcardmod"));
             string[] allAssetPaths = bundle.GetAllAssetNames();
@@ -64,6 +80,11 @@ namespace REPOWildCardMod
                             itemList.Add(bundle.LoadAsset<Item>(allAssetPaths[i]));
                             break;
                         }
+                    case "assets/my creations/resources/reskins":
+                        {
+                            reskinList.Add(bundle.LoadAsset<Reskin>(allAssetPaths[i]));
+                            break;
+                        }
                     default:
                         {
                             log.LogWarning($"\"{assetPath}\" is not a known asset path, skipping.");
@@ -71,7 +92,7 @@ namespace REPOWildCardMod
                         }
                 }
             }
-            ModConfig = new WildCardConfig(base.Config, valList, itemList);
+            ModConfig = new WildCardConfig(base.Config, valList, itemList, reskinList);
             for (int i = 0; i < valList.Count; i++)
             {
                 if (ModConfig.isValEnabled[i].Value)
@@ -120,14 +141,28 @@ namespace REPOWildCardMod
                     log.LogInfo($"{itemList[i].name} item was disabled!");
                 }
             }
+            for (int i = 0; i < reskinList.Count; i++)
+            {
+                if (!ModConfig.isReskinEnabled[i].Value || ModConfig.reskinChance[i].Value <= 0f)
+                {
+                    log.LogInfo($"{reskinList[i].identifier} reskin was disabled!");
+                }
+            }
+            log.LogDebug("Patching Game");
+            harmony.PatchAll(typeof(EnemyParentPatches));
+            harmony.PatchAll(typeof(HurtColliderPatch));
+            harmony.PatchAll(typeof(PhysGrabObjectImpactDetectorPatches));
+            harmony.PatchAll(typeof(PhysGrabObjectPatches));
+            harmony.PatchAll(typeof(PlayerAvatarPatch));
+            harmony.PatchAll(typeof(StatsManagerPatches));
             if (ModConfig.harmonyPatches.Value)
             {
-                log.LogDebug("Patching Game");
-                harmony.PatchAll();
+                harmony.PatchAll(typeof(PhysGrabberRayCheckPatch));
+                harmony.PatchAll(typeof(PhysGrabberPhysGrabPointActivatePatch));
             }
             else
             {
-                log.LogInfo("Disabled Harmony Patches");
+                log.LogInfo("Disabled Giwi's Transpilers");
             }
             log.LogInfo("WILDCARD REPO Successfully Loaded");
         }

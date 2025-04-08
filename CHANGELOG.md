@@ -1,3 +1,14 @@
+## 0.11.0
+- Added a reskin for the Rugrats called Digi-RugCats!
+- Added a config option for the Smith Note to destroy itself after use
+- Attempted to remove Smith Note from the shop
+- Potential fix for Smith Note charge not going down as expected when used to kill an enemy
+- Redid Giwi Worm grab and wiggle logic to hopefully make it less buggy
+- Potential fix for collecting 7 Chaos Emeralds causing error spam
+- Attempted to make Dragon Balls able to use MoreUpgrades upgrades
+- Made Fixated Nose unable to randomly explode when in the cart or in an extraction point
+- Sleepyhead explodes now :)
+
 ## 0.10.9
 - Made Dragon Ball wish only use vanilla upgrades
 

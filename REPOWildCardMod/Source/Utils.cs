@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using UnityEditor;
+using System;
+using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using UnityEngine;
 namespace REPOWildCardMod.Utils
@@ -100,6 +103,92 @@ namespace REPOWildCardMod.Utils
             if (overrideTimer <= 0f)
             {
                 Destroy(this.gameObject);
+            }
+        }
+    }
+    [Serializable]
+    public class Chance
+    {
+        [Range(0f, 1f)]
+        public float value;
+    }
+    [Serializable]
+    public class Replacer
+    {
+        public List<BodyParts> bodyParts = new List<BodyParts>();
+    }
+    [Serializable]
+    public class BodyParts
+    {
+        public string transformName = "";
+        public Mesh newMesh;
+        public List<Material> newMaterials = new List<Material>();
+    }
+    [CreateAssetMenu(menuName = "WCScriptableObjects/Reskin", order = 1)]
+    public class Reskin : ScriptableObject
+    {
+        public string identifier = "";
+        [Space]
+        public Chance replaceChance = new Chance { value = 1f };
+        public Chance[] variantChances = new Chance[0];
+        public AnimationCurve variantsCurve;
+        [Space]
+        public List<Replacer> replacers = new List<Replacer>();
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void OnValidate()
+        {
+            for (int i = 0; i < variantChances.Length; i++)
+            {
+                if (replacers.Count < i + 1)
+                {
+                    replacers.Add(new Replacer());
+                }
+                else if (replacers.Count > variantChances.Length)
+                {
+                    replacers.RemoveAt(replacers.Count - 1);
+                }
+            }
+            float variantChancesTotal = 0f;
+            for (int i = 0; i < variantChances.Length; i++)
+            {
+                variantChancesTotal += variantChances[i].value;
+            }
+            if (variantChancesTotal > 1f)
+            {
+                for (int i = 0; i < variantChances.Length; i++)
+                {
+                    variantChances[i].value -= (float)Math.Round((decimal)((variantChancesTotal - 1f) / variantChances.Length), 2);
+                    if (variantChances[i].value < 0.001f)
+                    {
+                        variantChances[i].value = 0f;
+                    }
+                }
+            }
+            else if (variantChancesTotal < 1f)
+            {
+                for (int i = 0; i < variantChances.Length; i++)
+                {
+                    
+                    variantChances[i].value += (float)Math.Round((decimal)((1f - variantChancesTotal) / variantChances.Length), 2);
+                    if (variantChances[i].value > 0.999)
+                    {
+                        variantChances[i].value = 1f;
+                    }
+                }
+            }
+            variantsCurve = new AnimationCurve();
+            variantsCurve.AddKey(0f, 0f);
+            float cumulative = 0f;
+            for (int i = 0; i < variantChances.Length; i++)
+            {
+                variantsCurve.AddKey(cumulative + variantChances[i].value, (float)i + 1f);
+                cumulative += variantChances[i].value;
+            }
+            variantsCurve.keys[^1].value -= 1f;
+            for (int i = 0; i < variantsCurve.length; i++)
+            {
+                AnimationUtility.SetKeyLeftTangentMode(variantsCurve, i, AnimationUtility.TangentMode.Linear);
+                AnimationUtility.SetKeyRightTangentMode(variantsCurve, i, AnimationUtility.TangentMode.Linear);
             }
         }
     }

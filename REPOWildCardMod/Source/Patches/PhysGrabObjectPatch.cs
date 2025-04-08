@@ -24,7 +24,7 @@ namespace REPOWildCardMod.Patches
         }
         [HarmonyPatch(nameof(PhysGrabObject.GrabLinkRPC))]
         [HarmonyPrefix]
-        public static bool GrabLinkColliders(PhysGrabObject __instance, ref int playerPhotonID, ref int colliderID, ref UnityEngine.Vector3 point, ref UnityEngine.Vector3 cameraRelativeGrabbedForward, ref UnityEngine.Vector3 cameraRelativeGrabbedUp)
+        public static bool GrabLinkColliders(PhysGrabObject __instance, ref int playerPhotonID, ref int colliderID, ref Vector3 point)
         {
             if (__instance.transform.GetComponent<GiwiWormValuable>())
             {
