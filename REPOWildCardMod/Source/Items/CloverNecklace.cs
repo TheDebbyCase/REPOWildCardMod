@@ -77,10 +77,14 @@ namespace REPOWildCardMod.Items
         }
         public void EnemyHit()
         {
-            itemBattery.Drain(5f);
+            itemBattery.batteryLife -= 5f;
             for (int i = 0; i < physGrabObject.playerGrabbing.Count; i++)
             {
-                physGrabObject.playerGrabbing[i].playerAvatar.ForceImpulse((physGrabObject.playerGrabbing[i].playerAvatar.clientPositionCurrent - SemiFunc.EnemyGetNearest(transform.position, 3f, false).CenterTransform.position).normalized * 10f);
+                Enemy enemy = SemiFunc.EnemyGetNearest(transform.position, 5f, false);
+                if (enemy != null)
+                {
+                    physGrabObject.playerGrabbing[i].playerAvatar.ForceImpulse((physGrabObject.playerGrabbing[i].playerAvatar.clientPositionCurrent - enemy.CenterTransform.position).normalized * 10f);
+                }
             }
         }
     }

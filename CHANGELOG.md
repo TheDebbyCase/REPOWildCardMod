@@ -1,3 +1,11 @@
+## 0.11.1
+- Potential fix for Clover Necklace not losing any charge
+- Adjusted Clover Necklace's effects on players
+- Adjusted Giwi to make her lighter and less powerful, haven't tested this so if she's lost all her wiggle or wiggles too much let me know
+- Made Sleepyhead not trigger when in the cart or in an extraction point
+- Sleepyhead no longer makes herself angry in perpetuity
+- Various debug logging adjustments
+
 ## 0.11.0
 - Added a reskin for the Rugrats called Digi-RugCats!
 - Added a config option for the Smith Note to destroy itself after use

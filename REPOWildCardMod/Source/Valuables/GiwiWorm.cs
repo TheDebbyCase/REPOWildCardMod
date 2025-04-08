@@ -84,7 +84,7 @@ namespace REPOWildCardMod.Valuables
             {
                 for (int i = 1; i < rigidBodies.Length; i++)
                 {
-                    rigidBodies[i].AddForce(new Vector3(Random.Range(-5f, 5f) / Mathf.Sqrt(i), Random.Range(0f, 0.25f), Random.Range(-5f, 5f) / Mathf.Sqrt(i)), ForceMode.Impulse);
+                    rigidBodies[i].AddForce(new Vector3(Random.Range(-0.5f, 0.5f) / Mathf.Sqrt(i), Random.Range(0f, 0.025f), Random.Range(-0.5f, 0.5f) / Mathf.Sqrt(i)), ForceMode.Force);
                 }
                 if (dropTimer != 5f)
                 {
@@ -95,15 +95,18 @@ namespace REPOWildCardMod.Valuables
             {
                 if (dropTimer > 0f)
                 {
-                    rigidBodies[10].AddForce(new Vector3(Random.Range(-10f, 10f), Random.Range(0f, 0.5f), Random.Range(-10f, 10f)), ForceMode.Impulse);
+                    rigidBodies[10].AddForce(new Vector3(Random.Range(-1f, 1f), Random.Range(0f, 0.05f), Random.Range(-1f, 1f)), ForceMode.Force);
                     dropTimer -= Time.deltaTime;
+                }
+                else if (!physGrabObject.hasNeverBeenGrabbed)
+                {
+                    rigidBodies[10].AddForce(new Vector3(Random.Range(-0.1f, 0.1f), Random.Range(0f, 0.005f), Random.Range(-0.1f, 0.1f)), ForceMode.Force);
                 }
             }
         }
         [PunRPC]
         public void TargetTimeRPC(float tTime, float sTime, float speed, float animTime)
         {
-            log.LogDebug($"{gameObject.name}'s Animation Values: \"{tTime}\", \"{sTime}\", \"{speed}\", \"{animTime}\"");
             targetTime = tTime;
             startTime = sTime;
             animSpeed = speed;

@@ -323,7 +323,7 @@ namespace REPOWildCardMod.Items
         [PunRPC]
         public void SetPageTextRPC(int id, string text)
         {
-            log.LogDebug($"Page {id} text: \"{text}\"");
+            log.LogDebug($"Page {id + 1} text: \"{text.Replace("\n", ", ")}\"");
             pageText[id].text = text;
         }
         public void KillMessage(string message)
@@ -523,12 +523,12 @@ namespace REPOWildCardMod.Items
                         }
                         else
                         {
-                            itemBattery.RemoveFullBar(3);
+                            itemBattery.batteryLife -= 50f;
                         }
                     }
                     else
                     {
-                        itemBattery.batteryLife -= Mathf.Min(itemBattery.batteryLife, 50f);
+                        itemBattery.batteryLife -= 10f;
                     }
                 }
                 itemToggle.ToggleItem(toggle: false);
