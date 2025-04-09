@@ -98,7 +98,7 @@ namespace REPOWildCardMod.Valuables
             Component[] components = newObject.GetComponents<Component>();
             for (int i = 0; i < components.Length; i++)
             {
-                if (components[i].GetType() == typeof(Animator) || components[i].GetType() == typeof(CameraGlitch))
+                if (components[i].GetType() == typeof(Animator))
                 {
                     Destroy(components[i]);
                 }

@@ -3,7 +3,6 @@ using REPOWildCardMod.Config;
 using REPOWildCardMod.Items;
 using REPOWildCardMod.Utils;
 using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 namespace REPOWildCardMod.Patches
 {

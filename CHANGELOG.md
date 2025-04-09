@@ -1,3 +1,6 @@
+## 0.11.3
+- Finally actually fixed Chaos Emeralds effect for real this time
+
 ## 0.11.2
 - Redid Giwi wiggling logic, gave her back her wiggle
 - Potential fix for collecting 7 Chaos Emeralds causing error spam, again

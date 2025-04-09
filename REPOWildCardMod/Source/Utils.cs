@@ -76,18 +76,23 @@ namespace REPOWildCardMod.Utils
                     if (playersList[i].isLocal)
                     {
                         sonicLoop.PlayLoop(overrideTimer > 10f, 2f, 0.5f);
-                        PlayerAvatar.instance.voiceChat.OverridePitch(1.5f, 1f, 0.25f);
+                        if (SemiFunc.IsMultiplayer())
+                        {
+                            PlayerAvatar.instance.voiceChat.OverridePitch(1.5f, 1f, 0.25f);
+                        }
                         PlayerAvatar.instance.OverridePupilSize(0.3f, 4, 0.25f, 1f, 5f, 0.5f);
-                        PlayerController.instance.OverrideSpeed(2.5f);
-                        PlayerController.instance.OverrideLookSpeed(2f, 0.5f, 1f);
+                        PlayerController.instance.OverrideSpeed(3f);
                         PlayerController.instance.OverrideAnimationSpeed(2.5f, 1f, 0.5f);
-                        PlayerController.instance.OverrideTimeScale(2.5f);
+                        if (!PlayerAvatar.instance.isTumbling)
+                        {
+                            PlayerController.instance.OverrideTimeScale(2.5f);
+                        }
                         if (PhysGrabber.instance.grabbedPhysGrabObject != null)
                         {
                             PhysGrabber.instance.grabbedPhysGrabObject.OverrideTorqueStrength(1.5f);
                         }
                         CameraZoom.Instance.OverrideZoomSet(90f, 0.1f, 1f, 0.5f, null, 0);
-                        PostProcessing.Instance.SaturationOverride(-30f, 0.5f, 0.1f, 0.1f, null);
+                        PostProcessing.Instance.SaturationOverride(50f, 0.5f, 0.1f, 0.1f, null);
                     }
                     else
                     {
