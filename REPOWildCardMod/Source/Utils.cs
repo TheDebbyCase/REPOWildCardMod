@@ -192,4 +192,16 @@ namespace REPOWildCardMod.Utils
             }
         }
     }
+    [Serializable]
+    public class GiwiRigidbody
+    {
+        public Rigidbody rb;
+        public Vector3 direction;
+        public float newDirTimer;
+        public void Wiggle(float forceIntensity, float torqueIntensity)
+        {
+            rb.AddForce(direction * forceIntensity);
+            rb.AddTorque(UnityEngine.Random.onUnitSphere * torqueIntensity);
+        }
+    }
 }

@@ -13,12 +13,12 @@ namespace REPOWildCardMod.Patches
         {
             if (__instance.physGrabObject.transform.TryGetComponent<GiwiWormValuable>(out GiwiWormValuable giwi))
             {
-                int newIndex = Array.FindIndex(giwi.rigidBodies, (x) => x == __instance.rb) + 1;
-                if (newIndex == giwi.rigidBodies.Length)
+                int newIndex = Array.FindIndex(giwi.giwiRigidbodies, (x) => x.rb == __instance.rb) + 1;
+                if (newIndex == giwi.giwiRigidbodies.Length)
                 {
                     newIndex = 0;
                 }
-                __instance.rb = giwi.rigidBodies[newIndex];
+                __instance.rb = giwi.giwiRigidbodies[newIndex].rb;
             }
             return true;
         }

@@ -1,3 +1,7 @@
+## 0.11.2
+- Redid Giwi wiggling logic, gave her back her wiggle
+- Potential fix for collecting 7 Chaos Emeralds causing error spam, again
+
 ## 0.11.1
 - Potential fix for Clover Necklace not losing any charge
 - Adjusted Clover Necklace's effects on players

@@ -98,7 +98,7 @@ namespace REPOWildCardMod.Valuables
             Component[] components = newObject.GetComponents<Component>();
             for (int i = 0; i < components.Length; i++)
             {
-                if (components[i].GetType() != typeof(Animator) || components[i].GetType() != typeof(CameraGlitch))
+                if (components[i].GetType() == typeof(Animator) || components[i].GetType() == typeof(CameraGlitch))
                 {
                     Destroy(components[i]);
                 }
@@ -110,7 +110,7 @@ namespace REPOWildCardMod.Valuables
             newObject.transform.parent = PlayerController.instance.transform;
             newObject.transform.localPosition = Vector3.zero;
             SuperSonic superSonic = newObject.AddComponent<SuperSonic>();
-            Sound.CopySound(sonicLoop, superSonic.sonicLoop);
+            superSonic.sonicLoop = new Sound { Source = sonicLoop.Source, Sounds = sonicLoop.Sounds, Type = sonicLoop.Type, Volume = sonicLoop.Volume, VolumeRandom = sonicLoop.VolumeRandom, Pitch = sonicLoop.Pitch, PitchRandom = sonicLoop.PitchRandom, SpatialBlend = sonicLoop.SpatialBlend, ReverbMix = sonicLoop.ReverbMix, Doppler = sonicLoop.Doppler };
         }
         [PunRPC]
         public void PropogateEmeraldsRPC(int emeralds, string masterID)

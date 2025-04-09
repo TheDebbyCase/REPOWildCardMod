@@ -1,11 +1,12 @@
 ﻿using Photon.Pun;
+using REPOWildCardMod.Utils;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class GiwiWormValuable : MonoBehaviour
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
-        public Rigidbody[] rigidBodies;
+        public GiwiRigidbody[] giwiRigidbodies;
         public Sound giwiSounds;
         public PhysGrabObject physGrabObject;
         public PhotonView photonView;
@@ -20,9 +21,9 @@ namespace REPOWildCardMod.Valuables
         {
             if (GameManager.Multiplayer() && !PhotonNetwork.IsMasterClient)
             {
-                for (int i = 0; i < rigidBodies.Length; i++)
+                for (int i = 0; i < giwiRigidbodies.Length; i++)
                 {
-                    rigidBodies[i].collisionDetectionMode = CollisionDetectionMode.Discrete;
+                    giwiRigidbodies[i].rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
                 }
             }
         }
@@ -30,7 +31,7 @@ namespace REPOWildCardMod.Valuables
         {
             if (physGrabObject.grabbedLocal)
             {
-                PhysGrabber.instance.OverrideGrabPoint(rigidBodies[1].transform);
+                PhysGrabber.instance.OverrideGrabPoint(giwiRigidbodies[1].rb.transform);
                 PhysGrabber.instance.OverridePullDistanceIncrement(-0.5f * Time.fixedDeltaTime);
                 physGrabObject.OverrideGrabStrength(40f);
             }
@@ -39,7 +40,7 @@ namespace REPOWildCardMod.Valuables
                 if (!giwiSounds.Source.isPlaying)
                 {
                     EnemyDirector.instance.SetInvestigate(transform.position, 10f);
-                    giwiSounds.Play(rigidBodies[10].transform.position);
+                    giwiSounds.Play(giwiRigidbodies[10].rb.transform.position);
                     log.LogDebug($"{giwiSounds.Source.clip.name}");
                 }
             }
@@ -80,27 +81,37 @@ namespace REPOWildCardMod.Valuables
         }
         public void FixedUpdate()
         {
-            if (physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                for (int i = 1; i < rigidBodies.Length; i++)
+                if (physGrabObject.grabbed || dropTimer > 0f)
                 {
-                    rigidBodies[i].AddForce(new Vector3(Random.Range(-0.5f, 0.5f) / Mathf.Sqrt(i), Random.Range(0f, 0.025f), Random.Range(-0.5f, 0.5f) / Mathf.Sqrt(i)), ForceMode.Force);
+                    for (int i = 1; i < giwiRigidbodies.Length; i++)
+                    {
+                        giwiRigidbodies[i].newDirTimer -= Time.fixedDeltaTime;
+                        if (giwiRigidbodies[i].newDirTimer <= 0f)
+                        {
+                            Vector3 vertVector;
+                            if (physGrabObject.grabbed)
+                            {
+                                vertVector = new Vector3(1f, 1f, 1f);
+                            }
+                            else
+                            {
+                                vertVector = new Vector3(1f, 0.1f, 1f);
+                            }
+                            giwiRigidbodies[i].direction = Vector3.Scale(Random.onUnitSphere, vertVector);
+                            giwiRigidbodies[i].newDirTimer = Random.Range(0.1f, 0.5f);
+                        }
+                        giwiRigidbodies[i].Wiggle(Random.Range(0.1f, 10f) * ((float)Mathf.Min(i, 6) / 2f), Random.Range(0.1f, 5f) * -1f);
+                    }
+                    if (physGrabObject.grabbed && dropTimer != 5f)
+                    {
+                        dropTimer = 5f;
+                    }
                 }
-                if (dropTimer != 5f)
+                if (!physGrabObject.grabbed)
                 {
-                    dropTimer = 5f;
-                }
-            }
-            else if (SemiFunc.IsMasterClientOrSingleplayer())
-            {
-                if (dropTimer > 0f)
-                {
-                    rigidBodies[10].AddForce(new Vector3(Random.Range(-1f, 1f), Random.Range(0f, 0.05f), Random.Range(-1f, 1f)), ForceMode.Force);
-                    dropTimer -= Time.deltaTime;
-                }
-                else if (!physGrabObject.hasNeverBeenGrabbed)
-                {
-                    rigidBodies[10].AddForce(new Vector3(Random.Range(-0.1f, 0.1f), Random.Range(0f, 0.005f), Random.Range(-0.1f, 0.1f)), ForceMode.Force);
+                    dropTimer -= Time.fixedDeltaTime;
                 }
             }
         }
