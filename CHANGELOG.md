@@ -1,3 +1,6 @@
+## 0.11.4
+- Added a tutorial tip for using the Smith Note
+
 ## 0.11.3
 - Finally actually fixed Chaos Emeralds effect for real this time
 

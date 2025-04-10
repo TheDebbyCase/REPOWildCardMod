@@ -36,6 +36,15 @@ namespace REPOWildCardMod.Items
         public bool overriding = false;
         public Coroutine crawlerCoroutine = null;
         public Vector3 forceRotation = new Vector3(-75f, 0f, 15f);
+        public TutorialDirector.TutorialPage tutorial;
+        public bool neverGrab = true;
+        public void Start()
+        {
+            if (TutorialDirector.instance.tutorialPages.Find((x) => x.pageName == tutorial.pageName) == null)
+            {
+                TutorialDirector.instance.tutorialPages.Add(tutorial);
+            }
+        }
         public void FixedUpdate()
         {
             if (physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
@@ -58,6 +67,11 @@ namespace REPOWildCardMod.Items
             }
             if (physGrabObject.grabbedLocal && !overriding && itemEquippable.currentState == ItemEquippable.ItemState.Idle && (!PhysGrabber.instance.overrideGrab || PhysGrabber.instance.overrideGrabTarget != physGrabObject))
             {
+                if (SemiFunc.IsMultiplayer() && neverGrab)
+                {
+                    TutorialDirector.instance.ActivateTip(tutorial.pageName, 0.5f, false);
+                    neverGrab = false;
+                }
                 itemEquippable.ForceGrab();
                 itemEquippable.forceGrabTimer = 0.2f;
                 PhysGrabber.instance.OverrideGrabDistance(0.8f);
