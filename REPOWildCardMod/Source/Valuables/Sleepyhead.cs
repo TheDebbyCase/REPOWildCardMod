@@ -126,12 +126,28 @@ namespace REPOWildCardMod.Valuables
         }
         public void ImpactSquish()
         {
-            animator.SetLayerWeight(1, Mathf.Clamp01(physGrabObject.impactDetector.impactForce / 150f));
-            animator.SetTrigger("Squish");
-            if (!explodeMode && !physGrabObject.roomVolumeCheck.inExtractionPoint && !physGrabObject.impactDetector.inCart)
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                TrapStart();
+                float force = physGrabObject.impactDetector.impactForce;
+                if (GameManager.Multiplayer())
+                {
+                    photonView.RPC("SquishRPC", RpcTarget.All, force);
+                }
+                else
+                {
+                    SquishRPC(force);
+                }
+                if (!explodeMode && !physGrabObject.roomVolumeCheck.inExtractionPoint && !physGrabObject.impactDetector.inCart)
+                {
+                    TrapStart();
+                }
             }
+        }
+        [PunRPC]
+        public void SquishRPC(float force)
+        {
+            animator.SetLayerWeight(1, Mathf.Clamp01(force / 150f));
+            animator.SetTrigger("Squish");
         }
     }
 }

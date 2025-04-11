@@ -1,10 +1,12 @@
-﻿using System;
+﻿using Photon.Pun;
+using System;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class AlolanVulpixie : MonoBehaviour
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        public PhotonView photonView;
         public PhysGrabObject physGrabObject;
         public GameObject[] pixieMeshes;
         public Sound[] pixieSounds;
@@ -26,7 +28,23 @@ namespace REPOWildCardMod.Valuables
         }
         public void ImpactSquish()
         {
-            animator.SetLayerWeight(1, Mathf.Clamp01(physGrabObject.impactDetector.impactForce / 150f));
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                float force = physGrabObject.impactDetector.impactForce;
+                if (GameManager.Multiplayer())
+                {
+                    photonView.RPC("SquishRPC", RpcTarget.All, force);
+                }
+                else
+                {
+                    SquishRPC(force);
+                }
+            }
+        }
+        [PunRPC]
+        public void SquishRPC(float force)
+        {
+            animator.SetLayerWeight(1, Mathf.Clamp01(force / 150f));
             animator.SetTrigger("Squish");
         }
     }

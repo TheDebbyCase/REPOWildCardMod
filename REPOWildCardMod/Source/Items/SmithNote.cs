@@ -537,7 +537,7 @@ namespace REPOWildCardMod.Items
                         }
                         else
                         {
-                            itemBattery.batteryLife -= 50f;
+                            itemBattery.BatteryFullPercentChange(itemBattery.batteryLifeInt - 3);
                         }
                     }
                     else

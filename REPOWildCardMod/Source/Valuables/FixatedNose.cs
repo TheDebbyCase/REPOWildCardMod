@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class FixatedNoseTrap : Trap
@@ -22,12 +23,28 @@ namespace REPOWildCardMod.Valuables
         }
         public void ImpactSquish()
         {
-            animator.SetLayerWeight(1, Mathf.Clamp01(physGrabObject.impactDetector.impactForce / 150f));
-            animator.SetTrigger("Squish");
-            if (!physGrabObject.impactDetector.inCart && !physGrabObject.roomVolumeCheck.inExtractionPoint)
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                TrapStart();
+                float force = physGrabObject.impactDetector.impactForce;
+                if (GameManager.Multiplayer())
+                {
+                    photonView.RPC("SquishRPC", RpcTarget.All, force);
+                }
+                else
+                {
+                    SquishRPC(force);
+                }
+                if (!physGrabObject.impactDetector.inCart && !physGrabObject.roomVolumeCheck.inExtractionPoint)
+                {
+                    TrapStart();
+                }
             }
+        }
+        [PunRPC]
+        public void SquishRPC(float force)
+        {
+            animator.SetLayerWeight(1, Mathf.Clamp01(force / 150f));
+            animator.SetTrigger("Squish");
         }
         public void NoseExplode()
         {

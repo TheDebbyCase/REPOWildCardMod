@@ -1,9 +1,11 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class MooCowValuable : MonoBehaviour
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        public PhotonView photonView;
         public PhysGrabObject physGrabObject;
         public Animator animator;
         public PhysicMaterial physMat;
@@ -74,7 +76,23 @@ namespace REPOWildCardMod.Valuables
         }
         public void ImpactSquish()
         {
-            animator.SetLayerWeight(1, Mathf.Clamp01(physGrabObject.impactDetector.impactForce / 150f));
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                float force = physGrabObject.impactDetector.impactForce;
+                if (GameManager.Multiplayer())
+                {
+                    photonView.RPC("SquishRPC", RpcTarget.All, force);
+                }
+                else
+                {
+                    SquishRPC(force);
+                }
+            }
+        }
+        [PunRPC]
+        public void SquishRPC(float force)
+        {
+            animator.SetLayerWeight(1, Mathf.Clamp01(force / 150f));
             animator.SetTrigger("Squish");
         }
     }

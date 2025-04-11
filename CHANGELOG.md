@@ -1,3 +1,6 @@
+## 0.11.5
+- Fixed certain valuables not squishing on impact for non-server clients
+
 ## 0.11.4
 - Added a tutorial tip for using the Smith Note
 

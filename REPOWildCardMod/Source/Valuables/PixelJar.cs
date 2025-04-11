@@ -104,7 +104,23 @@ namespace REPOWildCardMod.Valuables
         }
         public void ImpactBob()
         {
-            bobLerp = Mathf.Clamp(physGrabObject.impactDetector.impactForce / 75f, 0.5f, 2f);
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                float force = physGrabObject.impactDetector.impactForce;
+                if (GameManager.Multiplayer())
+                {
+                    photonView.RPC("BobRPC", RpcTarget.All, force);
+                }
+                else
+                {
+                    BobRPC(force);
+                }
+            }
+        }
+        [PunRPC]
+        public void BobRPC(float force)
+        {
+            bobLerp = Mathf.Clamp(force / 75f, 0.5f, 2f);
             RandomSpeed();
         }
         public void DestroyParticle()
