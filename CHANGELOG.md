@@ -1,3 +1,6 @@
+## 0.11.6
+- Fixed Dragon Ball upgrades......
+
 ## 0.11.5
 - Fixed certain valuables not squishing on impact for non-server clients
 
