@@ -13,9 +13,26 @@ namespace REPOWildCardMod.Valuables
         public PhysicMaterial physMat;
         public Animator animator;
         public bool scrungle = false;
+        public float voiceTimer;
         public void Start()
         {
             physGrabObject.OverrideMaterial(physMat, -123f);
+        }
+        public void Update()
+        {
+            if (physGrabObject.grabbed)
+            {
+                if (voiceTimer > 0f)
+                {
+                    voiceTimer -= Time.deltaTime;
+                }
+                else
+                {
+                    voiceTimer = UnityEngine.Random.Range(0.5f, 2.5f);
+                    int index = UnityEngine.Random.Range(0, pixieSounds.Length);
+                    pixieSounds[index].Play(pixieSounds[index].Source.transform.position);
+                }
+            }
         }
         public void PixieImpact(bool sad)
         {

@@ -65,7 +65,8 @@ namespace REPOWildCardMod.Valuables
             if (physGrabObject.grabbedLocal && pickingUp && SemiFunc.IsMultiplayer())
             {
                 pickingUp = false;
-                string message = " ON TOP";
+                string[] messageChoices = { " ON TOP", " ON BOT" };
+                string message = messageChoices[Random.Range(0, 2)];
                 Color colour = new Color();
                 switch (floater)
                 {

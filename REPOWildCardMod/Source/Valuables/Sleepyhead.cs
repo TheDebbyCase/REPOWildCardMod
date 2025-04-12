@@ -89,7 +89,7 @@ namespace REPOWildCardMod.Valuables
             else if (!angerState && id == 1)
             {
                 timesAngered++;
-                if (timesAngered >= 3)
+                if (timesAngered >= 5)
                 {
                     explodeMode = true;
                 }

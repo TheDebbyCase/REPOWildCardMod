@@ -11,7 +11,6 @@ namespace REPOWildCardMod.Items
         public ParticleSystem hitParticles;
         public ParticleSystem dripParticles;
         public float balanceForce = 2.5f;
-        public bool debugBool;
         public void FixedUpdate()
         {
             if (!physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
@@ -27,20 +26,10 @@ namespace REPOWildCardMod.Items
                 if (itemMelee.isSwinging || SemiFunc.InputHold(InputKey.Interact))
                 {
                     PhysGrabber.instance.OverrideGrabDistance(2.5f);
-                    if (!debugBool)
-                    {
-                        log.LogDebug($"{gameObject.name} setting grab distance to {PhysGrabber.instance.pullerDistance}!");
-                        debugBool = true;
-                    }
                 }
                 else
                 {
                     PhysGrabber.instance.OverrideGrabDistance(1.5f);
-                    if (debugBool)
-                    {
-                        log.LogDebug($"{gameObject.name} setting grab distance to {PhysGrabber.instance.pullerDistance}!");
-                        debugBool = false;
-                    }
                 }
             }
             if (physGrabObject.grabbed && !itemMelee.isBroken)

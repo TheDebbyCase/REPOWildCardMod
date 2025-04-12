@@ -55,7 +55,14 @@ namespace REPOWildCardMod.Valuables
             enemyInvestigate = true;
             enemyInvestigateRange = 10f;
             log.LogDebug($"{gameObject.name} is exploding!");
-            explodeScript.Spawn(transform.position, 0.245f, 5, 5, 2.5f);
+            if (Random.value < 0.9f)
+            {
+                explodeScript.Spawn(transform.position, 0.245f, 5, 5, 2.5f);
+            }
+            else
+            {
+                explodeScript.Spawn(transform.position, 2f, 20, 20, 5f);
+            }
         }
     }
 }

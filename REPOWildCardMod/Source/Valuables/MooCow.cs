@@ -23,27 +23,7 @@ namespace REPOWildCardMod.Valuables
                 {
                     physGrabObject.rb.AddForce((Random.insideUnitSphere / 2f) + (transform.up / 1.3f), ForceMode.Impulse);
                 }
-                if (!animator.GetBool("Grabbed"))
-                {
-                    animator.SetBool("Grabbed", true);
-                }
-                if (!cowSounds.Source.isPlaying && mooTimer <= 0f)
-                {
-                    EnemyDirector.instance.SetInvestigate(transform.position, 15f);
-                    cowSounds.Play(physGrabObject.rb.worldCenterOfMass);
-                    mooTimer = (Random.value + 0.25f) * 2f;
-                }
-                else if (mooTimer > 0f)
-                {
-                    mooTimer -= Time.deltaTime;
-                }
-            }
-            else
-            {
-                if (animator.GetBool("Grabbed"))
-                {
-                    animator.SetBool("Grabbed", false);
-                }
+                
             }
         }
         public void Update()
@@ -72,6 +52,30 @@ namespace REPOWildCardMod.Valuables
                 ChatManager.instance.PossessChatScheduleStart(9);
                 ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, finalMessage, 2f, Color.blue);
                 ChatManager.instance.PossessChatScheduleEnd();
+            }
+            if (physGrabObject.grabbed)
+            {
+                if (!animator.GetBool("Grabbed"))
+                {
+                    animator.SetBool("Grabbed", true);
+                }
+                if (!cowSounds.Source.isPlaying && mooTimer <= 0f)
+                {
+                    EnemyDirector.instance.SetInvestigate(transform.position, 15f);
+                    cowSounds.Play(physGrabObject.rb.worldCenterOfMass);
+                    mooTimer = (Random.value + 0.25f) * 2f;
+                }
+                else if (mooTimer > 0f)
+                {
+                    mooTimer -= Time.deltaTime;
+                }
+            }
+            else
+            {
+                if (animator.GetBool("Grabbed"))
+                {
+                    animator.SetBool("Grabbed", false);
+                }
             }
         }
         public void ImpactSquish()

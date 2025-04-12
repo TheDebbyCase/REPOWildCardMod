@@ -74,7 +74,7 @@ namespace REPOWildCardMod.Items
                 }
                 itemEquippable.ForceGrab();
                 itemEquippable.forceGrabTimer = 0.2f;
-                PhysGrabber.instance.OverrideGrabDistance(0.8f);
+                PhysGrabber.instance.OverrideGrabDistance(0.5f);
                 overriding = true;
             }
             else if (!physGrabObject.grabbedLocal && overriding)
@@ -83,6 +83,7 @@ namespace REPOWildCardMod.Items
             }
             if (physGrabObject.grabbed && !opened)
             {
+                opened = true;
                 bookSound.Sounds = new AudioClip[] { audioClips[0] };
                 bookSound.Play(transform.position);
                 if (SemiFunc.IsMasterClientOrSingleplayer())
@@ -93,7 +94,6 @@ namespace REPOWildCardMod.Items
                 {
                     pageText[i].gameObject.SetActive(true);
                 }
-                opened = true;
             }
             else if (!physGrabObject.grabbed && opened)
             {
@@ -337,7 +337,10 @@ namespace REPOWildCardMod.Items
         [PunRPC]
         public void SetPageTextRPC(int id, string text)
         {
-            log.LogDebug($"Page {id + 1} text: \"{text.Replace("\n", ", ")}\"");
+            if (opened)
+            {
+                log.LogDebug($"Page {id + 1} text: \"{text.Replace("\n", ", ")}\"");
+            }
             pageText[id].text = text;
         }
         public void KillMessage(string message)

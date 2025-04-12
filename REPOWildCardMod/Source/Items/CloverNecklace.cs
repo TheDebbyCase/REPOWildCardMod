@@ -54,7 +54,7 @@ namespace REPOWildCardMod.Items
             {
                 holding = false;
             }
-            if (itemBattery.batteryLife <= 0f && !itemToggle.disabled)
+            if ((itemBattery.batteryLife <= 0f || (lastHolder != null && lastHolder.deadSet)) && !itemToggle.disabled)
             {
                 itemToggle.ToggleDisable(true);
                 itemToggle.ToggleItem(false);

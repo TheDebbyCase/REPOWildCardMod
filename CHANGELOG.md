@@ -1,3 +1,13 @@
+## 0.11.7
+- Fixed an issue where if the last holder of the Clover Necklace died, it would be hard to pick up again
+- Made Alolan Vulpixie speak to you when held
+- Gave Fixated Nose a chance to make a bigger explosion
+- Gave Giwi Worm some extra wiggle
+- Moved some Moo Cow logic from FixedUpdate to Update to avoid some timing issues
+- Gave Pixel Jars a chance for the player to slander the Digicat rather than compliment it
+- Increased the number of times Sleepyhead needs to get angry to get enraged
+- Adjusted various debug messages
+
 ## 0.11.6
 - Fixed Dragon Ball upgrades......
 
