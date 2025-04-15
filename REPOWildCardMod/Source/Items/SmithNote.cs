@@ -536,7 +536,7 @@ namespace REPOWildCardMod.Items
                     {
                         if (WildCardMod.instance.ModConfig.noteDestroy.Value)
                         {
-                            physGrabObject.impactDetector.DestroyObject();
+                            physGrabObject.DestroyPhysGrabObject();
                         }
                         else
                         {

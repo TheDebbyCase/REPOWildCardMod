@@ -87,9 +87,29 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	<summary>Chaos Emeralds</summary>
 	
 	Original design by [semiwork](https://semiwork.se/)  
-	No function (yet)
+	Collect all 7 AND go fast!
 
 	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/ChaosEmeraldPreview.png)
+	
+	</details>
+
+	<details>
+	<summary>Clover Bee</summary>
+	
+	Original design by [Cloverinari](https://www.twitch.tv/cloverinari)  
+	Fly like a bee, sting like a bee
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/CloverBeePreview.png)
+	
+	</details>
+
+	<details>
+	<summary>Tigerbun</summary>
+	
+	Original design by [FairyLatte](https://www.twitch.tv/fairylatte)  
+	This one bites back
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/TigerbunPreview.png)
 	
 	</details>
 

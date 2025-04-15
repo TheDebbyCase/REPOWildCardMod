@@ -55,6 +55,36 @@ namespace REPOWildCardMod.Utils
             }
             return newText;
         }
+        public bool IntToBool(int binary)
+        {
+            if (binary > 1)
+            {
+                binary = 1;
+            }
+            else if (binary < 0)
+            {
+                binary = 0;
+            }
+            if (binary == 1)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+        public int BoolToInt(bool binary)
+        {
+            if (binary)
+            {
+                return 1;
+            }
+            else
+            {
+                return 0;
+            }
+        }
     }
     public class SuperSonic : MonoBehaviour
     {

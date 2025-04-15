@@ -1,3 +1,9 @@
+## 0.12.0
+- Added Tigerbun!
+- Added Clover Bee!
+- Fixed double impact audio on Sleepyhead
+- Fixed Smith Note destroy self config option breaking the Smith Note
+
 ## 0.11.7
 - Fixed an issue where if the last holder of the Clover Necklace died, it would be hard to pick up again
 - Made Alolan Vulpixie speak to you when held
