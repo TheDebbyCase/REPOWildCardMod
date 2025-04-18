@@ -19,7 +19,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.12.0";
+        internal const string modVersion = "0.13.0";
         private readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
@@ -32,12 +32,12 @@ namespace REPOWildCardMod
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         private void Awake()
         {
-            log = Logger;
-            utils = new WildCardUtils();
             if (instance == null)
             {
                 instance = this;
             }
+            log = Logger;
+            utils = new WildCardUtils();
             Type[] assemblyTypes = Assembly.GetExecutingAssembly().GetTypes();
             for (int i = 0; i < assemblyTypes.Length; i++)
             {
@@ -83,6 +83,10 @@ namespace REPOWildCardMod
                     case "assets/my creations/resources/reskins":
                         {
                             reskinList.Add(bundle.LoadAsset<Reskin>(allAssetPaths[i]));
+                            break;
+                        }
+                    case "assets/my creations/resources/misc":
+                        {
                             break;
                         }
                     default:

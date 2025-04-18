@@ -1,3 +1,7 @@
+## 0.13.0
+- Added Fyrus Star!
+- Moved some code around, shouldn't cause problems.
+
 ## 0.12.0
 - Added Tigerbun!
 - Added Clover Bee!

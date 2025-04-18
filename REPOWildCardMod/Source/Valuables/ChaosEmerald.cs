@@ -1,5 +1,4 @@
 ﻿using Photon.Pun;
-using REPOWildCardMod.Utils;
 using System.Collections.Generic;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
@@ -126,6 +125,61 @@ namespace REPOWildCardMod.Valuables
         public void SetEmeraldsRPC(string steamID, int emeralds)
         {
             StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = emeralds;
+        }
+    }
+    public class SuperSonic : MonoBehaviour
+    {
+        public float overrideTimer;
+        public Sound sonicLoop;
+        public PlayerAvatar[] playersList;
+        public void Start()
+        {
+            overrideTimer = 120f;
+            playersList = SemiFunc.PlayerGetAll().ToArray();
+            sonicLoop.LowPassIgnoreColliders.Add(PlayerController.instance.col);
+        }
+        public void Update()
+        {
+            for (int i = 0; i < playersList.Length; i++)
+            {
+                if (playersList[i] != null)
+                {
+                    if (playersList[i].isLocal)
+                    {
+                        sonicLoop.PlayLoop(overrideTimer > 10f, 2f, 0.5f);
+                        if (SemiFunc.IsMultiplayer())
+                        {
+                            PlayerAvatar.instance.voiceChat.OverridePitch(1.5f, 1f, 0.25f);
+                        }
+                        PlayerAvatar.instance.OverridePupilSize(0.3f, 4, 0.25f, 1f, 5f, 0.5f);
+                        PlayerController.instance.OverrideSpeed(3f);
+                        PlayerController.instance.OverrideAnimationSpeed(2.5f, 1f, 0.5f);
+                        if (!PlayerAvatar.instance.isTumbling)
+                        {
+                            PlayerController.instance.OverrideTimeScale(2.5f);
+                        }
+                        if (PhysGrabber.instance.grabbedPhysGrabObject != null)
+                        {
+                            PhysGrabber.instance.grabbedPhysGrabObject.OverrideTorqueStrength(1.5f);
+                        }
+                        CameraZoom.Instance.OverrideZoomSet(90f, 0.1f, 1f, 0.5f, null, 0);
+                        PostProcessing.Instance.SaturationOverride(50f, 0.5f, 0.1f, 0.1f, null);
+                    }
+                    else
+                    {
+                        playersList[i].voiceChat.OverridePitch(1.5f, 1f, 0.25f);
+                    }
+                }
+            }
+            overrideTimer -= Time.deltaTime;
+            if (!SemiFunc.RunIsLevel() && overrideTimer > 5f)
+            {
+                overrideTimer = 5f;
+            }
+            if (overrideTimer <= 0f)
+            {
+                Destroy(this.gameObject);
+            }
         }
     }
 }

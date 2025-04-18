@@ -1,5 +1,5 @@
 ﻿using Photon.Pun;
-using REPOWildCardMod.Utils;
+using System;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
@@ -56,9 +56,9 @@ namespace REPOWildCardMod.Valuables
                 animLerp = 0f;
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
-                    animTimer = Random.Range(0.5f, 2f);
-                    float speed = Mathf.Max(Random.value, 0.125f) * 2f;
-                    float motionTime = Random.value;
+                    animTimer = UnityEngine.Random.Range(0.5f, 2f);
+                    float speed = Mathf.Max(UnityEngine.Random.value, 0.125f) * 2f;
+                    float motionTime = UnityEngine.Random.value;
                     if (GameManager.Multiplayer())
                     {
                         photonView.RPC("TargetTimeRPC", RpcTarget.All, motionTime, targetTime, speed, animTimer);
@@ -99,10 +99,10 @@ namespace REPOWildCardMod.Valuables
                             {
                                 vertVector = new Vector3(1f, 0.1f, 1f);
                             }
-                            giwiRigidbodies[i].direction = Vector3.Scale(Random.onUnitSphere, vertVector);
-                            giwiRigidbodies[i].newDirTimer = Random.Range(0.1f, 0.5f);
+                            giwiRigidbodies[i].direction = Vector3.Scale(UnityEngine.Random.onUnitSphere, vertVector);
+                            giwiRigidbodies[i].newDirTimer = UnityEngine.Random.Range(0.1f, 0.5f);
                         }
-                        giwiRigidbodies[i].Wiggle(Random.Range(1f, 10f) * ((float)Mathf.Min(i, 6) / 2f), Random.Range(1f, 6f) * -1f);
+                        giwiRigidbodies[i].Wiggle(UnityEngine.Random.Range(1f, 10f) * ((float)Mathf.Min(i, 6) / 2f), UnityEngine.Random.Range(1f, 6f) * -1f);
                     }
                     if (physGrabObject.grabbed && dropTimer != 5f)
                     {
@@ -122,6 +122,18 @@ namespace REPOWildCardMod.Valuables
             startTime = sTime;
             animSpeed = speed;
             animTimer = animTime;
+        }
+    }
+    [Serializable]
+    public class GiwiRigidbody
+    {
+        public Rigidbody rb;
+        public Vector3 direction;
+        public float newDirTimer;
+        public void Wiggle(float forceIntensity, float torqueIntensity)
+        {
+            rb.AddForce(direction * forceIntensity);
+            rb.AddTorque(UnityEngine.Random.onUnitSphere * torqueIntensity);
         }
     }
 }

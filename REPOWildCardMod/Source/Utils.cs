@@ -4,10 +4,360 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using UnityEngine;
+using System.Linq;
 namespace REPOWildCardMod.Utils
 {
     public class WildCardUtils
     {
+        readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        public Transform FindEnemyTransform(string enemy, string type)
+        {
+            Transform finalTransform = null;
+            EnemyParent targetEnemy = EnemyDirector.instance.enemiesSpawned.Find((x) => x.enemyName == enemy);
+            if (targetEnemy == null)
+            {
+                log.LogWarning($"Enemy \"{enemy}\" is not spawned!");
+                return null;
+            }
+            List<Transform> transforms = targetEnemy.GetComponentsInChildren<Transform>().ToList();
+            bool valid = true;
+            switch (enemy)
+            {
+                case "Animal":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Eyes");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Apex Predator":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "ANIM Head");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Banger":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "[ANIM BODY TOP]");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Bowtie":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "ANIM EYES");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Chef":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "hat");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Clown":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "[ANIM HAT]");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Gnome":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "ANIM HEAD");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Headman":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Top Mesh");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Hidden":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Breath Source");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Huntsman":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "ANIM HEAD");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Mentalist":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "ANIM head_raw");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Peeper":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Pupil");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Reaper":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "ANIM head");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Robe":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Head");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Rugrat":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "ANIM HEAD");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Shadow Child":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Thin man head");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Spewer":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "enemy slow mouth flying top");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Trudge":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "ANIM head_top");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Upscream":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "head");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        log.LogWarning($"Enemy \"{enemy}\" has not been set up");
+                        break;
+                    }
+            }
+            if (!valid)
+            {
+                log.LogWarning($"Transform of type \"{type}\" for enemy \"{enemy}\" has not been set up");
+            }
+            return finalTransform;
+        }
         public bool TextIsSimilar(string first, string second)
         {
             string firstReplaced = first.Replace(" ", string.Empty);
@@ -83,61 +433,6 @@ namespace REPOWildCardMod.Utils
             else
             {
                 return 0;
-            }
-        }
-    }
-    public class SuperSonic : MonoBehaviour
-    {
-        public float overrideTimer;
-        public Sound sonicLoop;
-        public PlayerAvatar[] playersList;
-        public void Start()
-        {
-            overrideTimer = 120f;
-            playersList = SemiFunc.PlayerGetAll().ToArray();
-            sonicLoop.LowPassIgnoreColliders.Add(PlayerController.instance.col);
-        }
-        public void Update()
-        {
-            for (int i = 0; i < playersList.Length; i++)
-            {
-                if (playersList[i] != null)
-                {
-                    if (playersList[i].isLocal)
-                    {
-                        sonicLoop.PlayLoop(overrideTimer > 10f, 2f, 0.5f);
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            PlayerAvatar.instance.voiceChat.OverridePitch(1.5f, 1f, 0.25f);
-                        }
-                        PlayerAvatar.instance.OverridePupilSize(0.3f, 4, 0.25f, 1f, 5f, 0.5f);
-                        PlayerController.instance.OverrideSpeed(3f);
-                        PlayerController.instance.OverrideAnimationSpeed(2.5f, 1f, 0.5f);
-                        if (!PlayerAvatar.instance.isTumbling)
-                        {
-                            PlayerController.instance.OverrideTimeScale(2.5f);
-                        }
-                        if (PhysGrabber.instance.grabbedPhysGrabObject != null)
-                        {
-                            PhysGrabber.instance.grabbedPhysGrabObject.OverrideTorqueStrength(1.5f);
-                        }
-                        CameraZoom.Instance.OverrideZoomSet(90f, 0.1f, 1f, 0.5f, null, 0);
-                        PostProcessing.Instance.SaturationOverride(50f, 0.5f, 0.1f, 0.1f, null);
-                    }
-                    else
-                    {
-                        playersList[i].voiceChat.OverridePitch(1.5f, 1f, 0.25f);
-                    }
-                }
-            }
-            overrideTimer -= Time.deltaTime;
-            if (!SemiFunc.RunIsLevel() && overrideTimer > 5f)
-            {
-                overrideTimer = 5f;
-            }
-            if (overrideTimer <= 0f)
-            {
-                Destroy(this.gameObject);
             }
         }
     }
@@ -225,18 +520,6 @@ namespace REPOWildCardMod.Utils
                 AnimationUtility.SetKeyLeftTangentMode(variantsCurve, i, AnimationUtility.TangentMode.Linear);
                 AnimationUtility.SetKeyRightTangentMode(variantsCurve, i, AnimationUtility.TangentMode.Linear);
             }
-        }
-    }
-    [Serializable]
-    public class GiwiRigidbody
-    {
-        public Rigidbody rb;
-        public Vector3 direction;
-        public float newDirTimer;
-        public void Wiggle(float forceIntensity, float torqueIntensity)
-        {
-            rb.AddForce(direction * forceIntensity);
-            rb.AddTorque(UnityEngine.Random.onUnitSphere * torqueIntensity);
         }
     }
 }

@@ -81,8 +81,7 @@ namespace REPOWildCardMod.Patches
                     {
                         case "Rugrat":
                             {
-                                Transform meshesParent = __instance.EnableObject.transform.Find("Visuals").Find("Mesh").Find("________________________________").Find("ANIM BOT").Find("________________________________").Find("ANIM MID").Find("________________________________");
-                                MeshFilter[] filters = meshesParent.GetComponentsInChildren<MeshFilter>(true);
+                                MeshFilter[] filters = __instance.transform.GetComponentsInChildren<MeshFilter>(true);
                                 List<Transform> transforms = new List<Transform>();
                                 for (int i = 0; i < filters.Length; i++)
                                 {
@@ -99,10 +98,10 @@ namespace REPOWildCardMod.Patches
                                         }
                                         if (transforms[j].name == newSkin.replacers[variantIndex].bodyParts[i].transformName)
                                         {
-                                            log.LogDebug($"{__instance.enemyName}: {transforms[j].name} successfully replaced!");
                                             transforms[j].GetComponent<MeshFilter>().mesh = newSkin.replacers[variantIndex].bodyParts[i].newMesh;
                                             transforms[j].GetComponent<MeshRenderer>().materials = newSkin.replacers[variantIndex].bodyParts[i].newMaterials.ToArray();
                                             replacedTransforms.Add(transforms[j]);
+                                            log.LogDebug($"{__instance.enemyName}: {transforms[j].name} successfully replaced!");
                                             break;
                                         }
                                     }

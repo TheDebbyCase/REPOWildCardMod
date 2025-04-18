@@ -144,6 +144,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Fyrus Star</summary>
+	
+	Design inspired by [sketchyy](https://x.com/sketchyypng)  
+	The practicality is questionable
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/FyrusStarPreview.png)
+	
+	</details>
+
 - Reskins
 	<details>
 	<summary>Digi-RugCats</summary>
