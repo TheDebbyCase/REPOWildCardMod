@@ -1,3 +1,6 @@
+## 0.14.1
+- Added new items to README
+
 ## 0.14.0
 - Added JaidenAnimation's bird Ari!
 - Added a Mario Dice for Alpharad!

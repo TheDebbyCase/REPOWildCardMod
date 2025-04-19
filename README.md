@@ -113,6 +113,36 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Ari</summary>
+	
+	Original design by [JaidenAnimations](https://www.youtube.com/channel/UCGwu0nbY2wSkW8N-cghnLpA)  
+	Be nice this one's real
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/AriPreview.png)
+	
+	</details>
+
+	<details>
+	<summary>Alpharad Dice</summary>
+	
+	Original design by [Nintendo](https://www.nintendo.com)  
+	Gambling! In R.E.P.O?
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/AlpharadDicePreview.png)
+	
+	</details>
+
+	<details>
+	<summary>Void Crown</summary>
+	
+	Original design by Unknown, if anyone knows who made Void's YouTube banner let me know
+	A crown for the greatest of gamers
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/VoidCrownPreview.png)
+	
+	</details>
+
 - Shop Items
 	<details>
 	<summary>Smith Halo</summary>
