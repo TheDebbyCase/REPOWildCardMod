@@ -1,3 +1,9 @@
+## 0.14.0
+- Added JaidenAnimation's bird Ari!
+- Added a Mario Dice for Alpharad!
+- Added gsmVoiD's crown!
+- README coming later
+
 ## 0.13.0
 - Added Fyrus Star!
 - Moved some code around, shouldn't cause problems.

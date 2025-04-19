@@ -19,7 +19,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.13.0";
+        internal const string modVersion = "0.14.0";
         private readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
@@ -159,6 +159,7 @@ namespace REPOWildCardMod
             harmony.PatchAll(typeof(PhysGrabObjectPatches));
             harmony.PatchAll(typeof(PlayerAvatarPatch));
             harmony.PatchAll(typeof(StatsManagerPatches));
+            harmony.PatchAll(typeof(WorldSpaceUIValueLostPatches));
             if (ModConfig.harmonyPatches.Value)
             {
                 harmony.PatchAll(typeof(PhysGrabberRayCheckPatch));
