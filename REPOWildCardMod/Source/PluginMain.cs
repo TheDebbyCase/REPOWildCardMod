@@ -19,8 +19,8 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.14.0";
-        private readonly Harmony harmony = new Harmony(modGUID);
+        internal const string modVersion = "0.14.2";
+        readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
         public static WildCardMod instance;
@@ -30,7 +30,7 @@ namespace REPOWildCardMod
         public List<Item> itemList = new List<Item>();
         public List<Reskin> reskinList = new List<Reskin>();
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
-        private void Awake()
+        void Awake()
         {
             if (instance == null)
             {
@@ -152,6 +152,7 @@ namespace REPOWildCardMod
                     log.LogInfo($"{reskinList[i].identifier} reskin was disabled!");
                 }
             }
+            //KaelMeme();
             log.LogDebug("Patching Game");
             harmony.PatchAll(typeof(CameraGlitchPatches));
             harmony.PatchAll(typeof(EnemyParentPatches));
@@ -171,5 +172,23 @@ namespace REPOWildCardMod
             }
             log.LogInfo("WILDCARD REPO Successfully Loaded");
         }
+        //void KaelMeme()
+        //{
+        //    SaveFile save = new SaveFile();
+        //    DigiHandler digiHandler = new DigiHandler();
+        //    int startRange = UnityEngine.Random.Range(0, save.twitchNames.Length - 1);
+        //    string[] chosenNames = save.twitchNames[startRange..UnityEngine.Random.Range(startRange, save.twitchNames.Length)];
+        //    int[] versions = new int[chosenNames.Length];
+        //    for (int i = 0; i < versions.Length; i++)
+        //    {
+        //        versions[i] = UnityEngine.Random.Range(0, 3);
+        //    }
+        //    Android android = new Android();
+        //    digiHandler.Initialize(android, save, chosenNames, versions);
+        //    while (!android.deadDigi)
+        //    {
+        //        digiHandler.AndroidCare();
+        //    }
+        //}
     }
 }

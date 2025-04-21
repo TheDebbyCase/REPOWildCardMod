@@ -10,16 +10,36 @@ namespace REPOWildCardMod.Valuables
         public Sound diceSound;
         public float diceTimer;
         public bool grabReset = false;
-        public bool throwToggle = true;
+        public bool throwToggle = false;
+        public GameObject[] colliders;
+        public bool hasSettled;
+        public bool wasGrabbed;
+        public bool beingThrown;
         public void FixedUpdate()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                if (!physGrabObject.grabbed && throwToggle)
+                if (throwToggle)
                 {
                     physGrabObject.rb.AddTorque(Random.onUnitSphere * 2f, ForceMode.Impulse);
                     physGrabObject.rb.AddForce((Random.onUnitSphere * 0.5f) + Vector3.up, ForceMode.Impulse);
                     throwToggle = false;
+                    hasSettled = false;
+                    ToggleCollider(false);
+                }
+                if (hasSettled)
+                {
+                    if (!physGrabObject.rb.freezeRotation)
+                    {
+                        physGrabObject.rb.freezeRotation = true;
+                    }
+                }
+                else
+                {
+                    if (physGrabObject.rb.freezeRotation)
+                    {
+                        physGrabObject.rb.freezeRotation = false;
+                    }
                 }
             }
         }
@@ -28,36 +48,50 @@ namespace REPOWildCardMod.Valuables
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 physGrabObject.OverrideIndestructible();
-                if (physGrabObject.grabbed)
+                if (physGrabObject.grabbed && !wasGrabbed)
                 {
-                    if (!throwToggle)
+                    wasGrabbed = true;
+                }
+                if (physGrabObject.grabbed || !hasSettled)
+                {
+                    if (diceTimer != 1f)
                     {
-                        throwToggle = true;
+                        diceTimer = 1f;
                     }
-                    if (!grabReset)
+                    if (hasSettled)
                     {
-                        grabReset = true;
+                        hasSettled = false;
                     }
                 }
-                if (grabReset)
+                else if (diceTimer > 0f)
                 {
-                    if (physGrabObject.grabbed || physGrabObject.rbVelocity.magnitude > 0.1f)
+                    diceTimer -= Time.deltaTime;
+                }
+                else if (beingThrown)
+                {
+                    RollDice();
+                    diceTimer = 1f;
+                    beingThrown = false;
+                    ToggleCollider(true);
+                }
+                if (!physGrabObject.grabbed && wasGrabbed)
+                {
+                    wasGrabbed = false;
+                    throwToggle = true;
+                    beingThrown = true;
+                }
+                if (physGrabObject.rbAngularVelocity.magnitude > 0.01f)
+                {
+                    if (hasSettled)
                     {
-                        if (diceTimer < 1.5f)
-                        {
-                            diceTimer = 1.5f;
-                        }
+                        hasSettled = false;
                     }
-                    else if (diceTimer > 0f)
+                }
+                else
+                {
+                    if (!hasSettled && beingThrown)
                     {
-                        diceTimer -= Time.deltaTime;
-                    }
-                    else if (diceTimer <= 0f)
-                    {
-                        RollDice();
-                        diceTimer = 1.5f;
-                        grabReset = false;
-                        throwToggle = true;
+                        hasSettled = true;
                     }
                 }
             }
@@ -111,6 +145,10 @@ namespace REPOWildCardMod.Valuables
                     }
             }
             PhysGrabObjectImpactDetector impactDetector = physGrabObject.impactDetector;
+            if (Mathf.Abs(multiplier) * impactDetector.valuableObject.dollarValueCurrent > impactDetector.valuableObject.dollarValueOriginal * 50f)
+            {
+                multiplier = 1f - ((impactDetector.valuableObject.dollarValueOriginal * 50f) / impactDetector.valuableObject.dollarValueCurrent);
+            }
             log.LogDebug($"Dice Value Changing from: \"{impactDetector.valuableObject.dollarValueCurrent}\", to: \"{impactDetector.valuableObject.dollarValueCurrent - (multiplier * impactDetector.valuableObject.dollarValueCurrent)}\"");
             if (SemiFunc.IsMultiplayer())
             {
@@ -120,7 +158,7 @@ namespace REPOWildCardMod.Valuables
             {
                 impactDetector.BreakRPC(multiplier * impactDetector.valuableObject.dollarValueCurrent, physGrabObject.centerPoint, 2, true);
             }
-            if (multiplier < 1f)
+            if (Mathf.Abs(multiplier) < 1f)
             {
                 diceSound.Pitch = 0.75f; 
             }
@@ -129,6 +167,31 @@ namespace REPOWildCardMod.Valuables
                 diceSound.Pitch = 1f;
             }
             diceSound.Play(transform.position);
+        }
+        public void ToggleCollider(bool grabbable)
+        {
+            if (SemiFunc.IsMultiplayer())
+            {
+                physGrabObject.photonView.RPC("ToggleColliderRPC", RpcTarget.All, grabbable);
+            }
+            else
+            {
+                ToggleColliderRPC(grabbable);
+            }
+        }
+        [PunRPC]
+        public void ToggleColliderRPC(bool grabbable)
+        {
+            if (grabbable)
+            {
+                colliders[0].SetActive(true);
+                colliders[1].SetActive(false);
+            }
+            else
+            {
+                colliders[0].SetActive(false);
+                colliders[1].SetActive(true);
+            }
         }
     }
 }

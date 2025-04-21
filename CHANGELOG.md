@@ -1,3 +1,8 @@
+## 0.14.2
+- Improved Fyrus Star usability
+- Made changes to Alpharad's Mario Dice to make it less exploitable
+- Made Jaiden's bird Ari chirp randomly when not held
+
 ## 0.14.1
 - Added new items to README
 

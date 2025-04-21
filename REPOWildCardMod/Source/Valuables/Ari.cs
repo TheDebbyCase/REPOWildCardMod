@@ -1,10 +1,12 @@
 ﻿using Photon.Pun;
+using REPOWildCardMod.Utils;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class Ari : MonoBehaviour
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        readonly WildCardUtils utils = WildCardMod.instance.utils;
         public PhotonView photonView;
         public PhysGrabObject physGrabObject;
         public Animator animator;
@@ -36,18 +38,6 @@ namespace REPOWildCardMod.Valuables
                 {
                     animator.SetBool("Grabbed", true);
                 }
-                if (!ariSounds.Source.isPlaying && chirpTimer <= 0f)
-                {
-                    EnemyDirector.instance.SetInvestigate(transform.position, 15f);
-                    ariSounds.Play(physGrabObject.rb.worldCenterOfMass);
-                    animator.SetTrigger("Chirp");
-                    log.LogDebug("Ari Chirp!");
-                    chirpTimer = (Random.value + 0.25f) * 2f;
-                }
-                else if (chirpTimer > 0f)
-                {
-                    chirpTimer -= Time.deltaTime;
-                }
             }
             else
             {
@@ -55,6 +45,18 @@ namespace REPOWildCardMod.Valuables
                 {
                     animator.SetBool("Grabbed", false);
                 }
+            }
+            if (!ariSounds.Source.isPlaying && chirpTimer <= 0f)
+            {
+                EnemyDirector.instance.SetInvestigate(transform.position, 15f);
+                ariSounds.Play(physGrabObject.rb.worldCenterOfMass);
+                animator.SetTrigger("Chirp");
+                log.LogDebug("Ari Chirp!");
+                chirpTimer = (Random.value + 0.5f) * 2f;
+            }
+            else if (chirpTimer > 0f)
+            {
+                chirpTimer -= Time.deltaTime * (utils.BoolToInt(physGrabObject.grabbed) + 1);
             }
         }
         public void ImpactSquish()

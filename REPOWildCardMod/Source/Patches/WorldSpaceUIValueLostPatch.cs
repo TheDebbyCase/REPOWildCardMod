@@ -19,6 +19,13 @@ namespace REPOWildCardMod.Patches
                     __instance.transform.localScale = __instance.scale;
                 }
             }
+            else if (__instance.value == 0)
+            {
+                __instance.textColor = Color.blue;
+                __instance.text.text = "No Change!";
+                __instance.scale /= 0.75f;
+                __instance.transform.localScale = __instance.scale;
+            }
         }
     }
 }
