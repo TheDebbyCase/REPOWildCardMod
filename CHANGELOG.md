@@ -1,3 +1,6 @@
+## 0.14.3
+- Apparently my Fyrus Star improvements were only working on singleplayer, now they work on multiplayer!
+
 ## 0.14.2
 - Improved Fyrus Star usability
 - Made changes to Alpharad's Mario Dice to make it less exploitable

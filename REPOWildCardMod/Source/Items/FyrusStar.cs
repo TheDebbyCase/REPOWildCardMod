@@ -1,5 +1,6 @@
 ﻿using Photon.Pun;
 using REPOWildCardMod.Utils;
+using System.ComponentModel;
 using UnityEngine;
 namespace REPOWildCardMod.Items
 {
@@ -19,7 +20,7 @@ namespace REPOWildCardMod.Items
         public float[] floatPower = new float[] {20f, 50f};
         public float[] steerPower = new float[] {25f, 40f};
         public Vector3 steerDirection;
-        public float steerTorquePower = 50f;
+        public float steerTorquePower = 5000f;
         public bool notGrabbed;
         public bool lastFrameOverlap;
         public void Start()
@@ -35,6 +36,19 @@ namespace REPOWildCardMod.Items
                     containerColliders[i].tag = "Untagged";
                 }
             }
+            if (trigger.bounds.Intersects(SemiFunc.PlayerAvatarLocal().collider.bounds))
+            {
+                if (!insideLocal)
+                {
+                    log.LogDebug($"Driving Fyrus Star!");
+                    insideLocal = true;
+                }
+            }
+            else if (insideLocal)
+            {
+                log.LogDebug($"Left Fyrus Star...");
+                insideLocal = false;
+            }
             if (insideLocal && physGrabObject.grabbedLocal)
             {
                 PhysGrabber.instance.OverrideGrabDistance(2.5f);
@@ -48,27 +62,15 @@ namespace REPOWildCardMod.Items
                 bool playerOverlap = false;
                 Vector3 rayLocalPosition = Vector3.zero;
                 PlayerAvatar[] players = SemiFunc.PlayerGetAll().ToArray();
-                int insideGrabbers = 0;
                 for (int i = 0; i < players.Length; i++)
                 {
-                    bool isInside = false;
                     if (trigger.bounds.Intersects(players[i].collider.bounds))
                     {
                         playerOverlap = true;
-                        isInside = true;
-                        if (players[i].isLocal && !insideLocal)
-                        {
-                            log.LogDebug($"Driving Fyrus Star!");
-                            insideLocal = true;
-                        }
-                    }
-                    if (isInside)
-                    {
                         PhysGrabber playerGrabber = physGrabObject.playerGrabbing.Find((x) => x.playerAvatar == players[i]);
                         if (playerGrabber != null)
                         {
-                            rayLocalPosition += new Vector3(transform.InverseTransformPoint(playerGrabber.physGrabPoint.position).x, 0f, transform.InverseTransformPoint(playerGrabber.physGrabPoint.position).z);
-                            insideGrabbers++;
+                            rayLocalPosition = new Vector3(transform.InverseTransformPoint(playerGrabber.physGrabPoint.position).x, 0f, transform.InverseTransformPoint(playerGrabber.physGrabPoint.position).z);
                         }
                     }
                 }
@@ -82,17 +84,11 @@ namespace REPOWildCardMod.Items
                     if (physGrabObject.grabbed)
                     {
                         physGrabObject.rb.constraints = RigidbodyConstraints.None;
-                        rayLocalPosition /= Mathf.Max(1, insideGrabbers);
                     }
                 }
                 else
                 {
                     physGrabObject.rb.constraints = RigidbodyConstraints.FreezeRotationY;
-                    if (insideLocal)
-                    {
-                        log.LogDebug($"Left Fyrus Star...");
-                        insideLocal = false;
-                    }
                 }
                 rayLocalPosition += rayStart.localPosition;
                 Vector3 rayPosition = transform.TransformPoint(rayLocalPosition);
@@ -145,6 +141,7 @@ namespace REPOWildCardMod.Items
                 EnableContainerRPC(enable);
             }
         }
+        [PunRPC]
         public void EnableContainerRPC(bool enable)
         {
             playerContainer.gameObject.SetActive(enable);
