@@ -1,3 +1,11 @@
+## 0.15.0
+- Figured out a desync issue with the Giwi Worm, maybe it'll behave more now?
+- Stopped Ari from alerting enemies when not held
+- Made Fyrus Star only float when sat in and held
+- Fixed Sleepyhead causing error spam when it gets REAL mad
+- Added Worm Jar, it only appears in the secret shop and how to use it will be unclear!
+- Added Anti-Gambling Laws
+
 ## 0.14.3
 - Apparently my Fyrus Star improvements were only working on singleplayer, now they work on multiplayer!
 

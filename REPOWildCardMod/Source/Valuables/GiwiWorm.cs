@@ -31,8 +31,7 @@ namespace REPOWildCardMod.Valuables
         {
             if (physGrabObject.grabbedLocal)
             {
-                PhysGrabber.instance.OverrideGrabPoint(giwiRigidbodies[1].rb.transform);
-                PhysGrabber.instance.OverridePullDistanceIncrement(-0.5f * Time.fixedDeltaTime);
+                PhysGrabber.instance.OverridePullDistanceIncrement(-0.5f * Time.deltaTime);
                 physGrabObject.OverrideGrabStrength(40f);
             }
             if (physGrabObject.grabbed)

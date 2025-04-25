@@ -48,10 +48,13 @@ namespace REPOWildCardMod.Valuables
             }
             if (!ariSounds.Source.isPlaying && chirpTimer <= 0f)
             {
-                EnemyDirector.instance.SetInvestigate(transform.position, 15f);
+                if (physGrabObject.grabbed)
+                {
+                    EnemyDirector.instance.SetInvestigate(transform.position, 15f);
+                    log.LogDebug("Ari Chirp Alert!");
+                }
                 ariSounds.Play(physGrabObject.rb.worldCenterOfMass);
                 animator.SetTrigger("Chirp");
-                log.LogDebug("Ari Chirp!");
                 chirpTimer = (Random.value + 0.5f) * 2f;
             }
             else if (chirpTimer > 0f)

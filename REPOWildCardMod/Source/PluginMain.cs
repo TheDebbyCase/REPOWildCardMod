@@ -10,6 +10,7 @@ using HarmonyLib;
 using REPOWildCardMod.Utils;
 using REPOWildCardMod.Valuables;
 using REPOWildCardMod.Patches;
+using REPOLib.Modules;
 namespace REPOWildCardMod
 {
     [BepInPlugin(modGUID, modName, modVersion)]
@@ -19,7 +20,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.14.3";
+        internal const string modVersion = "0.15.0";
         readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
@@ -29,6 +30,7 @@ namespace REPOWildCardMod
         public List<GameObject> valList = new List<GameObject>();
         public List<Item> itemList = new List<Item>();
         public List<Reskin> reskinList = new List<Reskin>();
+        public List<GameObject> miscPrefabsList = new List<GameObject>();
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         void Awake()
         {
@@ -87,6 +89,20 @@ namespace REPOWildCardMod
                         }
                     case "assets/my creations/resources/misc":
                         {
+                            UnityEngine.Object obj = bundle.LoadAsset(allAssetPaths[i]);
+                            switch (obj)
+                            {
+                                case GameObject go:
+                                    {
+                                        miscPrefabsList.Add(go);
+                                        break;
+                                    }
+                                default:
+                                    {
+                                        log.LogWarning($"\"{allAssetPaths[i]}\" was not a valid type, skipping.");
+                                        break;
+                                    }
+                            }
                             break;
                         }
                     default:
@@ -151,6 +167,11 @@ namespace REPOWildCardMod
                 {
                     log.LogInfo($"{reskinList[i].identifier} reskin was disabled!");
                 }
+            }
+            for (int i = 0; i < miscPrefabsList.Count; i++)
+            {
+                NetworkPrefabs.RegisterNetworkPrefab($"Misc/{miscPrefabsList[i].name}", miscPrefabsList[i]);
+                Utilities.FixAudioMixerGroups(miscPrefabsList[i]);
             }
             //KaelMeme();
             log.LogDebug("Patching Game");

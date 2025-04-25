@@ -11,11 +11,11 @@ namespace REPOWildCardMod.Valuables
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                switch (script.GetType().ToString())
+                switch (script)
                 {
-                    case "Item":
+                    case Item item:
                         {
-                            Item item = StatsManager.instance.itemDictionary[(script as Item).itemAssetName];
+                            item = StatsManager.instance.itemDictionary[item.itemAssetName];
                             GameObject prefab;
                             log.LogDebug($"Spawning {item.itemName} from dummy!");
                             if (SemiFunc.IsMultiplayer())

@@ -59,7 +59,7 @@ namespace REPOWildCardMod.Valuables
                 StateImpulse(state, angry);
                 impulse = false;
             }
-            if (explodeMode && !physGrabObject.impactDetector.impactAudio.impactLight.Source.isPlaying)
+            if (explodeMode && physGrabObject.impactDetector.impactAudio.impactLight.Source == null || (physGrabObject.impactDetector.impactAudio.impactLight.Source != null && !physGrabObject.impactDetector.impactAudio.impactLight.Source.isPlaying))
             {
                 ImpactSquish();
                 physGrabObject.impactDetector.impactAudio.impactLight.Play(transform.position, 1 + ((float)explodeCounter / 25f));

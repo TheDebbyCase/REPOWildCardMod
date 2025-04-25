@@ -348,6 +348,7 @@ namespace REPOWildCardMod.Utils
                     }
                 default:
                     {
+                        finalTransform = transforms[0];
                         log.LogWarning($"Enemy \"{enemy}\" has not been set up");
                         break;
                     }

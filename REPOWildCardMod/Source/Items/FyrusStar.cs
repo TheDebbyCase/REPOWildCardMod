@@ -1,6 +1,5 @@
 ﻿using Photon.Pun;
 using REPOWildCardMod.Utils;
-using System.ComponentModel;
 using UnityEngine;
 namespace REPOWildCardMod.Items
 {
@@ -120,13 +119,16 @@ namespace REPOWildCardMod.Items
                 Quaternion steerRotator = Quaternion.FromToRotation(Vector3.up, steerDirection.normalized * steerTorquePower);
                 Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
                 physGrabObject.rb.AddTorque((new Vector3(rotator.x, rotator.y, rotator.z) * balancePower[index]) - new Vector3(steerRotator.x, steerRotator.y, steerRotator.z));
-                if (Physics.Raycast(rayPosition, Vector3.down, out RaycastHit hit, floatHeight[index], LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
+                if (playerOverlap && physGrabObject.grabbed)
                 {
-                    physGrabObject.rb.AddForce(new Vector3(transform.up.x * steerPower[index], floatPower[index] / hit.distance, transform.up.z * steerPower[index]));
-                }
-                else if (!Physics.Raycast(rayPosition, Vector3.down, 1.25f, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
-                {
-                    physGrabObject.rb.AddForce(new Vector3(transform.up.x * steerPower[index], 1f, transform.up.z * steerPower[index]));
+                    if (Physics.Raycast(rayPosition, Vector3.down, out RaycastHit hit, floatHeight[index], LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
+                    {
+                        physGrabObject.rb.AddForce(new Vector3(transform.up.x * steerPower[index], floatPower[index] / hit.distance, transform.up.z * steerPower[index]));
+                    }
+                    else if (!Physics.Raycast(rayPosition, Vector3.down, 1.25f, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
+                    {
+                        physGrabObject.rb.AddForce(new Vector3(transform.up.x * steerPower[index], 1f, transform.up.z * steerPower[index]));
+                    }
                 }
             }
         }

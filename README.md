@@ -136,7 +136,7 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	<details>
 	<summary>Void Crown</summary>
 	
-	Original design by Unknown, if anyone knows who made Void's YouTube banner let me know
+	Original design by Unknown, if anyone knows who made Void's YouTube banner let me know  
 	A crown for the greatest of gamers
 
 	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/VoidCrownPreview.png)
@@ -181,6 +181,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	The practicality is questionable
 
 	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/FyrusStarPreview.png)
+	
+	</details>
+
+	<details>
+	<summary>Worm Jar</summary>
+	
+	Original design by me! Associated worm designed by [Giwi](https://www.twitch.tv/giwi)
+	She spreads
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/WormJarPreview.png)
 	
 	</details>
 

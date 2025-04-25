@@ -6,6 +6,7 @@ namespace REPOWildCardMod.Valuables
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         public PhysGrabObject physGrabObject;
+        public ParticleScriptExplosion explodeScript;
         public Transform[] diceNumbers;
         public Sound diceSound;
         public float diceTimer;
@@ -21,8 +22,8 @@ namespace REPOWildCardMod.Valuables
             {
                 if (throwToggle)
                 {
-                    physGrabObject.rb.AddTorque(Random.onUnitSphere * 2f, ForceMode.Impulse);
-                    physGrabObject.rb.AddForce((Random.onUnitSphere * 0.5f) + Vector3.up, ForceMode.Impulse);
+                    physGrabObject.rb.AddTorque(Random.onUnitSphere * 5f, ForceMode.Impulse);
+                    physGrabObject.rb.AddForce((Random.onUnitSphere * 1.5f) + Vector3.up, ForceMode.Impulse);
                     throwToggle = false;
                     hasSettled = false;
                     ToggleCollider(false);
@@ -115,6 +116,18 @@ namespace REPOWildCardMod.Valuables
             {
                 case 1:
                     {
+                        if (physGrabObject.impactDetector.valuableObject.dollarValueCurrent >= physGrabObject.impactDetector.valuableObject.dollarValueOriginal * 50f)
+                        {
+                            if (SemiFunc.IsMultiplayer())
+                            {
+                                physGrabObject.impactDetector.photonView.RPC("BreakRPC", RpcTarget.All, physGrabObject.impactDetector.valuableObject.dollarValueCurrent, physGrabObject.centerPoint, 2, true);
+                            }
+                            else
+                            {
+                                physGrabObject.impactDetector.BreakRPC(physGrabObject.impactDetector.valuableObject.dollarValueCurrent, physGrabObject.centerPoint, 2, true);
+                            }
+                            return;
+                        }
                         multiplier = (3f / 4f);
                         break;
                     }
@@ -192,6 +205,10 @@ namespace REPOWildCardMod.Valuables
                 colliders[0].SetActive(false);
                 colliders[1].SetActive(true);
             }
+        }
+        public void AntiGamblingLaws()
+        {
+            explodeScript.Spawn(transform.position, 2f, 20, 20, 5f);
         }
     }
 }
