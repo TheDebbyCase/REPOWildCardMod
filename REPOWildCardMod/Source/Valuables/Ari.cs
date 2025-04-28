@@ -55,7 +55,7 @@ namespace REPOWildCardMod.Valuables
                 }
                 ariSounds.Play(physGrabObject.rb.worldCenterOfMass);
                 animator.SetTrigger("Chirp");
-                chirpTimer = (Random.value + 0.5f) * 2f;
+                chirpTimer = (Random.value + 1f) * 2f;
             }
             else if (chirpTimer > 0f)
             {

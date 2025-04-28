@@ -1,11 +1,12 @@
 ﻿using Photon.Pun;
-using System;
+using REPOWildCardMod.Utils;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class AlolanVulpixie : MonoBehaviour
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        readonly WildCardUtils utils = WildCardMod.instance.utils;
         public PhotonView photonView;
         public PhysGrabObject physGrabObject;
         public GameObject[] pixieMeshes;
@@ -28,15 +29,15 @@ namespace REPOWildCardMod.Valuables
                 }
                 else
                 {
-                    voiceTimer = UnityEngine.Random.Range(0.5f, 2.5f);
-                    int index = UnityEngine.Random.Range(0, pixieSounds.Length);
+                    voiceTimer = Random.Range(0.5f, 2.5f);
+                    int index = utils.BoolToInt(scrungle);
                     pixieSounds[index].Play(pixieSounds[index].Source.transform.position);
                 }
             }
         }
         public void PixieImpact(bool sad)
         {
-            int index = Convert.ToInt32(sad);
+            int index = utils.BoolToInt(sad);
             scrungle = !scrungle;
             pixieMeshes[1].SetActive(scrungle);
             pixieMeshes[0].SetActive(!scrungle);

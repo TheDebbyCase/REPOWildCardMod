@@ -1,3 +1,11 @@
+## 0.16.0
+- Overhauled Fyrus Star mechanics, should now be far more intuitive, and perhaps more useful.
+- Fixed an issue with Giwi Worm attaching itself to world origin in singleplayer mode
+- Fixed an exploit with Mario Dice
+- Made Alolan Vulpixie voice lines while held match the state of the plush
+- Increased the time between each Ari chirp
+- Added the prototype for Chiikawa, there will be more!
+
 ## 0.15.0
 - Figured out a desync issue with the Giwi Worm, maybe it'll behave more now?
 - Stopped Ari from alerting enemies when not held

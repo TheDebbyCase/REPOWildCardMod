@@ -20,67 +20,41 @@ namespace REPOWildCardMod.Valuables
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
+                if (physGrabObject.rb.freezeRotation != hasSettled)
+                {
+                    FreezeRotation(hasSettled);
+                }
                 if (throwToggle)
                 {
                     physGrabObject.rb.AddTorque(Random.onUnitSphere * 5f, ForceMode.Impulse);
-                    physGrabObject.rb.AddForce((Random.onUnitSphere * 1.5f) + Vector3.up, ForceMode.Impulse);
-                    throwToggle = false;
+                    physGrabObject.rb.AddForce((Vector3.up * Random.Range(0.5f, 2f)) + new Vector3(((Random.value * 2f) - 1f) * 2f, 0f, (Random.value * 2f) - 1f) * 2f, ForceMode.Impulse);
                     hasSettled = false;
                     ToggleCollider(false);
-                }
-                if (hasSettled)
-                {
-                    if (!physGrabObject.rb.freezeRotation)
-                    {
-                        physGrabObject.rb.freezeRotation = true;
-                    }
-                }
-                else
-                {
-                    if (physGrabObject.rb.freezeRotation)
-                    {
-                        physGrabObject.rb.freezeRotation = false;
-                    }
+                    throwToggle = false;
                 }
             }
+        }
+        public void FreezeRotation(bool freeze)
+        {
+            if (SemiFunc.IsMultiplayer())
+            {
+                physGrabObject.photonView.RPC("FreezeRotationRPC", RpcTarget.All, freeze);
+            }
+            else
+            {
+                FreezeRotationRPC(freeze);
+            }
+        }
+        [PunRPC]
+        public void FreezeRotationRPC(bool freeze)
+        {
+            physGrabObject.rb.freezeRotation = freeze;
         }
         public void Update()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 physGrabObject.OverrideIndestructible();
-                if (physGrabObject.grabbed && !wasGrabbed)
-                {
-                    wasGrabbed = true;
-                }
-                if (physGrabObject.grabbed || !hasSettled)
-                {
-                    if (diceTimer != 1f)
-                    {
-                        diceTimer = 1f;
-                    }
-                    if (hasSettled)
-                    {
-                        hasSettled = false;
-                    }
-                }
-                else if (diceTimer > 0f)
-                {
-                    diceTimer -= Time.deltaTime;
-                }
-                else if (beingThrown)
-                {
-                    RollDice();
-                    diceTimer = 1f;
-                    beingThrown = false;
-                    ToggleCollider(true);
-                }
-                if (!physGrabObject.grabbed && wasGrabbed)
-                {
-                    wasGrabbed = false;
-                    throwToggle = true;
-                    beingThrown = true;
-                }
                 if (physGrabObject.rbAngularVelocity.magnitude > 0.01f)
                 {
                     if (hasSettled)
@@ -88,17 +62,49 @@ namespace REPOWildCardMod.Valuables
                         hasSettled = false;
                     }
                 }
-                else
+                else if (!hasSettled)
                 {
-                    if (!hasSettled && beingThrown)
+                    hasSettled = true;
+                }
+                if (physGrabObject.grabbed)
+                {
+                    if (!wasGrabbed)
                     {
-                        hasSettled = true;
+                        wasGrabbed = true;
                     }
+                    if (hasSettled)
+                    {
+                        hasSettled = false;
+                    }
+                }
+                else if (wasGrabbed)
+                {
+                    wasGrabbed = false;
+                    throwToggle = true;
+                    beingThrown = true;
+                }
+                if (hasSettled && beingThrown)
+                {
+                    if (diceTimer > 0f)
+                    {
+                        diceTimer -= Time.deltaTime;
+                    }
+                    else
+                    {
+                        RollDice();
+                    }
+                }
+                else if (diceTimer != 1f)
+                {
+                    diceTimer = 1f;
                 }
             }
         }
         public void RollDice()
         {
+            diceTimer = 1f;
+            beingThrown = false;
+            ToggleCollider(true);
             float maxHeight = 0f;
             int diceIndex = 0;
             for (int i = 0; i < diceNumbers.Length; i++)
@@ -116,7 +122,7 @@ namespace REPOWildCardMod.Valuables
             {
                 case 1:
                     {
-                        if (physGrabObject.impactDetector.valuableObject.dollarValueCurrent >= physGrabObject.impactDetector.valuableObject.dollarValueOriginal * 50f)
+                        if (physGrabObject.impactDetector.valuableObject.dollarValueCurrent >= physGrabObject.impactDetector.valuableObject.dollarValueOriginal * 45f)
                         {
                             if (SemiFunc.IsMultiplayer())
                             {

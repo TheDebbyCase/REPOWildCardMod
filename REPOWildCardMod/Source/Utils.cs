@@ -441,7 +441,7 @@ namespace REPOWildCardMod.Utils
     public class Chance
     {
         [Range(0f, 1f)]
-        public float value;
+        [Delayed] public float value;
     }
     [Serializable]
     public class Replacer

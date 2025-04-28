@@ -1,12 +1,10 @@
 ﻿using Photon.Pun;
-using REPOWildCardMod.Utils;
 using UnityEngine;
 namespace REPOWildCardMod.Items
 {
     public class FyrusStar : MonoBehaviour
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
-        readonly WildCardUtils utils = WildCardMod.instance.utils;
         public PhysGrabObject physGrabObject;
         public ItemEquippable itemEquippable;
         public Transform rayStart;
@@ -14,17 +12,57 @@ namespace REPOWildCardMod.Items
         public Transform playerContainer;
         public Collider[] containerColliders;
         public bool insideLocal;
-        public float[] balancePower = new float[] {50f, 100f};
-        public float[] floatHeight = new float[] {0.5f, 1f};
-        public float[] floatPower = new float[] {20f, 50f};
-        public float[] steerPower = new float[] {25f, 40f};
-        public Vector3 steerDirection;
-        public float steerTorquePower = 5000f;
-        public bool notGrabbed;
-        public bool lastFrameOverlap;
-        public void Start()
+        public float balancePower = 75f;
+        public Vector3 lookDirection = Vector3.zero;
+        public PlayerAvatar ridingPlayer = null;
+        public float steerPower = 20f;
+        public float steerRamp = 1f;
+        public float rampMax = 10f;
+        public float currentSteerPower;
+        public float floatPower = 40f;
+        public float floatHeight = 0.6f;
+        public float lookBalancePower = 0.2f;
+        public float steerSlowTimer;
+        public Vector3 lastLookDirection;
+        public float lookDifference = 1.5f;
+        public void FixedUpdate()
         {
-            containerColliders = playerContainer.GetComponentsInChildren<Collider>();
+            if (SemiFunc.IsMasterClientOrSingleplayer() && !itemEquippable.isEquipped && !itemEquippable.isEquipping && !itemEquippable.isUnequipping)
+            {
+                Vector3 balanceDirection = Vector3.up;
+                Vector3 currentDirection = Vector3.zero;
+                if (ridingPlayer != null)
+                {
+                    currentDirection = lookDirection;
+                    balanceDirection += new Vector3(currentDirection.x, 0f, currentDirection.z) * lookBalancePower;
+                    if (Vector3.Distance(currentDirection, lastLookDirection) <= lookDifference)
+                    {
+                        steerRamp += Time.fixedDeltaTime * 2f;
+                        if (steerRamp > rampMax)
+                        {
+                            steerRamp = rampMax;
+                        }
+                        currentSteerPower = steerPower * steerRamp;
+                    }
+                    else
+                    {
+                        currentSteerPower = steerPower;
+                        steerRamp = 1f;
+                    }
+                }
+                Quaternion rotator = Quaternion.FromToRotation(transform.up, balanceDirection);
+                physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balancePower);
+                if (Physics.Raycast(rayStart.position, Vector3.down, out RaycastHit hit, floatHeight, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
+                {
+                    physGrabObject.rb.AddForce(new Vector3(currentDirection.x * currentSteerPower, floatPower / hit.distance, currentDirection.z * currentSteerPower));
+                }
+                if (steerSlowTimer <= 0f)
+                {
+                    steerSlowTimer = 0.5f;
+                    lastLookDirection = lookDirection;
+                }
+                steerSlowTimer -= Time.fixedDeltaTime;
+            }
         }
         public void Update()
         {
@@ -41,95 +79,62 @@ namespace REPOWildCardMod.Items
                 {
                     log.LogDebug($"Driving Fyrus Star!");
                     insideLocal = true;
+                    if (SemiFunc.IsMultiplayer())
+                    {
+                        physGrabObject.photonView.RPC("SetOverlapRPC", RpcTarget.MasterClient, SemiFunc.PhotonViewIDPlayerAvatarLocal());
+                    }
+                    else
+                    {
+                        SetOverlapRPC(SemiFunc.PhotonViewIDPlayerAvatarLocal());
+                    }
                 }
             }
             else if (insideLocal)
             {
                 log.LogDebug($"Left Fyrus Star...");
                 insideLocal = false;
+                if (SemiFunc.IsMultiplayer())
+                {
+                    physGrabObject.photonView.RPC("SetOverlapRPC", RpcTarget.MasterClient, -1);
+                }
+                else
+                {
+                    SetOverlapRPC(-1);
+                }
             }
-            if (insideLocal && physGrabObject.grabbedLocal)
+            if (insideLocal)
             {
-                PhysGrabber.instance.OverrideGrabDistance(2.5f);
-                PhysGrabber.instance.OverrideDisableRotationControls();
+                if (physGrabObject.grabbedLocal)
+                {
+                    PhysGrabber.instance.OverrideDisableRotationControls();
+                }
+                Vector3 cameraDirection = (PlayerController.instance.transform.rotation * Vector3.forward).normalized;
+                if (SemiFunc.IsMultiplayer())
+                {
+                    physGrabObject.photonView.RPC("UpdateLookDirectionRPC", RpcTarget.MasterClient, cameraDirection);
+                }
+                else
+                {
+                    UpdateLookDirectionRPC(cameraDirection);
+                }
             }
         }
-        public void FixedUpdate()
+        [PunRPC]
+        public void SetOverlapRPC(int photonID)
         {
-            if (SemiFunc.IsMasterClientOrSingleplayer() && !itemEquippable.isEquipped && !itemEquippable.isEquipping && !itemEquippable.isUnequipping)
+            if (photonID == -1)
             {
-                bool playerOverlap = false;
-                Vector3 rayLocalPosition = Vector3.zero;
-                PlayerAvatar[] players = SemiFunc.PlayerGetAll().ToArray();
-                for (int i = 0; i < players.Length; i++)
-                {
-                    if (trigger.bounds.Intersects(players[i].collider.bounds))
-                    {
-                        playerOverlap = true;
-                        PhysGrabber playerGrabber = physGrabObject.playerGrabbing.Find((x) => x.playerAvatar == players[i]);
-                        if (playerGrabber != null)
-                        {
-                            rayLocalPosition = new Vector3(transform.InverseTransformPoint(playerGrabber.physGrabPoint.position).x, 0f, transform.InverseTransformPoint(playerGrabber.physGrabPoint.position).z);
-                        }
-                    }
-                }
-                if (playerOverlap != lastFrameOverlap)
-                {
-                    EnableContainer(playerOverlap);
-                }
-                lastFrameOverlap = playerOverlap;
-                if (playerOverlap)
-                {
-                    if (physGrabObject.grabbed)
-                    {
-                        physGrabObject.rb.constraints = RigidbodyConstraints.None;
-                    }
-                }
-                else
-                {
-                    physGrabObject.rb.constraints = RigidbodyConstraints.FreezeRotationY;
-                }
-                rayLocalPosition += rayStart.localPosition;
-                Vector3 rayPosition = transform.TransformPoint(rayLocalPosition);
-                int index = utils.BoolToInt(playerOverlap);
-                if (physGrabObject.grabbed)
-                {
-                    if (playerOverlap)
-                    {
-                        if (notGrabbed)
-                        {
-                            steerDirection = rayPosition - (transform.position + new Vector3(0f, 0.5f, 0f));
-                            log.LogDebug($"Changing Steer Direction To: \"{steerDirection.normalized}\"");
-                            notGrabbed = false;
-                        }
-                    }
-                    else
-                    {
-                        steerDirection = Vector3.zero;
-                    }
-                }
-                else
-                {
-                    if (!notGrabbed)
-                    {
-                        notGrabbed = true;
-                    }
-                    steerDirection = Vector3.zero;
-                }
-                Quaternion steerRotator = Quaternion.FromToRotation(Vector3.up, steerDirection.normalized * steerTorquePower);
-                Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
-                physGrabObject.rb.AddTorque((new Vector3(rotator.x, rotator.y, rotator.z) * balancePower[index]) - new Vector3(steerRotator.x, steerRotator.y, steerRotator.z));
-                if (playerOverlap && physGrabObject.grabbed)
-                {
-                    if (Physics.Raycast(rayPosition, Vector3.down, out RaycastHit hit, floatHeight[index], LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
-                    {
-                        physGrabObject.rb.AddForce(new Vector3(transform.up.x * steerPower[index], floatPower[index] / hit.distance, transform.up.z * steerPower[index]));
-                    }
-                    else if (!Physics.Raycast(rayPosition, Vector3.down, 1.25f, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
-                    {
-                        physGrabObject.rb.AddForce(new Vector3(transform.up.x * steerPower[index], 1f, transform.up.z * steerPower[index]));
-                    }
-                }
+                ridingPlayer = null;
+                log.LogDebug($"Fyrus Star has no pilot!");
+            }
+            else if (ridingPlayer == null)
+            {
+                ridingPlayer = SemiFunc.PlayerAvatarGetFromPhotonID(photonID);
+                log.LogDebug($"Fyrus Star Pilot: \"{ridingPlayer.playerName}\"");
+            }
+            if (playerContainer.gameObject.activeSelf != (photonID != -1))
+            {
+                EnableContainer(photonID != -1);
             }
         }
         public void EnableContainer(bool enable)
@@ -147,6 +152,11 @@ namespace REPOWildCardMod.Items
         public void EnableContainerRPC(bool enable)
         {
             playerContainer.gameObject.SetActive(enable);
+        }
+        [PunRPC]
+        public void UpdateLookDirectionRPC(Vector3 vector)
+        {
+            lookDirection = vector;
         }
     }
 }

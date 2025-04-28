@@ -19,11 +19,22 @@ namespace REPOWildCardMod.Valuables
         public float dropTimer;
         public void Start()
         {
-            if (GameManager.Multiplayer() && !PhotonNetwork.IsMasterClient)
+            if (SemiFunc.IsMultiplayer())
             {
-                for (int i = 0; i < giwiRigidbodies.Length; i++)
+                if (!SemiFunc.IsMasterClient())
                 {
-                    giwiRigidbodies[i].rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+                    for (int i = 0; i < giwiRigidbodies.Length; i++)
+                    {
+                        giwiRigidbodies[i].rb.collisionDetectionMode = CollisionDetectionMode.Discrete;
+                    }
+                }
+            }
+            else
+            {
+                PhotonTransformView[] photonTransformViews = transform.GetComponentsInChildren<PhotonTransformView>();
+                for (int i = 0; i < photonTransformViews.Length; i++)
+                {
+                    photonTransformViews[i].enabled = false;
                 }
             }
         }
