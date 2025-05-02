@@ -17,6 +17,7 @@ namespace REPOWildCardMod.Items
         public GameObject wormPrefab;
         public Sprite icon;
         public float noDestroyCooldown;
+        public bool firstRunGrab = true;
         public void Awake()
         {
             if (itemAttributes.icon != icon)
@@ -46,6 +47,13 @@ namespace REPOWildCardMod.Items
                 {
                     impactDetector.destroyDisable = false;
                 }
+            }
+            if (SemiFunc.IsMultiplayer() && SemiFunc.RunIsLevel() && physGrabObject.grabbedLocal && firstRunGrab)
+            {
+                ChatManager.instance.PossessChatScheduleStart(9);
+                ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, "I should break this next to an enemy", 2f, Color.red + Color.blue);
+                ChatManager.instance.PossessChatScheduleEnd();
+                firstRunGrab = false;
             }
         }
         public void BreakJar()
@@ -77,7 +85,6 @@ namespace REPOWildCardMod.Items
             {
                 newWorm = Instantiate(wormPrefab);
             }
-            newWorm.FixAudioMixerGroups();
             newWorm.GetComponent<WormAttach>().Initialize(playerID, enemyIndex);
         }
     }
@@ -108,6 +115,7 @@ namespace REPOWildCardMod.Items
         [PunRPC]
         public void InitializeRPC(int playerID, int enemyIndex)
         {
+            gameObject.FixAudioMixerGroups();
             enemy = SemiFunc.EnemyGetFromIndex(enemyIndex);
             log.LogDebug($"Worm has infected a \"{enemy.EnemyParent.enemyName}\"");
             if (enemy.HasRigidbody && enemy.Rigidbody.hasPlayerCollision)

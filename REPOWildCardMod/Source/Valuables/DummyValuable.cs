@@ -1,6 +1,4 @@
-﻿using Photon.Pun;
-using REPOLib.Modules;
-using UnityEngine;
+﻿using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
     public class DummyValuable : MonoBehaviour
@@ -16,16 +14,8 @@ namespace REPOWildCardMod.Valuables
                     case Item item:
                         {
                             item = StatsManager.instance.itemDictionary[item.itemAssetName];
-                            GameObject prefab;
                             log.LogDebug($"Spawning {item.itemName} from dummy!");
-                            if (SemiFunc.IsMultiplayer())
-                            {
-                                prefab = PhotonNetwork.InstantiateRoomObject(ResourcesHelper.GetItemPrefabPath(item), new Vector3(transform.position.x, transform.position.y + 0.125f, transform.position.z), item.spawnRotationOffset, 0);
-                            }
-                            else
-                            {
-                                prefab = Instantiate(item.prefab, new Vector3(transform.position.x, transform.position.y + 0.125f, transform.position.z + 0.25f), item.spawnRotationOffset);
-                            }
+                            GameObject prefab = REPOLib.Modules.Items.SpawnItem(item, transform.position, transform.rotation); ;
                             prefab.SetActive(true);
                             log.LogDebug($"Spawned {prefab.name}!");
                             break;

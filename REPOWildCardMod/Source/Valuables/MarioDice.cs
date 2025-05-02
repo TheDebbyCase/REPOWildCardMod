@@ -11,45 +11,10 @@ namespace REPOWildCardMod.Valuables
         public Sound diceSound;
         public float diceTimer;
         public bool grabReset = false;
-        public bool throwToggle = false;
         public GameObject[] colliders;
         public bool hasSettled;
         public bool wasGrabbed;
         public bool beingThrown;
-        public void FixedUpdate()
-        {
-            if (SemiFunc.IsMasterClientOrSingleplayer())
-            {
-                if (physGrabObject.rb.freezeRotation != hasSettled)
-                {
-                    FreezeRotation(hasSettled);
-                }
-                if (throwToggle)
-                {
-                    physGrabObject.rb.AddTorque(Random.onUnitSphere * 5f, ForceMode.Impulse);
-                    physGrabObject.rb.AddForce((Vector3.up * Random.Range(0.5f, 2f)) + new Vector3(((Random.value * 2f) - 1f) * 2f, 0f, (Random.value * 2f) - 1f) * 2f, ForceMode.Impulse);
-                    hasSettled = false;
-                    ToggleCollider(false);
-                    throwToggle = false;
-                }
-            }
-        }
-        public void FreezeRotation(bool freeze)
-        {
-            if (SemiFunc.IsMultiplayer())
-            {
-                physGrabObject.photonView.RPC("FreezeRotationRPC", RpcTarget.All, freeze);
-            }
-            else
-            {
-                FreezeRotationRPC(freeze);
-            }
-        }
-        [PunRPC]
-        public void FreezeRotationRPC(bool freeze)
-        {
-            physGrabObject.rb.freezeRotation = freeze;
-        }
         public void Update()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
@@ -80,8 +45,11 @@ namespace REPOWildCardMod.Valuables
                 else if (wasGrabbed)
                 {
                     wasGrabbed = false;
-                    throwToggle = true;
                     beingThrown = true;
+                    physGrabObject.rb.AddTorque(Random.onUnitSphere * 5f, ForceMode.Impulse);
+                    physGrabObject.rb.AddForce((Vector3.up * Random.Range(0.5f, 2f)) + new Vector3(((Random.value * 2f) - 1f) * 2f, 0f, (Random.value * 2f) - 1f) * 2f, ForceMode.Impulse);
+                    hasSettled = false;
+                    ToggleCollider(false);
                 }
                 if (hasSettled && beingThrown)
                 {
@@ -98,7 +66,27 @@ namespace REPOWildCardMod.Valuables
                 {
                     diceTimer = 1f;
                 }
+                if (physGrabObject.rb.freezeRotation != hasSettled)
+                {
+                    FreezeRotation(hasSettled);
+                }
             }
+        }
+        public void FreezeRotation(bool freeze)
+        {
+            if (SemiFunc.IsMultiplayer())
+            {
+                physGrabObject.photonView.RPC("FreezeRotationRPC", RpcTarget.All, freeze);
+            }
+            else
+            {
+                FreezeRotationRPC(freeze);
+            }
+        }
+        [PunRPC]
+        public void FreezeRotationRPC(bool freeze)
+        {
+            physGrabObject.rb.freezeRotation = freeze;
         }
         public void RollDice()
         {

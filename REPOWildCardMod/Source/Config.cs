@@ -59,7 +59,7 @@ namespace REPOWildCardMod.Config
         private static void ClearOrphanedEntries(ConfigFile cfg)
         {
             PropertyInfo orphanedEntriesProp = AccessTools.Property(typeof(ConfigFile), "OrphanedEntries");
-            var orphanedEntries = (Dictionary<ConfigDefinition, string>)orphanedEntriesProp.GetValue(cfg);
+            Dictionary<ConfigDefinition, string> orphanedEntries = (Dictionary<ConfigDefinition, string>)orphanedEntriesProp.GetValue(cfg);
             orphanedEntries.Clear();
         }
     }

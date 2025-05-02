@@ -20,7 +20,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.15.0";
+        internal const string modVersion = "0.16.1";
         readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
@@ -120,11 +120,11 @@ namespace REPOWildCardMod
                     bool register = true;
                     if (valList[i].TryGetComponent(out DummyValuable dummy))
                     {
-                        switch (dummy.script.GetType().ToString())
+                        switch (dummy.script)
                         {
-                            case "Item":
+                            case Item item:
                                 {
-                                    itemList.Add((Item)dummy.script);
+                                    itemList.Add(item);
                                     break;
                                 }
                             default:
@@ -185,7 +185,7 @@ namespace REPOWildCardMod
             if (ModConfig.harmonyPatches.Value)
             {
                 harmony.PatchAll(typeof(PhysGrabberRayCheckPatch));
-                harmony.PatchAll(typeof(PhysGrabberPhysGrabPointActivatePatch));
+                //harmony.PatchAll(typeof(PhysGrabberPhysGrabPointActivatePatch));
             }
             else
             {

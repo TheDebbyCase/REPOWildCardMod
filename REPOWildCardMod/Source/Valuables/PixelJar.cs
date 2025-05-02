@@ -65,26 +65,26 @@ namespace REPOWildCardMod.Valuables
             if (physGrabObject.grabbedLocal && pickingUp && SemiFunc.IsMultiplayer())
             {
                 pickingUp = false;
-                string[] messageChoices = { " ON TOP", " ON BOT" };
-                string message = messageChoices[Random.Range(0, 2)];
+                string[] messageChoices = { "ON TOP", "ON BOT", "are my people!", "is so me", "... more like pee", "is so cute I wanna die!", "sucks", "... I spit on you", "speaks to me in, like, a spiritual way", "is so sick nasty", "better watch out" };
+                string message = messageChoices[Random.Range(0, messageChoices.Length)];
                 Color colour = new Color();
                 switch (floater)
                 {
                     case JarFloater.V0:
                         {
-                            message = "V0" + message;
+                            message = "V0 " + message;
                             colour = Color.green;
                             break;
                         }
                     case JarFloater.V1:
                         {
-                            message = "V1" + message;
+                            message = "V1 " + message;
                             colour = Color.cyan;
                             break;
                         }
                     case JarFloater.V2:
                         {
-                            message = "V2" + message;
+                            message = "V2 " + message;
                             colour = new Color(0.5f, 0f, 1f);
                             break;
                         }

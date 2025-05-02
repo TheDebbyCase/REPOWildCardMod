@@ -110,9 +110,9 @@ namespace REPOWildCardMod.Valuables
                                 vertVector = new Vector3(1f, 0.1f, 1f);
                             }
                             giwiRigidbodies[i].direction = Vector3.Scale(UnityEngine.Random.onUnitSphere, vertVector);
-                            giwiRigidbodies[i].newDirTimer = UnityEngine.Random.Range(0.1f, 0.5f);
+                            giwiRigidbodies[i].newDirTimer = UnityEngine.Random.Range(0.05f, 0.25f);
                         }
-                        giwiRigidbodies[i].Wiggle(UnityEngine.Random.Range(1f, 10f) * ((float)Mathf.Min(i, 6) / 2f), UnityEngine.Random.Range(1f, 6f) * -1f);
+                        giwiRigidbodies[i].Wiggle(UnityEngine.Random.Range(4f, 10f) * ((float)Mathf.Max(i, 3) / 2f), UnityEngine.Random.Range(3f, 8f) * -1f);
                     }
                     if (physGrabObject.grabbed && dropTimer != 5f)
                     {

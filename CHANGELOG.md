@@ -1,3 +1,14 @@
+## 0.16.1
+- Fixed issue where Worm Jar would spam errors and lag the game
+- Attempted to make Ari, Moo Cow, Clover Bee and Smith Halo self-right while being held
+- Made Fyrus Star hurt things while travelling near max speed, and lose some momentum when colliding
+- Once again begging that I've repaired Giwi Worm once and for all
+- Fixed Dragon Ball upgrade not working if modded upgrades were once present on the savefile (even if they have since been removed)
+- Attempted to fix another Mario Dice exploit
+- Made player speak a short instruction on how to use the Worm Jar and Smith Note upon first being held
+- Added some extra voice lines to the Pixel Jar
+- Finished Chiikawa code, still haven't finished all the visuals
+
 ## 0.16.0
 - Overhauled Fyrus Star mechanics, should now be far more intuitive, and perhaps more useful.
 - Fixed an issue with Giwi Worm attaching itself to world origin in singleplayer mode

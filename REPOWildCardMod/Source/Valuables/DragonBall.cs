@@ -163,7 +163,9 @@ namespace REPOWildCardMod.Valuables
                         }
                         else
                         {
-                            log.LogWarning($"Dragon Ball wish for upgrade: {upgrade} failed");
+                            log.LogWarning($"Dragon Ball wish for upgrade: {upgrade} failed, retrying...");
+                            wishableUpgrades.Remove(upgrade);
+                            DragonBallWish();
                         }
                         break;
                     }

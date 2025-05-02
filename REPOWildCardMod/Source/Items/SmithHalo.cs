@@ -13,8 +13,13 @@ namespace REPOWildCardMod.Items
         public float balanceForce = 2.5f;
         public void FixedUpdate()
         {
-            if (!physGrabObject.grabbed && SemiFunc.IsMasterClientOrSingleplayer())
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
+                if (physGrabObject.grabbed)
+                {
+                    physGrabObject.OverrideTorqueStrengthX(0f);
+                    physGrabObject.OverrideTorqueStrengthZ(0f);
+                }
                 Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
                 physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balanceForce);
             }

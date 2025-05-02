@@ -10,25 +10,39 @@ namespace REPOWildCardMod.Valuables
         public Animator animator;
         public PhysicMaterial physMat;
         public Sound cowSounds;
+        public float balanceForce = 0.1f;
         public float mooTimer;
+        public bool mooTrigger;
         public void Start()
         {
             physGrabObject.OverrideMaterial(physMat, -123f);
         }
         public void FixedUpdate()
         {
-            if (physGrabObject.grabbed)
+            if (SemiFunc.IsMasterClientOrSingleplayer() && physGrabObject.grabbed)
             {
-                if (SemiFunc.IsMasterClientOrSingleplayer())
+                bool rotating = false;
+                for (int i = 0; i < physGrabObject.playerGrabbing.Count; i++)
                 {
-                    physGrabObject.rb.AddForce((Random.insideUnitSphere / 2f) + (transform.up / 1.3f), ForceMode.Impulse);
+                    if (physGrabObject.playerGrabbing[i].isRotating)
+                    {
+                        rotating = true;
+                        break;
+                    }
                 }
-                
+                if (!rotating)
+                {
+                    physGrabObject.OverrideTorqueStrengthX(0f);
+                    physGrabObject.OverrideTorqueStrengthZ(0f);
+                    Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
+                    physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balanceForce);
+                }
+                physGrabObject.rb.AddForce((Random.insideUnitSphere / 2f) + (transform.up / 1.3f), ForceMode.Impulse);
             }
         }
         public void Update()
         {
-            if (SemiFunc.IsMultiplayer() && physGrabObject.grabbedLocal && PlayerVoiceChat.instance.isTalking && !ChatManager.instance.chatActive && ChatManager.instance.spamTimer <= 0)
+            if (SemiFunc.IsMultiplayer() && physGrabObject.grabbedLocal && PlayerVoiceChat.instance.isTalking && mooTrigger)
             {
                 int mooNum = new System.Random().Next(-3, 4);
                 if (mooNum <= 0)
@@ -52,6 +66,11 @@ namespace REPOWildCardMod.Valuables
                 ChatManager.instance.PossessChatScheduleStart(9);
                 ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, finalMessage, 2f, Color.blue);
                 ChatManager.instance.PossessChatScheduleEnd();
+                mooTrigger = false;
+            }
+            if (!ChatManager.instance.chatActive && ChatManager.instance.spamTimer <= 0 && !mooTrigger)
+            {
+                mooTrigger = true;
             }
             if (physGrabObject.grabbed)
             {

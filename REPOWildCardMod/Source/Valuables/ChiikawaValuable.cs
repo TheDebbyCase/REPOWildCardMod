@@ -1,7 +1,6 @@
 ﻿using Photon.Pun;
 using System;
 using System.Collections;
-using System.Linq;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
@@ -14,12 +13,18 @@ namespace REPOWildCardMod.Valuables
         public ChiikawaType[] types;
         public ChiikawaType chiikawa;
         public bool chiikawaChosen;
-        public Transform[] parentTransforms;
         public MeshRenderer faceRenderer;
         public Material faceMaterial;
         public Sound chiikawaSounds;
         public Animator animator;
         public float faceTimer;
+        public void Awake()
+        {
+            for (int i = 0; i < types.Length; i++)
+            {
+                types[i].chosenTransforms = new Transform[] { types[i].chosenBody, types[i].chosenHead, types[i].chosenLeftEar, types[i].chosenRightEar, types[i].chosenLeftArm, types[i].chosenRightArm, types[i].chosenLeftLeg, types[i].chosenRightLeg, types[i].chosenTail };
+            }
+        }
         public void Start()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
@@ -44,10 +49,7 @@ namespace REPOWildCardMod.Valuables
         public IEnumerator ChiikawaSetup()
         {
             yield return new WaitUntil(() => chiikawaChosen);
-            if (chiikawa.chosenTransforms.Length != parentTransforms.Length)
-            {
-                log.LogWarning($"{chiikawa.name} has an invalid number of chosen transforms!");
-            }
+            log.LogDebug($"Chiikawa character selected: \"{chiikawa.name}\"");
             for (int i = 0; i < chiikawa.chosenTransforms.Length; i++)
             {
                 chiikawa.chosenTransforms[i].gameObject.SetActive(true);
@@ -56,19 +58,18 @@ namespace REPOWildCardMod.Valuables
             valuableObject.audioPreset.breakMedium.Sounds = chiikawa.audioClips;
             valuableObject.audioPreset.breakHeavy.Sounds = chiikawa.audioClips;
             chiikawaSounds.Sounds = chiikawa.audioClips;
-            log.LogDebug($"Chiikawa character selected: \"{chiikawa.name}\"");
             gameObject.name = $"Valuable {chiikawa.name}";
             physGrabObject.OverrideMaterial(new PhysicMaterial { dynamicFriction = 0.25f, staticFriction = 0.05f, bounciness = chiikawa.bounciness, frictionCombine = PhysicMaterialCombine.Average, bounceCombine = PhysicMaterialCombine.Maximum }, -123f);
             animator.SetLayerWeight(1, chiikawa.wiggle);
-            faceRenderer = chiikawa.chosenFace;
+            faceRenderer = chiikawa.chosenHead.GetComponent<MeshRenderer>();
             if (chiikawa.newMainMaterial != null)
             {
-                for (int i = 0; i < parentTransforms.Length; i++)
+                for (int i = 0; i < chiikawa.chosenTransforms.Length; i++)
                 {
-                    for (int j = 0; j < parentTransforms[i].childCount; j++)
+                    Transform[] children = chiikawa.chosenTransforms[i].GetComponentsInChildren<Transform>();
+                    for (int j = 0; j < children.Length; j++)
                     {
-                        Transform bodyPart = parentTransforms[i].GetChild(j);
-                        if (bodyPart.TryGetComponent<MeshRenderer>(out MeshRenderer renderer) && chiikawa.chosenTransforms.Contains(bodyPart))
+                        if (children[j].TryGetComponent<MeshRenderer>(out MeshRenderer renderer))
                         {
                             if (renderer.materials.Length == 0)
                             {
@@ -76,7 +77,12 @@ namespace REPOWildCardMod.Valuables
                             }
                             else if (renderer.materials.Length == 2)
                             {
-                                renderer.materials = new Material[] { chiikawa.newMainMaterial, faceMaterial };
+                                Material newMaterial = chiikawa.newMainMaterial;
+                                if (chiikawa.overrideHeadMaterial != null)
+                                {
+                                    newMaterial = chiikawa.overrideHeadMaterial;
+                                }
+                                renderer.materials = new Material[] { newMaterial, faceMaterial };
                             }
                         }
                     }
@@ -97,7 +103,7 @@ namespace REPOWildCardMod.Valuables
                 {
                     if (!chiikawaSounds.Source.isPlaying)
                     {
-                        chiikawaSounds.Play(faceRenderer.transform.position);
+                        chiikawaSounds.Play(chiikawa.chosenHead.position);
                     }
                     if (!animator.GetBool("Grabbed"))
                     {
@@ -146,8 +152,17 @@ namespace REPOWildCardMod.Valuables
         [Space(20)]
         [Header("Body Parts")]
         public Transform[] chosenTransforms;
-        public MeshRenderer chosenFace;
+        public Transform chosenBody;
+        public Transform chosenHead;
+        public Transform chosenLeftEar;
+        public Transform chosenRightEar;
+        public Transform chosenLeftArm;
+        public Transform chosenRightArm;
+        public Transform chosenLeftLeg;
+        public Transform chosenRightLeg;
+        public Transform chosenTail;
         public Material newMainMaterial;
+        public Material overrideHeadMaterial;
         [Space(10)]
         [Header("Face Textures")]
         public Texture2D neutralFace;

@@ -13,6 +13,7 @@ namespace REPOWildCardMod.Valuables
         public PhysicMaterial physMat;
         public Sound ariSounds;
         public Sound flapLoop;
+        public float balanceForce = 0.1f;
         public float chirpTimer;
         public void Start()
         {
@@ -20,13 +21,25 @@ namespace REPOWildCardMod.Valuables
         }
         public void FixedUpdate()
         {
-            if (physGrabObject.grabbed)
+            if (SemiFunc.IsMasterClientOrSingleplayer() && physGrabObject.grabbed)
             {
-                if (SemiFunc.IsMasterClientOrSingleplayer())
+                bool rotating = false;
+                for (int i = 0; i < physGrabObject.playerGrabbing.Count; i++)
                 {
-                    physGrabObject.rb.AddForce((Random.insideUnitSphere / 2f) + (transform.up / 1.3f), ForceMode.Impulse);
+                    if (physGrabObject.playerGrabbing[i].isRotating)
+                    {
+                        rotating = true;
+                        break;
+                    }
                 }
-
+                if (!rotating)
+                {
+                    physGrabObject.OverrideTorqueStrengthX(0f);
+                    physGrabObject.OverrideTorqueStrengthZ(0f);
+                    Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
+                    physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balanceForce);
+                }
+                physGrabObject.rb.AddForce((Random.insideUnitSphere / 2f) + (transform.up / 1.3f), ForceMode.Impulse);
             }
         }
         public void Update()
