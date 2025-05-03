@@ -143,6 +143,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Chiikawa & Friends</summary>
+	
+	Original designs by [Nagano](https://x.com/ngnchiikawa)  
+	All of the Chiikawa cast (the small ones) as an homage to [JaidenAnimations](https://www.youtube.com/@jaidenanimations)' love for them!
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/ChiikawaPreview.png)
+	
+	</details>
+
 - Shop Items
 	<details>
 	<summary>Smith Halo</summary>

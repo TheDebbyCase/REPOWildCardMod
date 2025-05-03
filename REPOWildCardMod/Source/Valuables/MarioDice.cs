@@ -9,18 +9,27 @@ namespace REPOWildCardMod.Valuables
         public ParticleScriptExplosion explodeScript;
         public Transform[] diceNumbers;
         public Sound diceSound;
+        public int layerMask;
         public float diceTimer;
         public bool grabReset = false;
         public GameObject[] colliders;
         public bool hasSettled;
         public bool wasGrabbed;
         public bool beingThrown;
+        public Transform lowestTransform;
+        public float lastRotMag;
+        public float cumRotMag;
+        public float rotThreshhold = 85f;
+        public void Awake()
+        {
+            layerMask = LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player");
+        }
         public void Update()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 physGrabObject.OverrideIndestructible();
-                if (physGrabObject.rbAngularVelocity.magnitude > 0.01f)
+                if (physGrabObject.rbAngularVelocity.magnitude > 0.01f || cumRotMag < rotThreshhold)
                 {
                     if (hasSettled)
                     {
@@ -44,33 +53,67 @@ namespace REPOWildCardMod.Valuables
                 }
                 else if (wasGrabbed)
                 {
-                    wasGrabbed = false;
-                    beingThrown = true;
-                    physGrabObject.rb.AddTorque(Random.onUnitSphere * 5f, ForceMode.Impulse);
-                    physGrabObject.rb.AddForce((Vector3.up * Random.Range(0.5f, 2f)) + new Vector3(((Random.value * 2f) - 1f) * 2f, 0f, (Random.value * 2f) - 1f) * 2f, ForceMode.Impulse);
-                    hasSettled = false;
-                    ToggleCollider(false);
+                    Throw();
                 }
-                if (hasSettled && beingThrown)
+                if (beingThrown)
                 {
+                    float maxLowHeight = 0f;
+                    int diceLowIndex = 0;
+                    for (int i = 0; i < diceNumbers.Length; i++)
+                    {
+                        float newLowHeight = diceNumbers[i].position.y;
+                        if (newLowHeight > maxLowHeight)
+                        {
+                            maxLowHeight = newLowHeight;
+                            diceLowIndex = i;
+                        }
+                    }
+                    lowestTransform = diceNumbers[diceLowIndex];
                     if (diceTimer > 0f)
                     {
+                        lastRotMag = physGrabObject.rbAngularVelocity.magnitude;
+                        cumRotMag += lastRotMag;
                         diceTimer -= Time.deltaTime;
                     }
-                    else
+                    else if (hasSettled)
                     {
                         RollDice();
                     }
+                    else
+                    {
+                        Throw();
+                    }
                 }
-                else if (diceTimer != 1f)
+                else if (diceTimer != 2f)
                 {
-                    diceTimer = 1f;
+                    diceTimer = 2f;
+                    cumRotMag = 0f;
                 }
                 if (physGrabObject.rb.freezeRotation != hasSettled)
                 {
                     FreezeRotation(hasSettled);
                 }
             }
+        }
+        public void Throw(Vector3 overrideForce = default)
+        {
+            diceTimer = 2f;
+            cumRotMag = 0f;
+            wasGrabbed = false;
+            beingThrown = true;
+            physGrabObject.rb.AddTorque(Random.onUnitSphere * 10f, ForceMode.Impulse);
+            Vector3 force;
+            if (overrideForce == default)
+            {
+                force = (Vector3.up * Random.Range(0.5f, 2f)) + new Vector3(((Random.value * 2f) - 1f) * 2f, 0f, (Random.value * 2f) - 1f) * 2f;
+            }
+            else
+            {
+                force = overrideForce;
+            }
+            physGrabObject.rb.AddForce(force, ForceMode.Impulse);
+            hasSettled = false;
+            ToggleCollider(false);
         }
         public void FreezeRotation(bool freeze)
         {
@@ -90,7 +133,19 @@ namespace REPOWildCardMod.Valuables
         }
         public void RollDice()
         {
-            diceTimer = 1f;
+            for (int i = 0; i < diceNumbers.Length; i++)
+            {
+                if (diceNumbers[i] = lowestTransform)
+                {
+                    continue;
+                }
+                Vector3 direction = (diceNumbers[i].position - transform.position).normalized;
+                if (Physics.Raycast(transform.position, direction, out RaycastHit hit, 0.25f, layerMask))
+                {
+                    Throw(direction * hit.distance * -8f);
+                    return;
+                }
+            }
             beingThrown = false;
             ToggleCollider(true);
             float maxHeight = 0f;
@@ -151,10 +206,14 @@ namespace REPOWildCardMod.Valuables
                         break;
                     }
             }
-            PhysGrabObjectImpactDetector impactDetector = physGrabObject.impactDetector;
-            if (Mathf.Abs(multiplier) * impactDetector.valuableObject.dollarValueCurrent > impactDetector.valuableObject.dollarValueOriginal * 50f)
+            if (multiplier < 0f)
             {
-                multiplier = 1f - ((impactDetector.valuableObject.dollarValueOriginal * 50f) / impactDetector.valuableObject.dollarValueCurrent);
+                EnemyDirector.instance.SetInvestigate(transform.position, float.MaxValue);
+            }
+            PhysGrabObjectImpactDetector impactDetector = physGrabObject.impactDetector;
+            if (Mathf.Abs(multiplier) * impactDetector.valuableObject.dollarValueCurrent > 15000)
+            {
+                multiplier = 1f - (15000 / impactDetector.valuableObject.dollarValueCurrent);
             }
             log.LogDebug($"Dice Value Changing from: \"{impactDetector.valuableObject.dollarValueCurrent}\", to: \"{impactDetector.valuableObject.dollarValueCurrent - (multiplier * impactDetector.valuableObject.dollarValueCurrent)}\"");
             if (SemiFunc.IsMultiplayer())
@@ -167,7 +226,7 @@ namespace REPOWildCardMod.Valuables
             }
             if (Mathf.Abs(multiplier) < 1f)
             {
-                diceSound.Pitch = 0.75f; 
+                diceSound.Pitch = 0.75f;
             }
             else
             {
@@ -202,7 +261,8 @@ namespace REPOWildCardMod.Valuables
         }
         public void AntiGamblingLaws()
         {
-            explodeScript.Spawn(transform.position, 2f, 20, 20, 5f);
+            EnemyDirector.instance.SetInvestigate(transform.position, float.MaxValue);
+            explodeScript.Spawn(transform.position, 5f, 100, 100, 10f);
         }
     }
 }

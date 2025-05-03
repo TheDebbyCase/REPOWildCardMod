@@ -1,3 +1,6 @@
+## 0.16.4
+- Added Chiikawa to the README
+
 ## 0.16.3
 - Edited Chiikawa audio system slightly to avoid log warnings
 
