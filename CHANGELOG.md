@@ -1,3 +1,6 @@
+## 0.16.3
+- Edited Chiikawa audio system slightly to avoid log warnings
+
 ## 0.16.2
 - Finally finished all of the Chiikawa characters, except for Furuhonya/Kani voicelines/sound effects as I could not find any
 

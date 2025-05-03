@@ -55,10 +55,18 @@ namespace REPOWildCardMod.Valuables
             {
                 chiikawa.chosenTransforms[i].gameObject.SetActive(true);
             }
-            valuableObject.audioPreset = new PhysAudio() { impactLight = valuableObject.audioPreset.impactLight, impactMedium = valuableObject.audioPreset.impactMedium, impactHeavy = valuableObject.audioPreset.impactHeavy, breakLight = valuableObject.audioPreset.breakLight, breakMedium = valuableObject.audioPreset.breakMedium, breakHeavy = valuableObject.audioPreset.breakHeavy, destroy = valuableObject.audioPreset.destroy };
-            valuableObject.audioPreset.breakLight.Sounds = chiikawa.audioClips;
-            valuableObject.audioPreset.breakMedium.Sounds = chiikawa.audioClips;
-            valuableObject.audioPreset.breakHeavy.Sounds = chiikawa.audioClips;
+            PhysAudio newAudio = ScriptableObject.CreateInstance<PhysAudio>();
+            newAudio.impactLight = valuableObject.audioPreset.impactLight;
+            newAudio.impactMedium = valuableObject.audioPreset.impactMedium;
+            newAudio.impactHeavy = valuableObject.audioPreset.impactHeavy;
+            newAudio.breakLight = valuableObject.audioPreset.breakLight;
+            newAudio.breakMedium = valuableObject.audioPreset.breakMedium;
+            newAudio.breakHeavy = valuableObject.audioPreset.breakHeavy;
+            newAudio.destroy = valuableObject.audioPreset.destroy;
+            newAudio.breakLight.Sounds = chiikawa.audioClips;
+            newAudio.breakMedium.Sounds = chiikawa.audioClips;
+            newAudio.breakHeavy.Sounds = chiikawa.audioClips;
+            valuableObject.audioPreset = newAudio;
             chiikawaSounds.Sounds = chiikawa.audioClips;
             gameObject.name = $"Valuable {chiikawa.name}";
             physGrabObject.OverrideMaterial(new PhysicMaterial { dynamicFriction = 0.25f, staticFriction = 0.05f, bounciness = chiikawa.bounciness, frictionCombine = PhysicMaterialCombine.Average, bounceCombine = PhysicMaterialCombine.Maximum }, -123f);
