@@ -1,3 +1,6 @@
+## 0.16.2
+- Finally finished all of the Chiikawa characters, except for Furuhonya/Kani voicelines/sound effects as I could not find any
+
 ## 0.16.1
 - Fixed issue where Worm Jar would spam errors and lag the game
 - Attempted to make Ari, Moo Cow, Clover Bee and Smith Halo self-right while being held

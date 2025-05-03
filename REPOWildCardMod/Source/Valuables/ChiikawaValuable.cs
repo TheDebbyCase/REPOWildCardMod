@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using static ES3Spreadsheet;
 namespace REPOWildCardMod.Valuables
 {
     public class ChiikawaValuable : MonoBehaviour
@@ -54,16 +55,23 @@ namespace REPOWildCardMod.Valuables
             {
                 chiikawa.chosenTransforms[i].gameObject.SetActive(true);
             }
+            valuableObject.audioPreset = new PhysAudio() { impactLight = valuableObject.audioPreset.impactLight, impactMedium = valuableObject.audioPreset.impactMedium, impactHeavy = valuableObject.audioPreset.impactHeavy, breakLight = valuableObject.audioPreset.breakLight, breakMedium = valuableObject.audioPreset.breakMedium, breakHeavy = valuableObject.audioPreset.breakHeavy, destroy = valuableObject.audioPreset.destroy };
             valuableObject.audioPreset.breakLight.Sounds = chiikawa.audioClips;
             valuableObject.audioPreset.breakMedium.Sounds = chiikawa.audioClips;
             valuableObject.audioPreset.breakHeavy.Sounds = chiikawa.audioClips;
             chiikawaSounds.Sounds = chiikawa.audioClips;
             gameObject.name = $"Valuable {chiikawa.name}";
             physGrabObject.OverrideMaterial(new PhysicMaterial { dynamicFriction = 0.25f, staticFriction = 0.05f, bounciness = chiikawa.bounciness, frictionCombine = PhysicMaterialCombine.Average, bounceCombine = PhysicMaterialCombine.Maximum }, -123f);
-            animator.SetLayerWeight(1, chiikawa.wiggle);
+            animator.SetLayerWeight(1, (chiikawa.wiggle * 0.5f) + 0.5f);
             faceRenderer = chiikawa.chosenHead.GetComponent<MeshRenderer>();
             if (chiikawa.newMainMaterial != null)
             {
+                GradientColorKey[] colorKeys = valuableObject.particleColors.colorKeys;
+                for (int i = 0; i < colorKeys.Length; i++)
+                {
+                    colorKeys[i] = new GradientColorKey(chiikawa.newMainMaterial.color, colorKeys[i].time);
+                }
+                valuableObject.particleColors.colorKeys = colorKeys;
                 for (int i = 0; i < chiikawa.chosenTransforms.Length; i++)
                 {
                     Transform[] children = chiikawa.chosenTransforms[i].GetComponentsInChildren<Transform>();
