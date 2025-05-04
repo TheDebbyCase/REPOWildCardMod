@@ -3,7 +3,7 @@ using HarmonyLib;
 namespace REPOWildCardMod.Patches
 {
     [HarmonyPatch(typeof(PlayerAvatar))]
-    public static class PlayerAvatarPatch
+    public static class PlayerAvatarPatches
     {
         [HarmonyPatch(nameof(PlayerAvatar.ChatMessageSend))]
         [HarmonyPostfix]

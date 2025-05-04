@@ -5,11 +5,66 @@ using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using UnityEngine;
 using System.Linq;
+using ExitGames.Client.Photon;
 namespace REPOWildCardMod.Utils
 {
     public class WildCardUtils
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        public static void SetEnemySkin(EventData eventData)
+        {
+            object[] data = (object[])eventData.CustomData;
+            int enemyIndex = (int)data[0];
+            Reskin newSkin = WildCardMod.instance.reskinList[(int)data[1]];
+            int variantIndex = (int)data[2];
+            string enemyName = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent.enemyName;
+            bool success = true;
+            switch (enemyName)
+            {
+                case "Rugrat":
+                    {
+                        MeshFilter[] filters = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent.transform.GetComponentsInChildren<MeshFilter>(true);
+                        List<Transform> transforms = new List<Transform>();
+                        for (int i = 0; i < filters.Length; i++)
+                        {
+                            transforms.Add(filters[i].transform);
+                        }
+                        for (int i = 0; i < newSkin.replacers[variantIndex].bodyParts.Count; i++)
+                        {
+                            List<Transform> replacedTransforms = new List<Transform>();
+                            for (int j = 0; j < transforms.Count; j++)
+                            {
+                                if (replacedTransforms.Contains(transforms[j]))
+                                {
+                                    continue;
+                                }
+                                if (transforms[j].name == newSkin.replacers[variantIndex].bodyParts[i].transformName)
+                                {
+                                    transforms[j].GetComponent<MeshFilter>().mesh = newSkin.replacers[variantIndex].bodyParts[i].newMesh;
+                                    transforms[j].GetComponent<MeshRenderer>().materials = newSkin.replacers[variantIndex].bodyParts[i].newMaterials.ToArray();
+                                    replacedTransforms.Add(transforms[j]);
+                                    WildCardMod.instance.log.LogDebug($"{enemyName}: {transforms[j].name} successfully replaced!");
+                                    break;
+                                }
+                            }
+                        }
+                        break;
+                    }
+                default:
+                    {
+                        success = false;
+                        break;
+                    }
+            }
+            if (success)
+            {
+                WildCardMod.instance.log.LogInfo($"Successfully reskinned {enemyName}!");
+            }
+            else
+            {
+                WildCardMod.instance.log.LogWarning($"Attempted to reskin {enemyName} but something went wrong!");
+            }
+        }
         public Transform FindEnemyTransform(string enemy, string type)
         {
             Transform finalTransform = null;
@@ -499,7 +554,7 @@ namespace REPOWildCardMod.Utils
             {
                 for (int i = 0; i < variantChances.Length; i++)
                 {
-                    
+
                     variantChances[i].value += (float)Math.Round((decimal)((1f - variantChancesTotal) / variantChances.Length), 2);
                     if (variantChances[i].value > 0.999)
                     {

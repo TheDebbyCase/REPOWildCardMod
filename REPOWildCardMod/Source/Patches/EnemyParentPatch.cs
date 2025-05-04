@@ -1,4 +1,6 @@
-﻿using HarmonyLib;
+﻿using ExitGames.Client.Photon;
+using HarmonyLib;
+using Photon.Pun;
 using REPOWildCardMod.Config;
 using REPOWildCardMod.Items;
 using REPOWildCardMod.Utils;
@@ -36,93 +38,68 @@ namespace REPOWildCardMod.Patches
                 }
             }
         }
-        [HarmonyPatch(nameof(EnemyParent.Awake))]
+        [HarmonyPatch(nameof(EnemyParent.Despawn))]
         [HarmonyPrefix]
-        public static bool ReskinEnemy(EnemyParent __instance)
+        public static bool EnemyStart(EnemyParent __instance)
         {
-            WildCardConfig config = WildCardMod.instance.ModConfig;
-            List<Reskin> reskins = WildCardMod.instance.reskinList;
-            int skinIndex = -1;
-            Reskin newSkin = null;
-            for (int i = 0; i < reskins.Count; i++)
+            if (SemiFunc.IsMasterClientOrSingleplayer() && !__instance.firstSpawnPointUsed)
             {
-                if (reskins[i].identifier == __instance.enemyName && config.isReskinEnabled[i].Value && config.reskinChance[i].Value > 0f)
+                WildCardConfig config = WildCardMod.instance.ModConfig;
+                List<Reskin> reskins = WildCardMod.instance.reskinList;
+                int skinIndex = -1;
+                int variantIndex = 0;
+                List<Reskin> potentialSkins = new List<Reskin>();
+                Reskin newSkin = null;
+                for (int i = 0; i < reskins.Count; i++)
                 {
-                    newSkin = reskins[i];
-                    skinIndex = i;
-                    break;
+                    if (reskins[i].identifier == __instance.enemyName && config.isReskinEnabled[i].Value && config.reskinChance[i].Value > 0f)
+                    {
+                        potentialSkins.Add(reskins[i]);
+                    }
                 }
-            }
-            if (newSkin != null)
-            {
-                log.LogDebug($"Reskin for {__instance.enemyName} found!");
-                if (Random.value <= config.reskinChance[skinIndex].Value)
+                if (potentialSkins.Count > 0)
                 {
-                    log.LogDebug($"New skin for {newSkin.identifier} is being applied!");
-                    int variantIndex = 0;
-                    if (newSkin.variantChances.Length > 1)
+                    newSkin = potentialSkins[Random.Range(0, potentialSkins.Count)];
+                    skinIndex = reskins.IndexOf(newSkin);
+                }
+                if (newSkin != null)
+                {
+                    log.LogDebug($"Reskin for {__instance.enemyName} found!");
+                    if (Random.value <= config.reskinChance[skinIndex].Value)
                     {
-                        AnimationCurve curve = newSkin.variantsCurve;
-                        float cumulative = 0f;
-                        for (int i = 0; i < config.reskinVariantChance[skinIndex].Count; i++)
+                        log.LogDebug($"New skin for {newSkin.identifier} is being applied!");
+                        if (newSkin.variantChances.Length > 1)
                         {
-                            curve.keys[i + 1].time = cumulative;
-                            cumulative += config.reskinVariantChance[skinIndex][i].Value;
-                        }
-                        variantIndex = Mathf.FloorToInt(curve.Evaluate(Random.value));
-                        if (variantIndex == newSkin.variantChances.Length)
-                        {
-                            variantIndex--;
-                        }
-                        log.LogDebug($"{__instance.enemyName} reskin selected variant {variantIndex + 1}");
-                    }
-                    bool success = true;
-                    switch (__instance.enemyName)
-                    {
-                        case "Rugrat":
+                            AnimationCurve curve = newSkin.variantsCurve;
+                            float cumulative = 0f;
+                            for (int i = 0; i < config.reskinVariantChance[skinIndex].Count; i++)
                             {
-                                MeshFilter[] filters = __instance.transform.GetComponentsInChildren<MeshFilter>(true);
-                                List<Transform> transforms = new List<Transform>();
-                                for (int i = 0; i < filters.Length; i++)
-                                {
-                                    transforms.Add(filters[i].transform);
-                                }
-                                for (int i = 0; i < newSkin.replacers[variantIndex].bodyParts.Count; i++)
-                                {
-                                    List<Transform> replacedTransforms = new List<Transform>();
-                                    for (int j = 0; j < transforms.Count; j++)
-                                    {
-                                        if (replacedTransforms.Contains(transforms[j]))
-                                        {
-                                            continue;
-                                        }
-                                        if (transforms[j].name == newSkin.replacers[variantIndex].bodyParts[i].transformName)
-                                        {
-                                            transforms[j].GetComponent<MeshFilter>().mesh = newSkin.replacers[variantIndex].bodyParts[i].newMesh;
-                                            transforms[j].GetComponent<MeshRenderer>().materials = newSkin.replacers[variantIndex].bodyParts[i].newMaterials.ToArray();
-                                            replacedTransforms.Add(transforms[j]);
-                                            log.LogDebug($"{__instance.enemyName}: {transforms[j].name} successfully replaced!");
-                                            break;
-                                        }
-                                    }
-                                }
-                                break;
+                                curve.keys[i + 1].time = cumulative;
+                                cumulative += config.reskinVariantChance[skinIndex][i].Value;
                             }
-                        default:
+                            variantIndex = Mathf.FloorToInt(curve.Evaluate(Random.value));
+                            if (variantIndex == newSkin.variantChances.Length)
                             {
-                                success = false;
-                                break;
+                                variantIndex--;
                             }
+                            log.LogDebug($"{__instance.enemyName} reskin selected variant {variantIndex + 1}");
+                        }
+                        WildCardMod.networkedEvents.Find((x) => x.Name == "Set Enemy Skin").RaiseEvent(new object[] { SemiFunc.EnemyGetIndex(__instance.Enemy), skinIndex, variantIndex }, REPOLib.Modules.NetworkingEvents.RaiseAll, SendOptions.SendReliable);
                     }
-                    if (success)
+                }                
+                if (StatsManager.instance.itemsPurchased["Item Worm Jar"] > 0 && __instance.GetComponentInChildren<WormAttach>() == null)
+                {
+                    GameObject newWorm;
+                    if (SemiFunc.IsMultiplayer())
                     {
-                        log.LogInfo($"Successfully reskinned {__instance.enemyName}!");
+                        newWorm = PhotonNetwork.InstantiateRoomObject($"Misc/Worm Attach", new Vector3(0f, -100f, 0f), Quaternion.identity);
                     }
                     else
                     {
-                        log.LogWarning($"Attempted to reskin {__instance.enemyName} but something went wrong!");
-
+                        newWorm = Object.Instantiate(WildCardMod.instance.miscPrefabsList.Find((x) => x.name == "Worm Attach"), new Vector3(0f, -100f, 0f), Quaternion.identity);
                     }
+                    WormAttach attach = newWorm.GetComponent<WormAttach>();
+                    attach.Initialize(SemiFunc.EnemyGetIndex(__instance.Enemy));
                 }
             }
             return true;

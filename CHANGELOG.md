@@ -1,3 +1,8 @@
+## 0.16.5
+- Attempted to avoid Worm Jar lag upon breaking it
+- Attempted to avoid Worm Jar causing enemies to error spam in some cases
+- Made enemy reskins (digirugcats) synced to host
+
 ## 0.16.4
 - Added Chiikawa to the README
 

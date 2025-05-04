@@ -4,7 +4,7 @@ using UnityEngine;
 namespace REPOWildCardMod.Patches
 {
     [HarmonyPatch(typeof(HurtCollider))]
-    public static class HurtColliderPatch
+    public static class HurtColliderPatches
     {
         static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         [HarmonyPatch(nameof(HurtCollider.CanHit))]

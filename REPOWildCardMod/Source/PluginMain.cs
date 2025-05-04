@@ -20,7 +20,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.16.4";
+        internal const string modVersion = "0.16.5";
         readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
@@ -31,6 +31,7 @@ namespace REPOWildCardMod
         public List<Item> itemList = new List<Item>();
         public List<Reskin> reskinList = new List<Reskin>();
         public List<GameObject> miscPrefabsList = new List<GameObject>();
+        public static List<NetworkedEvent> networkedEvents = new List<NetworkedEvent>();
         [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
         void Awake()
         {
@@ -65,6 +66,13 @@ namespace REPOWildCardMod
             {
                 moreUpgradesPresent = true;
             }
+            PropogateLists();
+            HandleContent();
+            DoPatches();
+            log.LogInfo("WILDCARD REPO Successfully Loaded");
+        }
+        public void PropogateLists()
+        {
             AssetBundle bundle = AssetBundle.LoadFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "wildcardmod"));
             string[] allAssetPaths = bundle.GetAllAssetNames();
             for (int i = 0; i < allAssetPaths.Length; i++)
@@ -112,7 +120,19 @@ namespace REPOWildCardMod
                         }
                 }
             }
+        }
+        public void HandleContent()
+        {
             ModConfig = new WildCardConfig(base.Config, valList, itemList, reskinList);
+            HandleValuables();
+            HandleItems();
+            HandleReskins();
+            HandleMisc();
+            HandleEvents();
+        }
+        
+        public void HandleValuables()
+        {
             for (int i = 0; i < valList.Count; i++)
             {
                 if (ModConfig.isValEnabled[i].Value)
@@ -149,6 +169,9 @@ namespace REPOWildCardMod
                     log.LogInfo($"{valList[i].name} valuable was disabled!");
                 }
             }
+        }
+        public void HandleItems()
+        {
             for (int i = 0; i < itemList.Count; i++)
             {
                 if (i >= ModConfig.isItemEnabled.Count || ModConfig.isItemEnabled[i].Value)
@@ -161,6 +184,9 @@ namespace REPOWildCardMod
                     log.LogInfo($"{itemList[i].name} item was disabled!");
                 }
             }
+        }
+        public void HandleReskins()
+        {
             for (int i = 0; i < reskinList.Count; i++)
             {
                 if (!ModConfig.isReskinEnabled[i].Value || ModConfig.reskinChance[i].Value <= 0f)
@@ -168,48 +194,39 @@ namespace REPOWildCardMod
                     log.LogInfo($"{reskinList[i].identifier} reskin was disabled!");
                 }
             }
+        }
+        public void HandleMisc()
+        {
             for (int i = 0; i < miscPrefabsList.Count; i++)
             {
                 NetworkPrefabs.RegisterNetworkPrefab($"Misc/{miscPrefabsList[i].name}", miscPrefabsList[i]);
                 Utilities.FixAudioMixerGroups(miscPrefabsList[i]);
+                log.LogDebug($"{miscPrefabsList[i].name} prefab was loaded!");
             }
-            //KaelMeme();
+        }
+        public void HandleEvents()
+        {
+            networkedEvents.Add(new NetworkedEvent("Set Enemy Skin", WildCardUtils.SetEnemySkin));
+        }
+        public void DoPatches()
+        {
             log.LogDebug("Patching Game");
             harmony.PatchAll(typeof(CameraGlitchPatches));
             harmony.PatchAll(typeof(EnemyParentPatches));
-            harmony.PatchAll(typeof(HurtColliderPatch));
+            harmony.PatchAll(typeof(HurtColliderPatches));
             harmony.PatchAll(typeof(PhysGrabObjectPatches));
-            harmony.PatchAll(typeof(PlayerAvatarPatch));
+            harmony.PatchAll(typeof(PlayerAvatarPatches));
             harmony.PatchAll(typeof(StatsManagerPatches));
             harmony.PatchAll(typeof(WorldSpaceUIValueLostPatches));
+            harmony.PatchAll(typeof(EnemyPatches));
             if (ModConfig.harmonyPatches.Value)
             {
                 harmony.PatchAll(typeof(PhysGrabberRayCheckPatch));
-                //harmony.PatchAll(typeof(PhysGrabberPhysGrabPointActivatePatch));
             }
             else
             {
-                log.LogInfo("Disabled Giwi's Transpilers");
+                log.LogInfo("Disabled Giwi's Harmony Patches");
             }
-            log.LogInfo("WILDCARD REPO Successfully Loaded");
         }
-        //void KaelMeme()
-        //{
-        //    SaveFile save = new SaveFile();
-        //    DigiHandler digiHandler = new DigiHandler();
-        //    int startRange = UnityEngine.Random.Range(0, save.twitchNames.Length - 1);
-        //    string[] chosenNames = save.twitchNames[startRange..UnityEngine.Random.Range(startRange, save.twitchNames.Length)];
-        //    int[] versions = new int[chosenNames.Length];
-        //    for (int i = 0; i < versions.Length; i++)
-        //    {
-        //        versions[i] = UnityEngine.Random.Range(0, 3);
-        //    }
-        //    Android android = new Android();
-        //    digiHandler.Initialize(android, save, chosenNames, versions);
-        //    while (!android.deadDigi)
-        //    {
-        //        digiHandler.AndroidCare();
-        //    }
-        //}
     }
 }
