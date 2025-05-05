@@ -1,3 +1,6 @@
+## 0.16.6
+- Quick patchwork fix for an issue that occurs if the Worm Jar is disabled
+
 ## 0.16.5
 - Attempted to avoid Worm Jar lag upon breaking it
 - Attempted to avoid Worm Jar causing enemies to error spam in some cases
