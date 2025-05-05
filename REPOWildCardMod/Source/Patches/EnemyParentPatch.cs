@@ -42,7 +42,7 @@ namespace REPOWildCardMod.Patches
         [HarmonyPrefix]
         public static bool EnemyStart(EnemyParent __instance)
         {
-            if (SemiFunc.IsMasterClientOrSingleplayer() && !__instance.firstSpawnPointUsed)
+            if (SemiFunc.IsMasterClientOrSingleplayer() && EnemyDirector.instance.spawnIdlePauseTimer > 0f)
             {
                 WildCardConfig config = WildCardMod.instance.ModConfig;
                 List<Reskin> reskins = WildCardMod.instance.reskinList;
@@ -87,7 +87,7 @@ namespace REPOWildCardMod.Patches
                         WildCardMod.networkedEvents.Find((x) => x.Name == "Set Enemy Skin").RaiseEvent(new object[] { SemiFunc.EnemyGetIndex(__instance.Enemy), skinIndex, variantIndex }, REPOLib.Modules.NetworkingEvents.RaiseAll, SendOptions.SendReliable);
                     }
                 }                
-                if (StatsManager.instance.itemsPurchased["Item Worm Jar"] > 0 && __instance.GetComponentInChildren<WormAttach>() == null)
+                if (StatsManager.instance.itemsPurchased.ContainsKey("Item Worm Jar") && StatsManager.instance.itemsPurchased["Item Worm Jar"] > 0 && __instance.GetComponentInChildren<WormAttach>() == null)
                 {
                     GameObject newWorm;
                     if (SemiFunc.IsMultiplayer())
