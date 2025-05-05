@@ -1,3 +1,6 @@
+## 0.16.8
+- Updated for compatibility with latest REPOLib version (2.1.0.0)
+
 ## 0.16.7
 - Moved some code around to avoid inevitable errors, fuck you coroutines just let me patch you
 

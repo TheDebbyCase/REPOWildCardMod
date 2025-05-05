@@ -64,7 +64,7 @@ namespace REPOWildCardMod.Valuables
                 ImpactSquish();
                 physGrabObject.impactDetector.impactAudio.impactLight.Play(transform.position, 1 + ((float)explodeCounter / 25f));
                 explodeCounter++;
-                if (explodeCounter >= 26)
+                if (explodeCounter >= 50)
                 {
                     explodeScript.Spawn(transform.position, 0.75f, 20, 40, 2.5f);
                     explodeCounter = 0;

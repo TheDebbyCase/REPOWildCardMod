@@ -3,10 +3,6 @@ using Photon.Pun;
 using REPOWildCardMod.Utils;
 using REPOLib.Extensions;
 using UnityEngine.Events;
-using Photon.Realtime;
-using UnityEditor.Experimental.GraphView;
-using static Unity.VisualScripting.Member;
-using Unity.VisualScripting;
 namespace REPOWildCardMod.Items
 {
     public class WormJar : MonoBehaviour

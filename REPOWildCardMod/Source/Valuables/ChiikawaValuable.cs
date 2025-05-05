@@ -2,7 +2,6 @@
 using System;
 using System.Collections;
 using UnityEngine;
-using static ES3Spreadsheet;
 namespace REPOWildCardMod.Valuables
 {
     public class ChiikawaValuable : MonoBehaviour
