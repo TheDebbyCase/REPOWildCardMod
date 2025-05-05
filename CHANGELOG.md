@@ -1,3 +1,6 @@
+## 0.16.7
+- Moved some code around to avoid inevitable errors, fuck you coroutines just let me patch you
+
 ## 0.16.6
 - Quick patchwork fix for an issue that occurs if the Worm Jar is disabled
 
