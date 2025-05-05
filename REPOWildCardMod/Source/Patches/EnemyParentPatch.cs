@@ -4,13 +4,16 @@ using Photon.Pun;
 using REPOWildCardMod.Config;
 using REPOWildCardMod.Items;
 using REPOWildCardMod.Utils;
+using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
+using MonoMod.Utils;
 namespace REPOWildCardMod.Patches
 {
     [HarmonyPatch(typeof(EnemyParent))]
     public static class EnemyParentPatches
     {
+        public static FieldInfo setupPatchInstance;
         static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         [HarmonyPatch(nameof(EnemyParent.SpawnRPC))]
         [HarmonyPostfix]
@@ -38,11 +41,22 @@ namespace REPOWildCardMod.Patches
                 }
             }
         }
-        [HarmonyPatch(nameof(EnemyParent.Despawn))]
+        [HarmonyPatch(nameof(EnemyParent.Awake))]
         [HarmonyPrefix]
-        public static bool EnemyStart(EnemyParent __instance)
+        public static void GetInstance(EnemyParent __instance)
         {
-            if (SemiFunc.IsMasterClientOrSingleplayer() && EnemyDirector.instance.spawnIdlePauseTimer > 0f)
+            setupPatchInstance = typeof(EnemyParent).GetMethod("Setup", BindingFlags.Instance | BindingFlags.NonPublic).GetStateMachineTarget().DeclaringType!.GetField("<>4__this", BindingFlags.Instance | BindingFlags.Public)!;
+        }
+        [HarmonyPatch(nameof(EnemyParent.Setup), MethodType.Enumerator)]
+        [HarmonyPostfix]
+        public static void WildCardEnemySetup(object __instance, bool __result)
+        {
+            if (__result)
+            {
+                return;
+            }
+            EnemyParent enemyParent = setupPatchInstance.GetValue(__instance) as EnemyParent;
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 WildCardConfig config = WildCardMod.instance.ModConfig;
                 List<Reskin> reskins = WildCardMod.instance.reskinList;
@@ -52,7 +66,7 @@ namespace REPOWildCardMod.Patches
                 Reskin newSkin = null;
                 for (int i = 0; i < reskins.Count; i++)
                 {
-                    if (reskins[i].identifier == __instance.enemyName && config.isReskinEnabled[i].Value && config.reskinChance[i].Value > 0f)
+                    if (reskins[i].identifier == enemyParent.enemyName && config.isReskinEnabled[i].Value && config.reskinChance[i].Value > 0f)
                     {
                         potentialSkins.Add(reskins[i]);
                     }
@@ -64,7 +78,7 @@ namespace REPOWildCardMod.Patches
                 }
                 if (newSkin != null)
                 {
-                    log.LogDebug($"Reskin for {__instance.enemyName} found!");
+                    log.LogDebug($"Reskin for {enemyParent.enemyName} found!");
                     if (Random.value <= config.reskinChance[skinIndex].Value)
                     {
                         log.LogDebug($"New skin for {newSkin.identifier} is being applied!");
@@ -82,13 +96,14 @@ namespace REPOWildCardMod.Patches
                             {
                                 variantIndex--;
                             }
-                            log.LogDebug($"{__instance.enemyName} reskin selected variant {variantIndex + 1}");
+                            log.LogDebug($"{enemyParent.enemyName} reskin selected variant {variantIndex + 1}");
                         }
-                        WildCardMod.networkedEvents.Find((x) => x.Name == "Set Enemy Skin").RaiseEvent(new object[] { SemiFunc.EnemyGetIndex(__instance.Enemy), skinIndex, variantIndex }, REPOLib.Modules.NetworkingEvents.RaiseAll, SendOptions.SendReliable);
+                        WildCardMod.networkedEvents.Find((x) => x.Name == "Set Enemy Skin").RaiseEvent(new object[] { SemiFunc.EnemyGetIndex(enemyParent.Enemy), skinIndex, variantIndex }, REPOLib.Modules.NetworkingEvents.RaiseAll, SendOptions.SendReliable);
                     }
-                }                
-                if (StatsManager.instance.itemsPurchased.ContainsKey("Item Worm Jar") && StatsManager.instance.itemsPurchased["Item Worm Jar"] > 0 && __instance.GetComponentInChildren<WormAttach>() == null)
+                }
+                if (StatsManager.instance.itemsPurchased.ContainsKey("Item Worm Jar") && StatsManager.instance.itemsPurchased["Item Worm Jar"] > 0 && enemyParent.GetComponentInChildren<WormAttach>() == null)
                 {
+                    log.LogDebug($"Adding dormant worm to: \"{enemyParent.enemyName}\"");
                     GameObject newWorm;
                     if (SemiFunc.IsMultiplayer())
                     {
@@ -98,11 +113,9 @@ namespace REPOWildCardMod.Patches
                     {
                         newWorm = Object.Instantiate(WildCardMod.instance.miscPrefabsList.Find((x) => x.name == "Worm Attach"), new Vector3(0f, -100f, 0f), Quaternion.identity);
                     }
-                    WormAttach attach = newWorm.GetComponent<WormAttach>();
-                    attach.Initialize(SemiFunc.EnemyGetIndex(__instance.Enemy));
+                    newWorm.GetComponent<WormAttach>().Initialize(SemiFunc.EnemyGetIndex(enemyParent.Enemy));
                 }
             }
-            return true;
         }
     }
 }
