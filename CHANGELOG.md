@@ -1,3 +1,6 @@
+## 0.16.9
+- Idk how but Worm Jar was broken and I added 4 characters to fix it
+
 ## 0.16.8
 - Updated for compatibility with latest REPOLib version (2.1.0.0)
 

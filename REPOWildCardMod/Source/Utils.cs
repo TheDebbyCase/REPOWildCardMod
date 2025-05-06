@@ -74,7 +74,7 @@ namespace REPOWildCardMod.Utils
                 log.LogWarning($"Enemy \"{enemy}\" is not spawned!");
                 return null;
             }
-            List<Transform> transforms = targetEnemy.GetComponentsInChildren<Transform>().ToList();
+            List<Transform> transforms = targetEnemy.GetComponentsInChildren<Transform>(true).ToList();
             bool valid = true;
             switch (enemy)
             {
@@ -408,7 +408,7 @@ namespace REPOWildCardMod.Utils
                         break;
                     }
             }
-            if (!valid)
+            if (!valid || finalTransform == null)
             {
                 log.LogWarning($"Transform of type \"{type}\" for enemy \"{enemy}\" has not been set up");
             }
