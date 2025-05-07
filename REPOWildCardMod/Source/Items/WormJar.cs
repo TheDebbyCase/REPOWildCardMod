@@ -3,6 +3,7 @@ using Photon.Pun;
 using REPOWildCardMod.Utils;
 using REPOLib.Extensions;
 using UnityEngine.Events;
+using Unity.VisualScripting;
 namespace REPOWildCardMod.Items
 {
     public class WormJar : MonoBehaviour
@@ -89,7 +90,7 @@ namespace REPOWildCardMod.Items
         public float lifetime;
         public float investigateTimer;
         public bool lowLife = false;
-        public float musicDelay = 0.5f;
+        public float overlapTimer = 1f;
         public void Awake()
         {
             musicLoop.LoopClip = musicLoop.Sounds[0];
@@ -275,7 +276,7 @@ namespace REPOWildCardMod.Items
             }
             if (enemy.HasRigidbody)
             {
-                spreadOverlap.radius = (enemy.Rigidbody.transform.GetComponentInChildren<Collider>().bounds.size.magnitude * 2f) / transform.localScale.magnitude;
+                spreadOverlap.bounds.Expand(enemy.Rigidbody.transform.GetComponentInChildren<Collider>().bounds.size.magnitude * 2f);
                 for (int i = 0; i < enemy.Rigidbody.onGrabbed.GetPersistentEventCount(); i++)
                 {
                     enemy.Rigidbody.onGrabbed.SetPersistentListenerState(i, UnityEventCallState.Off);
@@ -293,57 +294,47 @@ namespace REPOWildCardMod.Items
         }
         public void Update()
         {
-            if (gameObject.activeSelf)
+            musicLoop.PlayLoop(!lowLife, 2f, 1f);
+            if (gameObject.activeSelf && SemiFunc.IsMasterClientOrSingleplayer())
             {
-                if (musicDelay <= 0f)
+                if (lifetime > 0f)
                 {
-                    musicLoop.PlayLoop(!lowLife, 2f, 1f);
+                    if (lifetime < 5f != lowLife)
+                    {
+                        LowLife(lifetime < 5f);
+                    }
+                    if (enemy.EnemyParent.SpawnedTimer > 0f)
+                    {
+                        lifetime -= Time.deltaTime;
+                    }
+                    if (enemy.HasVision && enemy.Vision.DisableTimer <= 1f)
+                    {
+                        enemy.Vision.DisableVision(1f);
+                    }
+                    if (enemy.HasStateInvestigate)
+                    {
+                        if (investigateTimer > 0f)
+                        {
+                            investigateTimer -= Time.deltaTime;
+                        }
+                        else
+                        {
+                            LevelPoint levelPoint = SemiFunc.LevelPointGetFurthestFromPlayer(Vector3.zero, 10f);
+                            if (levelPoint != null)
+                            {
+                                enemy.StateInvestigate.Set(levelPoint.transform.position);
+                            }
+                            investigateTimer = 10f;
+                        }
+                    }
+                    if (!enemy.EnemyParent.forceLeave)
+                    {
+                        enemy.EnemyParent.forceLeave = true;
+                    }
                 }
                 else
                 {
-                    musicDelay -= Time.deltaTime;
-                }
-                if (SemiFunc.IsMasterClientOrSingleplayer())
-                {
-                    if (lifetime > 0f)
-                    {
-                        if (lifetime < 5f != lowLife)
-                        {
-                            LowLife(lifetime < 5f);
-                        }
-                        if (enemy.EnemyParent.SpawnedTimer > 0f)
-                        {
-                            lifetime -= Time.deltaTime;
-                        }
-                        if (enemy.HasVision && enemy.Vision.DisableTimer <= 1f)
-                        {
-                            enemy.Vision.DisableVision(1f);
-                        }
-                        if (enemy.HasStateInvestigate)
-                        {
-                            if (investigateTimer > 0f)
-                            {
-                                investigateTimer -= Time.deltaTime;
-                            }
-                            else
-                            {
-                                LevelPoint levelPoint = SemiFunc.LevelPointGetFurthestFromPlayer(Vector3.zero, 10f);
-                                if (levelPoint != null)
-                                {
-                                    enemy.StateInvestigate.Set(levelPoint.transform.position);
-                                }
-                                investigateTimer = 10f;
-                            }
-                        }
-                        if (!enemy.EnemyParent.forceLeave)
-                        {
-                            enemy.EnemyParent.forceLeave = true;
-                        }
-                    }
-                    else
-                    {
-                        WormDeath();
-                    }
+                    WormDeath();
                 }
             }
         }
@@ -422,22 +413,30 @@ namespace REPOWildCardMod.Items
             gameObject.SetActive(false);
             enabled = false;
         }
-        public void OnTriggerEnter(Collider other)
+        public void OnTriggerStay(Collider other)
         {
             if (SemiFunc.IsMasterClientOrSingleplayer() && other.gameObject.CompareTag("Phys Grab Object") && gameObject.activeSelf)
             {
-                PhysGrabObject physGrabObject = other.gameObject.GetComponent<PhysGrabObject>();
-                if (physGrabObject == null)
+                if (overlapTimer <= 0f)
                 {
-                    physGrabObject = other.gameObject.GetComponentInParent<PhysGrabObject>();
-                }
-                if (physGrabObject != null && physGrabObject.isEnemy)
-                {
-                    Enemy newEnemy = physGrabObject.transform.GetComponent<EnemyRigidbody>().enemy;
-                    if (newEnemy != enemy)
+                    PhysGrabObject physGrabObject = other.gameObject.GetComponent<PhysGrabObject>();
+                    if (physGrabObject == null)
                     {
-                        WormSpread(newEnemy);
+                        physGrabObject = other.gameObject.GetComponentInParent<PhysGrabObject>();
                     }
+                    if (physGrabObject != null && physGrabObject.isEnemy)
+                    {
+                        Enemy newEnemy = physGrabObject.transform.GetComponent<EnemyRigidbody>().enemy;
+                        if (newEnemy != enemy)
+                        {
+                            WormSpread(newEnemy);
+                        }
+                    }
+                    overlapTimer = 1f;
+                }
+                else
+                {
+                    overlapTimer -= Time.fixedDeltaTime;
                 }
             }
         }

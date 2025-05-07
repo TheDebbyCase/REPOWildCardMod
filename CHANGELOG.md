@@ -1,3 +1,13 @@
+## 0.16.10
+- Made a big blunder and the mario dice was always rolling a 1, fixed it now (was one single character change to fix)
+- Fixed Ari, Moo Cow, Clover and Halo all having incorrect physics when held
+- Made Adi, Moo Cow, Clover and Halo all float downwards rather than fall
+- Adjusted Halo's collisions and swing speed
+- Attempted to make worm infected Huntsman non-lethal
+- Fixed Worm Jar lag upon smashing
+- Increased the speed at which the Fyrus Star must be going for it to hurt things around it
+- Made Fyrus Star stop moving while the rider is crouched
+
 ## 0.16.9
 - Idk how but Worm Jar was broken and I added 4 characters to fix it
 

@@ -21,6 +21,7 @@ namespace REPOWildCardMod.Valuables
         public float playerDamageTimer;
         public float floatHeight = 0.75f;
         public float floatPower = 5f;
+        public float glidePower = 0.5f;
         public void Start()
         {
             originalEmission = meshRenderer.materials[0].GetColor("_EmissionColor");
@@ -30,32 +31,22 @@ namespace REPOWildCardMod.Valuables
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                bool rotating = false;
-                for (int i = 0; i < physGrabObject.playerGrabbing.Count; i++)
-                {
-                    if (physGrabObject.playerGrabbing[i].isRotating)
-                    {
-                        rotating = true;
-                        break;
-                    }
-                }
                 Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
-                if (!rotating)
-                {
-                    if (physGrabObject.grabbed)
-                    {
-                        physGrabObject.OverrideTorqueStrengthX(0f);
-                        physGrabObject.OverrideTorqueStrengthZ(0f);
-                    }
-                    physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balanceForce);
-                }
+                physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balanceForce);
                 if (physGrabObject.grabbed)
                 {
-                    physGrabObject.rb.AddForce((Random.insideUnitSphere / 2f) + (transform.up / 1.3f), ForceMode.Impulse);
+                    if (angerTimer > 0f)
+                    {
+                        physGrabObject.rb.AddForce((Random.insideUnitSphere / 2f) + (transform.up / 1.3f), ForceMode.Impulse);
+                    }
                 }
-                else if (Physics.Raycast(physGrabObject.rb.worldCenterOfMass, -transform.up, out RaycastHit hit, floatHeight, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
+                else if (Physics.Raycast(physGrabObject.rb.worldCenterOfMass, -Vector3.up, out RaycastHit hit, floatHeight, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
                 {
                     physGrabObject.rb.AddForce(transform.up * (floatPower / hit.distance) * (1.1f - (Quaternion.Angle(Quaternion.identity, rotator) / 360f)));
+                }
+                else
+                {
+                    physGrabObject.rb.AddForce(transform.up * floatPower * glidePower * (1.1f - (Quaternion.Angle(Quaternion.identity, rotator) / 360f)));
                 }
             }
         }

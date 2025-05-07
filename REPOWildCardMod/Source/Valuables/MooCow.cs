@@ -10,7 +10,9 @@ namespace REPOWildCardMod.Valuables
         public Animator animator;
         public PhysicMaterial physMat;
         public Sound cowSounds;
-        public float balanceForce = 0.1f;
+        public float balanceForce = 4f;
+        public float floatPower = 5f;
+        public bool dropped;
         public float mooTimer;
         public bool mooTrigger;
         public void Start()
@@ -19,25 +21,30 @@ namespace REPOWildCardMod.Valuables
         }
         public void FixedUpdate()
         {
-            if (SemiFunc.IsMasterClientOrSingleplayer() && physGrabObject.grabbed)
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                bool rotating = false;
-                for (int i = 0; i < physGrabObject.playerGrabbing.Count; i++)
+                Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
+                if (physGrabObject.grabbed)
                 {
-                    if (physGrabObject.playerGrabbing[i].isRotating)
+                    if (dropped)
                     {
-                        rotating = true;
-                        break;
+                        SetDropped(false);
                     }
+                    physGrabObject.rb.AddForce((Random.insideUnitSphere / 2f) + (transform.up / 1.3f), ForceMode.Impulse);
                 }
-                if (!rotating)
+                else if (!Physics.Raycast(physGrabObject.rb.worldCenterOfMass, -transform.up, 0.75f, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
                 {
-                    physGrabObject.OverrideTorqueStrengthX(0f);
-                    physGrabObject.OverrideTorqueStrengthZ(0f);
-                    Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
+                    if (!dropped)
+                    {
+                        SetDropped(true);
+                    }
+                    physGrabObject.rb.AddForce(transform.up * floatPower * (1.1f - (Quaternion.Angle(Quaternion.identity, rotator) / 360f)));
                     physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balanceForce);
                 }
-                physGrabObject.rb.AddForce((Random.insideUnitSphere / 2f) + (transform.up / 1.3f), ForceMode.Impulse);
+                else if (dropped)
+                {
+                    SetDropped(false);
+                }
             }
         }
         public void Update()
@@ -72,7 +79,7 @@ namespace REPOWildCardMod.Valuables
             {
                 mooTrigger = true;
             }
-            if (physGrabObject.grabbed)
+            if (physGrabObject.grabbed || dropped)
             {
                 if (!animator.GetBool("Grabbed"))
                 {
@@ -117,6 +124,22 @@ namespace REPOWildCardMod.Valuables
         {
             animator.SetLayerWeight(1, Mathf.Clamp01(force / 150f));
             animator.SetTrigger("Squish");
+        }
+        public void SetDropped(bool drop)
+        {
+            if (GameManager.Multiplayer())
+            {
+                photonView.RPC("SetDroppedRPC", RpcTarget.All, drop);
+            }
+            else
+            {
+                SetDroppedRPC(drop);
+            }
+        }
+        [PunRPC]
+        public void SetDroppedRPC(bool drop)
+        {
+            dropped = drop;
         }
     }
 }

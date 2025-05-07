@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using System.Collections.Generic;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
@@ -6,8 +7,9 @@ namespace REPOWildCardMod.Valuables
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
         public PhysGrabObject physGrabObject;
+        public ValuableObject valuableObject;
         public ParticleScriptExplosion explodeScript;
-        public Transform[] diceNumbers;
+        public List<Transform> diceNumbers;
         public Sound diceSound;
         public int layerMask;
         public float diceTimer;
@@ -22,6 +24,7 @@ namespace REPOWildCardMod.Valuables
         public float rotThreshhold = 85f;
         public void Awake()
         {
+            valuableObject.dollarValueOverride = 500;
             layerMask = LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player");
         }
         public void Update()
@@ -57,12 +60,12 @@ namespace REPOWildCardMod.Valuables
                 }
                 if (beingThrown)
                 {
-                    float maxLowHeight = 0f;
+                    float maxLowHeight = diceNumbers[0].position.y;
                     int diceLowIndex = 0;
-                    for (int i = 0; i < diceNumbers.Length; i++)
+                    for (int i = 1; i < diceNumbers.Count; i++)
                     {
                         float newLowHeight = diceNumbers[i].position.y;
-                        if (newLowHeight > maxLowHeight)
+                        if (newLowHeight < maxLowHeight)
                         {
                             maxLowHeight = newLowHeight;
                             diceLowIndex = i;
@@ -133,9 +136,9 @@ namespace REPOWildCardMod.Valuables
         }
         public void RollDice()
         {
-            for (int i = 0; i < diceNumbers.Length; i++)
+            for (int i = 0; i < diceNumbers.Count; i++)
             {
-                if (diceNumbers[i] = lowestTransform)
+                if (diceNumbers[i] == lowestTransform)
                 {
                     continue;
                 }
@@ -148,9 +151,9 @@ namespace REPOWildCardMod.Valuables
             }
             beingThrown = false;
             ToggleCollider(true);
-            float maxHeight = 0f;
+            float maxHeight = diceNumbers[0].position.y;
             int diceIndex = 0;
-            for (int i = 0; i < diceNumbers.Length; i++)
+            for (int i = 1; i < diceNumbers.Count; i++)
             {
                 float newHeight = diceNumbers[i].position.y;
                 if (newHeight > maxHeight)
@@ -160,7 +163,8 @@ namespace REPOWildCardMod.Valuables
                 }
             }
             diceIndex++;
-            float multiplier = 0;
+            log.LogDebug($"Mario Dice rolled: \"{diceIndex}\"");
+            float multiplier = 0f;
             switch (diceIndex)
             {
                 case 1:

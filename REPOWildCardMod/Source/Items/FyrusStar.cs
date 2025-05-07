@@ -83,6 +83,11 @@ namespace REPOWildCardMod.Items
                     }
                     Quaternion facingRotator = Quaternion.FromToRotation(transform.forward, currentDirection);
                     physGrabObject.rb.AddTorque(new Vector3(facingRotator.x, facingRotator.y, facingRotator.z) * balancePower);
+                    if (ridingPlayer.isCrouching)
+                    {
+                        steerRamp = 1f;
+                        currentDirection = Vector3.zero;
+                    }
                 }
                 else
                 {
@@ -136,9 +141,9 @@ namespace REPOWildCardMod.Items
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                if (rammingSpeed != (steerRamp >= 8f))
+                if (rammingSpeed != (steerRamp >= 9f))
                 {
-                    RammingSpeed(steerRamp >= 8f);
+                    RammingSpeed(steerRamp >= 9f);
                 }
             }
             if (containerColliders[0].tag != "Untagged")

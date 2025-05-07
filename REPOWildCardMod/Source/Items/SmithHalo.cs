@@ -10,18 +10,24 @@ namespace REPOWildCardMod.Items
         public Animator animator;
         public ParticleSystem hitParticles;
         public ParticleSystem dripParticles;
-        public float balanceForce = 2.5f;
+        public float balanceForce = 4f;
+        public float floatPower = 5f;
+        public float floatHeight = 0.5f;
+        public float glidePower = 0.5f;
         public void FixedUpdate()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                if (physGrabObject.grabbed)
-                {
-                    physGrabObject.OverrideTorqueStrengthX(0f);
-                    physGrabObject.OverrideTorqueStrengthZ(0f);
-                }
                 Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
                 physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balanceForce);
+                if (Physics.Raycast(physGrabObject.rb.worldCenterOfMass, -Vector3.up, out RaycastHit hit, floatHeight, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
+                {
+                    physGrabObject.rb.AddForce(transform.up * (floatPower / hit.distance) * (1.1f - (Quaternion.Angle(Quaternion.identity, rotator) / 360f)));
+                }
+                else
+                {
+                    physGrabObject.rb.AddForce(transform.up * floatPower * glidePower * (1.1f - (Quaternion.Angle(Quaternion.identity, rotator) / 360f)));
+                }
             }
         }
         public void Update()
