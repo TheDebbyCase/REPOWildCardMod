@@ -1,5 +1,6 @@
 ﻿using Photon.Pun;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
@@ -9,40 +10,60 @@ namespace REPOWildCardMod.Valuables
         public PhotonView photonView;
         public ValuableObject valuableObject;
         public PhysGrabObject physGrabObject;
-        public Color[] colors;
+        public Color[] colours;
+        public Dictionary<string, Color> colourMap;
+        public string colour;
         public MeshRenderer meshRenderer;
         public Sound sonicLoop;
+        public void Awake()
+        {
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                string[] colourNames = StatsManager.instance.dictionaryOfDictionaries["chaosEmeraldsUnique"].Keys.ToArray();
+                colourMap = new Dictionary<string, Color>();
+                for (int i = 0; i < StatsManager.instance.dictionaryOfDictionaries["chaosEmeraldsUnique"].Keys.Count; i++)
+                {
+                    if (StatsManager.instance.dictionaryOfDictionaries["chaosEmeraldsUnique"][colourNames[i]] == 0)
+                    {
+                        colourMap.Add(colourNames[i], colours[i]);
+                    }
+                }
+            }
+        }
         public void Start()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
+                string[] colourNames = colourMap.Keys.ToArray();
+                string randomColour = colourNames[Random.Range(0, colourNames.Length)];
                 if (SemiFunc.IsMultiplayer())
                 {
-                    photonView.RPC("PickColorRPC", RpcTarget.All, Random.Range(0, colors.Length));
+                    photonView.RPC("PickColorRPC", RpcTarget.All, randomColour);
                 }
                 else
                 {
-                    PickColorRPC(Random.Range(0, colors.Length));
+                    PickColorRPC(randomColour);
                 }
             }
         }
         [PunRPC]
-        public void PickColorRPC(int index)
+        public void PickColorRPC(string colourName)
         {
-            meshRenderer.material.SetColor("_BaseColor", colors[index]);
+            colour = colourName;
+            meshRenderer.material.SetColor("_BaseColor", colourMap[colour]);
             GradientColorKey[] colorKeys = valuableObject.particleColors.colorKeys;
             for (int i = 0; i < colorKeys.Length; i++)
             {
-                colorKeys[i] = new GradientColorKey(colors[index], colorKeys[i].time);
+                colorKeys[i] = new GradientColorKey(colourMap[colour], colorKeys[i].time);
             }
             valuableObject.particleColors.colorKeys = colorKeys;
-            if (index == 6)
+            if (colour == "White")
             {
                 meshRenderer.material.SetColor("_EmissionColor", new Color(0.4f, 0.4f, 0.4f, 1f));
             }
             else
             {
-                meshRenderer.material.SetColor("_EmissionColor", new Color(colors[index].r / 2f, colors[index].g / 2f, colors[index].b / 2f, 1f));
+                meshRenderer.material.SetColor("_EmissionColor", new Color(colourMap[colour].r / 2f, colourMap[colour].g / 2f, colourMap[colour].b / 2f, 1f));
             }
         }
         public void Update()
@@ -65,9 +86,11 @@ namespace REPOWildCardMod.Valuables
             {
                 string steamID = SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal());
                 StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID]++;
+                StatsManager.instance.dictionaryOfDictionaries["chaosEmeraldsUnique"][colour]++;
                 if (StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID] >= 7)
                 {
                     StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID] = 0;
+                    StatsManager.instance.DictionaryFill("chaosEmeraldsUnique", 0);
                     SuperSonic();
                 }
                 if (SemiFunc.IsMultiplayer())
@@ -154,7 +177,11 @@ namespace REPOWildCardMod.Valuables
                         PlayerAvatar.instance.OverridePupilSize(0.3f, 4, 0.25f, 1f, 5f, 0.5f);
                         PlayerController.instance.OverrideSpeed(3f);
                         PlayerController.instance.OverrideAnimationSpeed(2.5f, 1f, 0.5f);
-                        if (!PlayerAvatar.instance.isTumbling)
+                        if (PlayerController.instance.rb.isKinematic)
+                        {
+                            PlayerController.instance.OverrideTimeScale(1f, -1f);
+                        }
+                        else
                         {
                             PlayerController.instance.OverrideTimeScale(2.5f);
                         }

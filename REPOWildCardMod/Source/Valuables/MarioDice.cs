@@ -263,10 +263,5 @@ namespace REPOWildCardMod.Valuables
                 colliders[1].SetActive(true);
             }
         }
-        public void AntiGamblingLaws()
-        {
-            EnemyDirector.instance.SetInvestigate(transform.position, float.MaxValue);
-            explodeScript.Spawn(transform.position, 5f, 100, 100, 10f);
-        }
     }
 }

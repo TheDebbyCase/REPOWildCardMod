@@ -1,3 +1,9 @@
+## 0.16.11
+- Attempted to only allow unique Chaos Emeralds and Dragon Balls to spawn, based on what you have already collected
+- Put the Worm Jar lag to rest, lag was caused by the worm music, just delayed it by a second
+- Gave some enemies some specific code for worm infections so that they're less lethal despite infection
+- Made some more general changes to how worm infections affect enemies
+
 ## 0.16.10
 - Made a big blunder and the mario dice was always rolling a 1, fixed it now (was one single character change to fix)
 - Fixed Ari, Moo Cow, Clover and Halo all having incorrect physics when held

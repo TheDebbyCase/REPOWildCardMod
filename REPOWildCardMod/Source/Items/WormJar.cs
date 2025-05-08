@@ -3,7 +3,9 @@ using Photon.Pun;
 using REPOWildCardMod.Utils;
 using REPOLib.Extensions;
 using UnityEngine.Events;
-using Unity.VisualScripting;
+using System;
+using REPOWildCardMod.Extensions;
+using System.Linq;
 namespace REPOWildCardMod.Items
 {
     public class WormJar : MonoBehaviour
@@ -58,13 +60,13 @@ namespace REPOWildCardMod.Items
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                Enemy enemy = SemiFunc.EnemyGetNearest(transform.position, 2.5f, false);
-                WormAttach newWorm = null;
+                Enemy enemy = SemiFunc.EnemyGetNearest(transform.position, 5f, false);
+                WormInfectionData wormData = null;
                 if (enemy != null)
                 {
-                    newWorm = enemy.EnemyParent.transform.GetComponentInChildren<WormAttach>(true);
+                    wormData = enemy.EnemyParent.WormData();
                 }
-                if (enemy == null || newWorm == null || (newWorm != null && newWorm.enabled))
+                if (enemy == null || wormData == null || (wormData != null && (!wormData.hasWorm || (wormData.hasWorm && wormData.infected))))
                 {
                     impactDetector.destroyDisable = true;
                     noDestroyCooldown = 0.1f;
@@ -72,8 +74,8 @@ namespace REPOWildCardMod.Items
                 else
                 {
                     log.LogDebug($"Breaking Worm Jar");
-                    newWorm.enabled = true;
-                    newWorm.WakeUp(lastPlayerGrabbed.photonView.ViewID, SemiFunc.EnemyGetIndex(enemy));
+                    wormData.worm.enabled = true;
+                    wormData.worm.WakeUp(lastPlayerGrabbed.photonView.ViewID, SemiFunc.EnemyGetIndex(enemy));
                 }
             }
         }
@@ -85,12 +87,12 @@ namespace REPOWildCardMod.Items
         public PhotonView photonView;
         public Sound musicLoop;
         public Enemy enemy;
+        public EnemyStateChaseSlow slowChaseRef;
         public PlayerAvatar motherPlayer;
-        public SphereCollider spreadOverlap;
         public float lifetime;
         public float investigateTimer;
         public bool lowLife = false;
-        public float overlapTimer = 1f;
+        public float spreadTimer = 1f;
         public void Awake()
         {
             musicLoop.LoopClip = musicLoop.Sounds[0];
@@ -114,6 +116,7 @@ namespace REPOWildCardMod.Items
         public void InitializeRPC(int enemyIndex)
         {
             enemy = SemiFunc.EnemyGetFromIndex(enemyIndex);
+            slowChaseRef = enemy.GetComponent<EnemyStateChaseSlow>();
             transform.parent = utils.FindEnemyTransform(enemy.EnemyParent.enemyName, "Head");
             Vector3 overrideLocalPos = Vector3.zero;
             Vector3 overrideLocalRot = Vector3.zero;
@@ -246,7 +249,7 @@ namespace REPOWildCardMod.Items
         }
         public void WakeUp(int playerID, int enemyIndex)
         {
-            lifetime = Random.Range(60f, 120f);
+            lifetime = 90f;
             if (SemiFunc.IsMultiplayer())
             {
                 photonView.RPC("WakeUpRPC", RpcTarget.All, playerID, enemyIndex);
@@ -259,7 +262,12 @@ namespace REPOWildCardMod.Items
         [PunRPC]
         public void WakeUpRPC(int playerID, int enemyIndex)
         {
+            gameObject.SetActive(true);
             enemy = SemiFunc.EnemyGetFromIndex(enemyIndex);
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                enemy.EnemyParent.WormData().infected = true;
+            }
             log.LogDebug($"Worm has infected a \"{enemy.EnemyParent.enemyName}\"");
             if (enemy.HasRigidbody && enemy.Rigidbody.hasPlayerCollision)
             {
@@ -276,7 +284,6 @@ namespace REPOWildCardMod.Items
             }
             if (enemy.HasRigidbody)
             {
-                spreadOverlap.bounds.Expand(enemy.Rigidbody.transform.GetComponentInChildren<Collider>().bounds.size.magnitude * 2f);
                 for (int i = 0; i < enemy.Rigidbody.onGrabbed.GetPersistentEventCount(); i++)
                 {
                     enemy.Rigidbody.onGrabbed.SetPersistentListenerState(i, UnityEventCallState.Off);
@@ -290,15 +297,17 @@ namespace REPOWildCardMod.Items
                     enemy.Rigidbody.onTouchPlayerGrabbedObject.SetPersistentListenerState(i, UnityEventCallState.Off);
                 }
             }
-            gameObject.SetActive(true);
         }
         public void Update()
         {
-            musicLoop.PlayLoop(!lowLife, 2f, 1f);
             if (gameObject.activeSelf && SemiFunc.IsMasterClientOrSingleplayer())
             {
                 if (lifetime > 0f)
                 {
+                    if (lifetime < 89f)
+                    {
+                        musicLoop.PlayLoop(!lowLife, 2f, 1f);
+                    }
                     if (lifetime < 5f != lowLife)
                     {
                         LowLife(lifetime < 5f);
@@ -307,9 +316,31 @@ namespace REPOWildCardMod.Items
                     {
                         lifetime -= Time.deltaTime;
                     }
-                    if (enemy.HasVision && enemy.Vision.DisableTimer <= 1f)
+                    enemy.DisableChase(1f);
+                    if (slowChaseRef != null)
                     {
-                        enemy.Vision.DisableVision(1f);
+                        if (slowChaseRef.StateTimer > 0f)
+                        {
+                            slowChaseRef.StateTimer = 0f;
+                        }
+                    }
+                    if (enemy.HasStateLookUnder)
+                    {
+                        if (enemy.StateLookUnder.LookTimer > 0f)
+                        {
+                            enemy.StateLookUnder.LookTimer = 0f;
+                        }
+                        if (enemy.StateLookUnder.WaitTimer > 0f)
+                        {
+                            enemy.StateLookUnder.WaitTimer = 0f;
+                        }
+                    }
+                    if (enemy.HasVision)
+                    {
+                        if (enemy.Vision.DisableTimer <= 1f)
+                        {
+                            enemy.Vision.DisableVision(1f);
+                        }
                     }
                     if (enemy.HasStateInvestigate)
                     {
@@ -330,6 +361,18 @@ namespace REPOWildCardMod.Items
                     if (!enemy.EnemyParent.forceLeave)
                     {
                         enemy.EnemyParent.forceLeave = true;
+                    }
+                    for (int i = 0; i < EnemyDirector.instance.enemiesSpawned.Count; i++)
+                    {
+                        EnemyParent spreadEnemy = EnemyDirector.instance.enemiesSpawned[i];
+                        if (spreadEnemy.DespawnedTimer > 0f)
+                        {
+                            continue;
+                        }
+                        if (Vector3.Distance(transform.position, spreadEnemy.Enemy.CenterTransform.position) <= 2.5f && !spreadEnemy.WormData().infected)
+                        {
+                            WormSpread(spreadEnemy.Enemy);
+                        }
                     }
                 }
                 else
@@ -359,9 +402,10 @@ namespace REPOWildCardMod.Items
         {
             if (gameObject.activeSelf)
             {
-                WormAttach newWorm = enemy.EnemyParent.transform.GetComponentInChildren<WormAttach>(true);
-                if (!newWorm.enabled)
+                WormInfectionData wormData = newEnemy.EnemyParent.WormData();
+                if (wormData.hasWorm && !wormData.infected)
                 {
+                    WormAttach newWorm = wormData.worm;
                     log.LogDebug($"Worm spreading from a \"{enemy.EnemyParent.enemyName}\" to a \"{newEnemy.EnemyParent.enemyName}\"");
                     newWorm.enabled = true;
                     newWorm.WakeUp(motherPlayer.photonView.ViewID, SemiFunc.EnemyGetIndex(newEnemy));
@@ -410,35 +454,22 @@ namespace REPOWildCardMod.Items
                 }
             }
             log.LogDebug($"Killing Worm");
+            enemy.EnemyParent.WormData().infected = false;
             gameObject.SetActive(false);
             enabled = false;
         }
-        public void OnTriggerStay(Collider other)
+    }
+    [Serializable]
+    public class WormInfectionData
+    {
+        public bool hasWorm;
+        public bool infected;
+        public WormAttach worm;
+        public WormInfectionData()
         {
-            if (SemiFunc.IsMasterClientOrSingleplayer() && other.gameObject.CompareTag("Phys Grab Object") && gameObject.activeSelf)
-            {
-                if (overlapTimer <= 0f)
-                {
-                    PhysGrabObject physGrabObject = other.gameObject.GetComponent<PhysGrabObject>();
-                    if (physGrabObject == null)
-                    {
-                        physGrabObject = other.gameObject.GetComponentInParent<PhysGrabObject>();
-                    }
-                    if (physGrabObject != null && physGrabObject.isEnemy)
-                    {
-                        Enemy newEnemy = physGrabObject.transform.GetComponent<EnemyRigidbody>().enemy;
-                        if (newEnemy != enemy)
-                        {
-                            WormSpread(newEnemy);
-                        }
-                    }
-                    overlapTimer = 1f;
-                }
-                else
-                {
-                    overlapTimer -= Time.fixedDeltaTime;
-                }
-            }
+            hasWorm = false;
+            infected = false;
+            worm = null;
         }
     }
 }

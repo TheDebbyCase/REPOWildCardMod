@@ -20,7 +20,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.16.10";
+        internal const string modVersion = "0.16.11";
         readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
@@ -32,8 +32,7 @@ namespace REPOWildCardMod
         public List<Reskin> reskinList = new List<Reskin>();
         public List<GameObject> miscPrefabsList = new List<GameObject>();
         public static List<NetworkedEvent> networkedEvents = new List<NetworkedEvent>();
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("CodeQuality", "IDE0051:Remove unused private members", Justification = "<Pending>")]
-        void Awake()
+        public void Awake()
         {
             if (instance == null)
             {
@@ -218,8 +217,11 @@ namespace REPOWildCardMod
             harmony.PatchAll(typeof(PlayerAvatarPatches));
             harmony.PatchAll(typeof(StatsManagerPatches));
             harmony.PatchAll(typeof(WorldSpaceUIValueLostPatches));
-            harmony.PatchAll(typeof(EnemyPatches));
             harmony.PatchAll(typeof(EnemyHunterPatches));
+            harmony.PatchAll(typeof(SemiFuncPatches));
+            harmony.PatchAll(typeof(EnemyOnScreenPatches));
+            harmony.PatchAll(typeof(EnemyRunnerPatches));
+            harmony.PatchAll(typeof(EnemyStateChasePatches));
             if (ModConfig.harmonyPatches.Value)
             {
                 harmony.PatchAll(typeof(PhysGrabberRayCheckPatch));

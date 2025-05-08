@@ -1,5 +1,5 @@
 ﻿using HarmonyLib;
-using REPOWildCardMod.Items;
+using REPOWildCardMod.Extensions;
 namespace REPOWildCardMod.Patches
 {
     [HarmonyPatch(typeof(EnemyHunter))]
@@ -7,10 +7,9 @@ namespace REPOWildCardMod.Patches
     {
         [HarmonyPatch(nameof(EnemyHunter.Update))]
         [HarmonyPrefix]
-        public static bool WormDisableChase(EnemyHunter __instance)
+        public static bool WormDisableHuntsman(EnemyHunter __instance)
         {
-            WormAttach worm = __instance.enemy.EnemyParent.GetComponentInChildren<WormAttach>();
-            if (worm != null && worm.gameObject.activeSelf && __instance.currentState == EnemyHunter.State.Aim)
+            if (__instance.enemy.EnemyParent.WormData().infected && __instance.currentState == EnemyHunter.State.Aim)
             {
                 __instance.currentState = EnemyHunter.State.Investigate;
                 __instance.stateImpulse = false;

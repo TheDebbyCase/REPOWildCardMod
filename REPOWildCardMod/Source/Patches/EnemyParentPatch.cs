@@ -8,6 +8,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using UnityEngine;
 using MonoMod.Utils;
+using REPOWildCardMod.Extensions;
 namespace REPOWildCardMod.Patches
 {
     [HarmonyPatch(typeof(EnemyParent))]
@@ -101,7 +102,7 @@ namespace REPOWildCardMod.Patches
                         WildCardMod.networkedEvents.Find((x) => x.Name == "Set Enemy Skin").RaiseEvent(new object[] { SemiFunc.EnemyGetIndex(enemyParent.Enemy), skinIndex, variantIndex }, REPOLib.Modules.NetworkingEvents.RaiseAll, SendOptions.SendReliable);
                     }
                 }
-                if (StatsManager.instance.itemsPurchased.ContainsKey("Item Worm Jar") && StatsManager.instance.itemsPurchased["Item Worm Jar"] > 0 && enemyParent.GetComponentInChildren<WormAttach>() == null)
+                if (StatsManager.instance.itemsPurchased.ContainsKey("Item Worm Jar") && StatsManager.instance.itemsPurchased["Item Worm Jar"] > 0 && !enemyParent.WormData().hasWorm)
                 {
                     log.LogDebug($"Adding dormant worm to: \"{enemyParent.enemyName}\"");
                     GameObject newWorm;
@@ -113,7 +114,8 @@ namespace REPOWildCardMod.Patches
                     {
                         newWorm = Object.Instantiate(WildCardMod.instance.miscPrefabsList.Find((x) => x.name == "Worm Attach"), new Vector3(0f, -100f, 0f), Quaternion.identity);
                     }
-                    newWorm.GetComponent<WormAttach>().Initialize(SemiFunc.EnemyGetIndex(enemyParent.Enemy));
+                    enemyParent.InitializeWormData(newWorm.GetComponent<WormAttach>());
+                    enemyParent.WormData().worm.Initialize(SemiFunc.EnemyGetIndex(enemyParent.Enemy));
                 }
             }
         }

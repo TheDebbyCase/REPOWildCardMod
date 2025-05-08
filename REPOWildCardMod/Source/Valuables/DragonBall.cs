@@ -11,18 +11,34 @@ namespace REPOWildCardMod.Valuables
         public PhotonView photonView;
         public Mesh[] starMeshes;
         public MeshFilter meshFilter;
+        public int starNumber;
+        public List<int> availableStars = new List<int>();
         public List<string> wishableUpgrades;
+        public void Awake()
+        {
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                for (int i = 0; i < StatsManager.instance.dictionaryOfDictionaries["dragonBallsUnique"].Keys.Count; i++)
+                {
+                    if (StatsManager.instance.dictionaryOfDictionaries["dragonBallsUnique"][(i + 1).ToString()] == 0)
+                    {
+                        availableStars.Add(i);
+                    }
+                }
+            }
+        }
         public void Start()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
+                int randomStars = Random.Range(0, availableStars.Count);
                 if (SemiFunc.IsMultiplayer())
                 {
-                    photonView.RPC("ChooseStarsRPC", RpcTarget.All, Random.Range(0, starMeshes.Length));
+                    photonView.RPC("ChooseStarsRPC", RpcTarget.All, randomStars);
                 }
                 else
                 {
-                    ChooseStarsRPC(Random.Range(0, starMeshes.Length));
+                    ChooseStarsRPC(randomStars);
                 }
                 wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal())).Keys.ToList();
                 wishableUpgrades.Remove("Dragon Balls");
@@ -34,6 +50,7 @@ namespace REPOWildCardMod.Valuables
         [PunRPC]
         public void ChooseStarsRPC(int index)
         {
+            starNumber = index + 1;
             meshFilter.mesh = starMeshes[index];
         }
         public void AddPlayerBall()
@@ -43,9 +60,11 @@ namespace REPOWildCardMod.Valuables
             {
                 string steamID = SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal());
                 StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID]++;
+                StatsManager.instance.dictionaryOfDictionaries["dragonBallsUnique"][starNumber.ToString()]++;
                 if (StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] >= 7)
                 {
                     StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = 0;
+                    StatsManager.instance.DictionaryFill("dragonBallsUnique", 0);
                     DragonBallWish();
                 }
                 if (SemiFunc.IsMultiplayer())
