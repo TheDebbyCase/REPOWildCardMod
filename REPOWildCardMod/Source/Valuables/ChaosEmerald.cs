@@ -17,6 +17,10 @@ namespace REPOWildCardMod.Valuables
         public Sound sonicLoop;
         public void Awake()
         {
+            if (WildCardMod.instance.usingBeta)
+            {
+                log.LogWarning("Chaos Emeralds may not work as expected due to REPO beta changes!");
+            }
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 string[] colourNames = StatsManager.instance.dictionaryOfDictionaries["chaosEmeraldsUnique"].Keys.ToArray();

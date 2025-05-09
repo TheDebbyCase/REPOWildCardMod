@@ -40,6 +40,13 @@ namespace REPOWildCardMod.Items
         public TutorialDirector.TutorialPage tutorial;
         public bool neverGrab = true;
         public bool firstActivate = true;
+        public void Awake()
+        {
+            if (WildCardMod.instance.usingBeta)
+            {
+                log.LogWarning("Smith Note may not work as expected due to REPO beta changes!");
+            }
+        }
         public void Start()
         {
             if (TutorialDirector.instance.tutorialPages.Find((x) => x.pageName == tutorial.pageName) == null)

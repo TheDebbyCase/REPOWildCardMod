@@ -1,3 +1,7 @@
+## 0.16.14
+- Added checks to see if the current REPO version is the beta, and display warnings for certain items
+- All items appear to work as expected using the beta except: Chaos Emeralds, Smith Note, Smith Halo and Clover Necklace
+
 ## 0.16.13
 - Adjusted Giwi Worm physics to make her more worm-like
 - Adjusted Alpharad Dice physics to make the roll a little more natural

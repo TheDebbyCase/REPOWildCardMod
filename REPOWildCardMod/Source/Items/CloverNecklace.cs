@@ -17,6 +17,13 @@ namespace REPOWildCardMod.Items
         public bool holding;
         public PlayerAvatar lastHolder;
         public float onTimer;
+        public void Awake()
+        {
+            if (WildCardMod.instance.usingBeta)
+            {
+                log.LogWarning("Clover Necklace may not work as expected due to REPO beta changes!");
+            }
+        }
         public void FixedUpdate()
         {
             float animNormal = Mathf.InverseLerp(2.5f, 10f, rigidBody.velocity.magnitude);

@@ -20,12 +20,13 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.16.13";
+        internal const string modVersion = "0.16.14";
         readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
         public static WildCardMod instance;
         public bool moreUpgradesPresent = false;
+        public bool usingBeta = false;
         internal WildCardConfig ModConfig { get; private set; } = null!;
         public List<GameObject> valList = new List<GameObject>();
         public List<Item> itemList = new List<Item>();
@@ -64,6 +65,11 @@ namespace REPOWildCardMod
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("bulletbot.moreupgrades"))
             {
                 moreUpgradesPresent = true;
+            }
+            if (Assembly.GetAssembly(typeof(Item)).GetType("BatteryVisualLogic") != null)
+            {
+                log.LogDebug("REPO is using the beta branch");
+                usingBeta = true;
             }
             PropogateLists();
             HandleContent();
