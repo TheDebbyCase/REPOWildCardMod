@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using REPOLib.Extensions;
 using REPOWildCardMod.Utils;
 using System.Collections;
 using System.Collections.Generic;
@@ -257,41 +258,6 @@ namespace REPOWildCardMod.Items
                 SetPageText(1, pageTwoString);
             }
         }
-        public IEnumerator FirstSpawnCoroutine(EnemyParent enemy)
-        {
-            while (EnemyDirector.instance.spawnIdlePauseTimer > 0f)
-            {
-                if (!SemiFunc.RunIsLevel())
-                {
-                    yield break;
-                }
-                yield return null;
-            }
-            if (currentEnemies.ContainsKey(enemy.enemyName))
-            {
-                currentEnemies[enemy.enemyName].Add(enemy);
-            }
-            else
-            {
-                currentEnemies.Add(enemy.enemyName, new List<EnemyParent>() { enemy });
-            }
-            RefreshLists();
-            log.LogDebug($"{enemy.enemyName} added to current enemies list");
-            yield break;
-        }
-        public void RemoveEnemy(EnemyParent enemy)
-        {
-            if (currentEnemies.ContainsKey(enemy.enemyName))
-            {
-                currentEnemies[enemy.enemyName].Remove(enemy);
-                if (currentEnemies[enemy.enemyName].Count == 0)
-                {
-                    currentEnemies.Remove(enemy.enemyName);
-                }
-                RefreshLists();
-                log.LogDebug($"{enemy.enemyName} removed from current enemies list");
-            }
-        }
         public void RefreshLists()
         {
             if (GameManager.Multiplayer())
@@ -311,8 +277,37 @@ namespace REPOWildCardMod.Items
                 StopCoroutine(crawlerCoroutine);
                 crawlerCoroutine = null;
             }
+            RefreshEnemiesList();
             RefreshPlayerList();
             CalculatePages();
+        }
+        public void RefreshEnemiesList()
+        {
+            for (int i = 0; i < EnemyDirector.instance.enemiesSpawned.Count; i++)
+            {
+                EnemyParent newEnemy = EnemyDirector.instance.enemiesSpawned[i];
+                if (currentEnemies.ContainsKey(newEnemy.enemyName))
+                {
+                    currentEnemies[newEnemy.enemyName].Clear();
+                }
+                if (newEnemy.DespawnedTimer <= 0f)
+                {
+                    log.LogDebug($"{newEnemy.enemyName} added to Smith Note enemies list");
+                    if (currentEnemies.ContainsKey(newEnemy.enemyName))
+                    {
+                        currentEnemies[newEnemy.enemyName].Add(newEnemy);
+                    }
+                    else
+                    {
+                        currentEnemies.Add(newEnemy.enemyName, new List<EnemyParent>() { newEnemy });
+                    }
+                }
+                else if (currentEnemies.ContainsKey(newEnemy.enemyName) && currentEnemies[newEnemy.enemyName].Count == 0)
+                {
+                    log.LogDebug($"{newEnemy.enemyName} removed from Smith Note enemies list");
+                    currentEnemies.Remove(newEnemy.enemyName);
+                }
+            }
         }
         public void RefreshPlayerList()
         {

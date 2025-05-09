@@ -40,13 +40,12 @@ namespace REPOWildCardMod.Valuables
         }
         public void Update()
         {
-            if (physGrabObject.grabbedLocal)
-            {
-                PhysGrabber.instance.OverridePullDistanceIncrement(-0.5f * Time.deltaTime);
-                physGrabObject.OverrideGrabStrength(40f);
-            }
             if (physGrabObject.grabbed)
             {
+                if (SemiFunc.IsMasterClientOrSingleplayer())
+                {
+                    physGrabObject.OverrideGrabStrength(40f);
+                }
                 if (!giwiSounds.Source.isPlaying)
                 {
                     EnemyDirector.instance.SetInvestigate(transform.position, 10f);

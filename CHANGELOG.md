@@ -1,3 +1,10 @@
+## 0.16.12
+- FINALLY FIXED GIWI WORM, she can now be lifted by non-host players
+- Optimized Smith Note slightly
+- Gave Clover Necklace a 30 second timer to disable itself so it won't softlock
+- Redid Alpharad Dice code again, it's pure chance now, ungameable
+- Gave the Alpharad Dice gaining money graphic a plus sign at the start for clarity
+
 ## 0.16.11
 - Attempted to only allow unique Chaos Emeralds and Dragon Balls to spawn, based on what you have already collected
 - Put the Worm Jar lag to rest, lag was caused by the worm music, just delayed it by a second

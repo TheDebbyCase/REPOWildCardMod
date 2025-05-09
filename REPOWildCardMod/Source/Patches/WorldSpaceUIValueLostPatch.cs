@@ -7,12 +7,13 @@ namespace REPOWildCardMod.Patches
     {
         [HarmonyPatch(nameof(WorldSpaceUIValueLost.Start))]
         [HarmonyPostfix]
-        public static void PositiveValue(WorldSpaceUIValueLost __instance)
+        public static void NonNegativeValue(WorldSpaceUIValueLost __instance)
         {
             if (__instance.value < 0)
             {
                 __instance.textColor = Color.green;
                 __instance.text.text = __instance.text.text.Replace("-", "");
+                __instance.text.text = $"+{__instance.text.text}";
                 if (__instance.value < 1000)
                 {
                     __instance.scale /= 0.75f;

@@ -13,159 +13,88 @@ namespace REPOWildCardMod.Valuables
         public Sound diceSound;
         public int layerMask;
         public float diceTimer;
-        public bool grabReset = false;
-        public GameObject[] colliders;
-        public bool hasSettled;
         public bool wasGrabbed;
-        public bool beingThrown;
-        public Transform lowestTransform;
-        public float lastRotMag;
-        public float cumRotMag;
-        public float rotThreshhold = 85f;
+        public GameObject[] colliders;
+        public int rollGoal = 0;
+        public float balanceForce = 5f;
+        public float floatPower = 5f;
         public void Awake()
         {
             valuableObject.dollarValueOverride = 500;
-            layerMask = LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player");
+            layerMask = LayerMask.GetMask("Default", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player");
+        }
+        public void FixedUpdate()
+        {
+            if (SemiFunc.IsMasterClientOrSingleplayer() && diceTimer > 0f)
+            {
+                if (Physics.Raycast(physGrabObject.centerPoint, Vector3.down, out RaycastHit hit, 0.125f, layerMask))
+                {
+                    physGrabObject.rb.AddForce(Vector3.up * (floatPower / hit.distance));
+                }
+                Quaternion rotator = Quaternion.FromToRotation(diceNumbers[rollGoal - 1].position - physGrabObject.centerPoint, Vector3.up);
+                physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balanceForce * Mathf.Min(10f, 4f / diceTimer));
+                Vector3 force = Vector3.zero;
+                if (Physics.Raycast(physGrabObject.centerPoint, Vector3.forward, 0.25f, layerMask))
+                {
+                    force = -Vector3.forward;
+                }
+                else if (Physics.Raycast(physGrabObject.centerPoint, -Vector3.forward, 0.25f, layerMask))
+                {
+                    force = Vector3.forward;
+                }
+                else if (Physics.Raycast(physGrabObject.centerPoint, Vector3.right, 0.25f, layerMask))
+                {
+                    force = -Vector3.right;
+                }
+                else if (Physics.Raycast(physGrabObject.centerPoint, -Vector3.right, 0.25f, layerMask))
+                {
+                    force = Vector3.right;
+                }
+                physGrabObject.rb.AddForce(force / 4f, ForceMode.Impulse);
+            }
         }
         public void Update()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 physGrabObject.OverrideIndestructible();
-                if (physGrabObject.rbAngularVelocity.magnitude > 0.01f || cumRotMag < rotThreshhold)
-                {
-                    if (hasSettled)
-                    {
-                        hasSettled = false;
-                    }
-                }
-                else if (!hasSettled)
-                {
-                    hasSettled = true;
-                }
                 if (physGrabObject.grabbed)
                 {
                     if (!wasGrabbed)
                     {
                         wasGrabbed = true;
                     }
-                    if (hasSettled)
-                    {
-                        hasSettled = false;
-                    }
                 }
                 else if (wasGrabbed)
                 {
-                    Throw();
+                    Throw(Random.Range(1, 7));
+                    wasGrabbed = false;
                 }
-                if (beingThrown)
+                if (diceTimer > 0f)
                 {
-                    float maxLowHeight = diceNumbers[0].position.y;
-                    int diceLowIndex = 0;
-                    for (int i = 1; i < diceNumbers.Count; i++)
-                    {
-                        float newLowHeight = diceNumbers[i].position.y;
-                        if (newLowHeight < maxLowHeight)
-                        {
-                            maxLowHeight = newLowHeight;
-                            diceLowIndex = i;
-                        }
-                    }
-                    lowestTransform = diceNumbers[diceLowIndex];
-                    if (diceTimer > 0f)
-                    {
-                        lastRotMag = physGrabObject.rbAngularVelocity.magnitude;
-                        cumRotMag += lastRotMag;
-                        diceTimer -= Time.deltaTime;
-                    }
-                    else if (hasSettled)
-                    {
-                        RollDice();
-                    }
-                    else
-                    {
-                        Throw();
-                    }
+                    diceTimer -= Time.deltaTime;
                 }
-                else if (diceTimer != 2f)
+                else if (rollGoal != 0)
                 {
-                    diceTimer = 2f;
-                    cumRotMag = 0f;
-                }
-                if (physGrabObject.rb.freezeRotation != hasSettled)
-                {
-                    FreezeRotation(hasSettled);
+                    ToggleCollider(true);
+                    RollDice(rollGoal);
                 }
             }
         }
-        public void Throw(Vector3 overrideForce = default)
+        public void Throw(int roll)
         {
-            diceTimer = 2f;
-            cumRotMag = 0f;
-            wasGrabbed = false;
-            beingThrown = true;
-            physGrabObject.rb.AddTorque(Random.onUnitSphere * 10f, ForceMode.Impulse);
-            Vector3 force;
-            if (overrideForce == default)
-            {
-                force = (Vector3.up * Random.Range(0.5f, 2f)) + new Vector3(((Random.value * 2f) - 1f) * 2f, 0f, (Random.value * 2f) - 1f) * 2f;
-            }
-            else
-            {
-                force = overrideForce;
-            }
-            physGrabObject.rb.AddForce(force, ForceMode.Impulse);
-            hasSettled = false;
+            rollGoal = roll;
             ToggleCollider(false);
+            diceTimer = 4f;
+            physGrabObject.rb.AddTorque(Random.onUnitSphere * 10f, ForceMode.Impulse);
+            physGrabObject.rb.AddForce((Vector3.up * Random.Range(0.5f, 2f)) + new Vector3(((Random.value * 2f) - 1f) * 2f, 0f, (Random.value * 2f) - 1f) * 2f, ForceMode.Impulse);
         }
-        public void FreezeRotation(bool freeze)
+        public void RollDice(int roll)
         {
-            if (SemiFunc.IsMultiplayer())
-            {
-                physGrabObject.photonView.RPC("FreezeRotationRPC", RpcTarget.All, freeze);
-            }
-            else
-            {
-                FreezeRotationRPC(freeze);
-            }
-        }
-        [PunRPC]
-        public void FreezeRotationRPC(bool freeze)
-        {
-            physGrabObject.rb.freezeRotation = freeze;
-        }
-        public void RollDice()
-        {
-            for (int i = 0; i < diceNumbers.Count; i++)
-            {
-                if (diceNumbers[i] == lowestTransform)
-                {
-                    continue;
-                }
-                Vector3 direction = (diceNumbers[i].position - transform.position).normalized;
-                if (Physics.Raycast(transform.position, direction, out RaycastHit hit, 0.25f, layerMask))
-                {
-                    Throw(direction * hit.distance * -8f);
-                    return;
-                }
-            }
-            beingThrown = false;
-            ToggleCollider(true);
-            float maxHeight = diceNumbers[0].position.y;
-            int diceIndex = 0;
-            for (int i = 1; i < diceNumbers.Count; i++)
-            {
-                float newHeight = diceNumbers[i].position.y;
-                if (newHeight > maxHeight)
-                {
-                    maxHeight = newHeight;
-                    diceIndex = i;
-                }
-            }
-            diceIndex++;
-            log.LogDebug($"Mario Dice rolled: \"{diceIndex}\"");
+            log.LogDebug($"Mario Dice rolled: \"{roll}\"");
+            rollGoal = 0;
             float multiplier = 0f;
-            switch (diceIndex)
+            switch (roll)
             {
                 case 1:
                     {
@@ -207,12 +136,9 @@ namespace REPOWildCardMod.Valuables
                 case 6:
                     {
                         multiplier = -3f;
+                        EnemyDirector.instance.SetInvestigate(transform.position, 30f);
                         break;
                     }
-            }
-            if (multiplier < 0f)
-            {
-                EnemyDirector.instance.SetInvestigate(transform.position, float.MaxValue);
             }
             PhysGrabObjectImpactDetector impactDetector = physGrabObject.impactDetector;
             if (Mathf.Abs(multiplier) * impactDetector.valuableObject.dollarValueCurrent > 15000)
@@ -236,7 +162,7 @@ namespace REPOWildCardMod.Valuables
             {
                 diceSound.Pitch = 1f;
             }
-            diceSound.Play(transform.position);
+            diceSound.Play(physGrabObject.centerPoint);
         }
         public void ToggleCollider(bool grabbable)
         {
@@ -262,6 +188,11 @@ namespace REPOWildCardMod.Valuables
                 colliders[0].SetActive(false);
                 colliders[1].SetActive(true);
             }
+        }
+        public void AntiGamblingLaws()
+        {
+            EnemyDirector.instance.SetInvestigate(physGrabObject.centerPoint, float.MaxValue);
+            explodeScript.Spawn(physGrabObject.centerPoint, 5f, 50, 50, 2.5f);
         }
     }
 }

@@ -16,6 +16,7 @@ namespace REPOWildCardMod.Items
         public Vector3 forceRotation = new Vector3(110f, 0f, 180f);
         public bool holding;
         public PlayerAvatar lastHolder;
+        public float onTimer;
         public void FixedUpdate()
         {
             float animNormal = Mathf.InverseLerp(2.5f, 10f, rigidBody.velocity.magnitude);
@@ -41,6 +42,7 @@ namespace REPOWildCardMod.Items
         }
         public void Update()
         {
+            beeAudio.PlayLoop(itemToggle.toggleState, 1f, 0.25f);
             if (physGrabObject.playerGrabbing.Count == 1 && lastHolder != physGrabObject.playerGrabbing[0].playerAvatar)
             {
                 lastHolder = physGrabObject.playerGrabbing[0].playerAvatar;
@@ -54,14 +56,12 @@ namespace REPOWildCardMod.Items
             {
                 holding = false;
             }
-            if ((itemBattery.batteryLife <= 0f || (lastHolder != null && lastHolder.deadSet)) && !itemToggle.disabled)
-            {
-                itemToggle.ToggleDisable(true);
-                itemToggle.ToggleItem(false);
-            }
-            beeAudio.PlayLoop(itemToggle.toggleState, 1f, 0.25f);
             if (itemToggle.toggleState != itemBattery.batteryActive)
             {
+                if (itemToggle.toggleState)
+                {
+                    onTimer = 30f;
+                }
                 log.LogDebug($"Clover Necklace activated? \"{itemToggle.toggleState}\"");
                 itemBattery.BatteryToggle(itemToggle.toggleState);
                 hurtCollider.gameObject.SetActive(itemToggle.toggleState);
@@ -73,6 +73,15 @@ namespace REPOWildCardMod.Items
                 {
                     particleSystem.Play();
                 }
+            }
+            if ((itemBattery.batteryLife <= 0f || onTimer <= 0f || (lastHolder != null && lastHolder.deadSet)) && !itemToggle.disabled)
+            {
+                itemToggle.ToggleDisable(true);
+                itemToggle.ToggleItem(false);
+            }
+            if (onTimer > 0f)
+            {
+                onTimer -= Time.deltaTime;
             }
         }
         public void EnemyHit()

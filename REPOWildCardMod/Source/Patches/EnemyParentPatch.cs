@@ -16,32 +16,6 @@ namespace REPOWildCardMod.Patches
     {
         public static FieldInfo setupPatchInstance;
         static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
-        [HarmonyPatch(nameof(EnemyParent.SpawnRPC))]
-        [HarmonyPostfix]
-        public static void AddEnemyToList(EnemyParent __instance)
-        {
-            SmithNote[] smithNotes = Object.FindObjectsOfType<SmithNote>();
-            if (smithNotes != null && smithNotes.Length > 0)
-            {
-                for (int i = 0; i < smithNotes.Length; i++)
-                {
-                    smithNotes[i].StartCoroutine(smithNotes[i].FirstSpawnCoroutine(__instance));
-                }
-            }
-        }
-        [HarmonyPatch(nameof(EnemyParent.DespawnRPC))]
-        [HarmonyPostfix]
-        public static void RemoveEnemyFromList(EnemyParent __instance)
-        {
-            SmithNote[] smithNotes = Object.FindObjectsOfType<SmithNote>();
-            if (smithNotes != null && smithNotes.Length > 0)
-            {
-                for (int i = 0; i < smithNotes.Length; i++)
-                {
-                    smithNotes[i].RemoveEnemy(__instance);
-                }
-            }
-        }
         [HarmonyPatch(nameof(EnemyParent.Awake))]
         [HarmonyPrefix]
         public static void GetInstance(EnemyParent __instance)
