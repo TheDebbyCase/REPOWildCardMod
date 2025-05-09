@@ -17,6 +17,7 @@ namespace REPOWildCardMod.Valuables
         public float targetTime = 0.5f;
         public float animSpeed;
         public float dropTimer;
+        public float overrideStrength = 15f;
         public void Start()
         {
             if (SemiFunc.IsMultiplayer())
@@ -44,7 +45,7 @@ namespace REPOWildCardMod.Valuables
             {
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
-                    physGrabObject.OverrideGrabStrength(40f);
+                    physGrabObject.OverrideGrabStrength(overrideStrength);
                 }
                 if (!giwiSounds.Source.isPlaying)
                 {
@@ -102,7 +103,7 @@ namespace REPOWildCardMod.Valuables
                             Vector3 vertVector;
                             if (physGrabObject.grabbed)
                             {
-                                vertVector = new Vector3(1f, 1f, 1f);
+                                vertVector = new Vector3(1f, 3f, 1f);
                             }
                             else
                             {
@@ -111,7 +112,7 @@ namespace REPOWildCardMod.Valuables
                             giwiRigidbodies[i].direction = Vector3.Scale(UnityEngine.Random.onUnitSphere, vertVector);
                             giwiRigidbodies[i].newDirTimer = UnityEngine.Random.Range(0.05f, 0.25f);
                         }
-                        giwiRigidbodies[i].Wiggle(UnityEngine.Random.Range(4f, 10f) * ((float)Mathf.Max(i, 3) / 2f), UnityEngine.Random.Range(3f, 8f) * -1f);
+                        giwiRigidbodies[i].Wiggle(UnityEngine.Random.Range(4f, 10f) * ((float)Mathf.Max(i, 3) / 1.5f), UnityEngine.Random.Range(3f, 8f) * -1f);
                     }
                     if (physGrabObject.grabbed && dropTimer != 5f)
                     {

@@ -1,3 +1,8 @@
+## 0.16.13
+- Adjusted Giwi Worm physics to make her more worm-like
+- Adjusted Alpharad Dice physics to make the roll a little more natural
+- Reduced the number of activations necessary for Sleepyhead to get REAL mad
+
 ## 0.16.12
 - FINALLY FIXED GIWI WORM, she can now be lifted by non-host players
 - Optimized Smith Note slightly
