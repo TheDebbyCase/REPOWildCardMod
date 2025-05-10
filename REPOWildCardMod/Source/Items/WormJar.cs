@@ -117,7 +117,7 @@ namespace REPOWildCardMod.Items
         {
             enemy = SemiFunc.EnemyGetFromIndex(enemyIndex);
             slowChaseRef = enemy.GetComponent<EnemyStateChaseSlow>();
-            transform.parent = utils.FindEnemyTransform(enemy.EnemyParent.enemyName, "Head");
+            transform.parent = utils.FindEnemyTransform(enemy.EnemyParent, "Head");
             Vector3 overrideLocalPos = Vector3.zero;
             Vector3 overrideLocalRot = Vector3.zero;
             Vector3 overrideLocalScale = Vector3.one;

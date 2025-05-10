@@ -65,18 +65,17 @@ namespace REPOWildCardMod.Utils
                 WildCardMod.instance.log.LogWarning($"Attempted to reskin {enemyName} but something went wrong!");
             }
         }
-        public Transform FindEnemyTransform(string enemy, string type)
+        public Transform FindEnemyTransform(EnemyParent targetEnemy, string type)
         {
             Transform finalTransform = null;
-            EnemyParent targetEnemy = EnemyDirector.instance.enemiesSpawned.Find((x) => x.enemyName == enemy);
             if (targetEnemy == null)
             {
-                log.LogWarning($"Enemy \"{enemy}\" is not spawned!");
+                log.LogWarning($"Enemy \"{targetEnemy.enemyName}\" is not spawned!");
                 return null;
             }
             List<Transform> transforms = targetEnemy.GetComponentsInChildren<Transform>(true).ToList();
             bool valid = true;
-            switch (enemy)
+            switch (targetEnemy.enemyName)
             {
                 case "Animal":
                     {
@@ -404,13 +403,13 @@ namespace REPOWildCardMod.Utils
                 default:
                     {
                         finalTransform = transforms[0];
-                        log.LogWarning($"Enemy \"{enemy}\" has not been set up");
+                        log.LogWarning($"Enemy \"{targetEnemy.enemyName}\" has not been set up");
                         break;
                     }
             }
             if (!valid || finalTransform == null)
             {
-                log.LogWarning($"Transform of type \"{type}\" for enemy \"{enemy}\" has not been set up");
+                log.LogWarning($"Transform of type \"{type}\" for enemy \"{targetEnemy.enemyName}\" has not been set up");
             }
             return finalTransform;
         }

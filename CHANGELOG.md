@@ -1,3 +1,6 @@
+## 0.16.15
+- Realised a blunderous assumption I'd made regarding the Worm Jar in that if multiple of a type of enemy spawn, only one of them would be infectable
+
 ## 0.16.14
 - Added checks to see if the current REPO version is the beta, and display warnings for certain items
 - All items appear to work as expected using the beta except: Chaos Emeralds, Smith Note, Smith Halo and Clover Necklace
