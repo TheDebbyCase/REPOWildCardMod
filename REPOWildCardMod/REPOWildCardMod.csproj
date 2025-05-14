@@ -12,7 +12,7 @@
 		<FileVersion>1.0.0.0</FileVersion>
 		<UnityProjectPath>$(MSBuildProjectDirectory)\..\..\..\Unity\Repo Template</UnityProjectPath>
 		<UnityInstallRootPath>D:\Unity\Unity Editor</UnityInstallRootPath>
-		<BaseOutputPath>D:\Stuff\REPO\Project\REPOWildCardMod\Builds</BaseOutputPath>
+		<BaseOutputPath>D:\Stuff\REPO\WILDCARD Project\REPOWildCardMod\Builds</BaseOutputPath>
 		<ProduceReferenceAssembly>False</ProduceReferenceAssembly>
 		<MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);NCP0001</MSBuildWarningsAsMessages>
 	</PropertyGroup>
@@ -50,6 +50,6 @@
 		<Exec Command="netcode-patch -nv 1.5.2 &quot;$(TargetPath)&quot; @(ReferencePathWithRefAssemblies->'&quot;%(Identity)&quot;', ' ')" />
 	</Target>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-		<Exec Command="cmd.exe /c &quot;D:\Stuff\REPO\Project\REPOWildCardMod\Builds\netstandard2.1\MoveDLL.bat&quot;" />
+		<Exec Command="cmd.exe /c &quot;D:\Stuff\REPO\WILDCARD Project\REPOWildCardMod\Builds\netstandard2.1\MoveDLL.bat&quot;" />
 	</Target>
 </Project>

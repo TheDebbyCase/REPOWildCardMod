@@ -1,3 +1,6 @@
+## 0.16.16
+- Fixed Clover Necklace being permenantly off
+
 ## 0.16.15
 - Realised a blunderous assumption I'd made regarding the Worm Jar in that if multiple of a type of enemy spawn, only one of them would be infectable
 

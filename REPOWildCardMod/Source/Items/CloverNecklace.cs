@@ -63,6 +63,10 @@ namespace REPOWildCardMod.Items
             {
                 holding = false;
             }
+            if (itemBattery.batteryLife <= 0f != itemToggle.disabled)
+            {
+                itemToggle.ToggleDisable(itemBattery.batteryLife <= 0f);
+            }
             if (itemToggle.toggleState != itemBattery.batteryActive)
             {
                 if (itemToggle.toggleState)
@@ -81,9 +85,8 @@ namespace REPOWildCardMod.Items
                     particleSystem.Play();
                 }
             }
-            if ((itemBattery.batteryLife <= 0f || onTimer <= 0f || (lastHolder != null && lastHolder.deadSet)) && !itemToggle.disabled)
+            if ((itemBattery.batteryLife <= 0f && itemToggle.toggleState) || onTimer <= 0f || (lastHolder != null && lastHolder.deadSet))
             {
-                itemToggle.ToggleDisable(true);
                 itemToggle.ToggleItem(false);
             }
             if (onTimer > 0f)
