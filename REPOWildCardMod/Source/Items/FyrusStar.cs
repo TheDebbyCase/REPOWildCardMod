@@ -12,6 +12,7 @@ namespace REPOWildCardMod.Items
         public Transform playerContainer;
         public Collider[] containerColliders;
         public HurtCollider hurtCollider;
+        public Transform meshTransform;
         public int floatMask;
         public bool insideLocal;
         public float balancePower = 75f;
@@ -38,6 +39,8 @@ namespace REPOWildCardMod.Items
         public float originalPhysForce;
         public float originalEnemyForce;
         public float lastVelocityMag;
+        public float forceMoveAmount = 1f;
+        public float forceMoveTime = 0.25f;
         public void Awake()
         {
             originalPlayerForce = hurtCollider.playerHitForce;
@@ -47,93 +50,100 @@ namespace REPOWildCardMod.Items
         }
         public void FixedUpdate()
         {
-            if (SemiFunc.IsMasterClientOrSingleplayer() && !itemEquippable.isEquipped && !itemEquippable.isEquipping && !itemEquippable.isUnequipping)
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                Vector3 balanceDirection = Vector3.up;
-                Vector3 currentDirection = Vector3.zero;
-                if (ridingPlayer != null)
+                if (!itemEquippable.isEquipped && !itemEquippable.isEquipping && !itemEquippable.isUnequipping)
                 {
-                    currentDirection = lookDirection;
-                    balanceDirection += new Vector3(currentDirection.x, 0f, currentDirection.z) * lookBalancePower;
-                    if (Vector3.Distance(currentDirection, lastLookDirection) <= lookDifference && lastVelocityMag - physGrabObject.rb.velocity.magnitude <= 3f)
+                    Vector3 currentDirection = Vector3.zero;
+                    if (ridingPlayer != null)
                     {
-                        steerRamp += Time.fixedDeltaTime * 1.25f;
-                        if (steerRamp > rampMax)
+                        if (ridingPlayer == SemiFunc.PlayerAvatarLocal())
                         {
-                            steerRamp = rampMax;
+                            currentDirection = PlayerController.instance.transform.rotation * Vector3.forward;
                         }
-                    }
-                    else
-                    {
-                        if (lastVelocityMag - physGrabObject.rb.velocity.magnitude > 3f)
+                        else
                         {
-                            steerRamp /= 2f;
-                            if (steerRamp < 1f)
+                            currentDirection = ridingPlayer.clientRotation * Vector3.forward;
+                        }
+                        if (Vector3.Distance(currentDirection, lastLookDirection) <= lookDifference && lastVelocityMag - physGrabObject.rb.velocity.magnitude <= 3f)
+                        {
+                            steerRamp += Time.fixedDeltaTime * 1.25f;
+                            if (steerRamp > rampMax)
                             {
-                                steerRamp = 1f;
+                                steerRamp = rampMax;
                             }
                         }
                         else
                         {
+                            if (lastVelocityMag - physGrabObject.rb.velocity.magnitude > 3f)
+                            {
+                                steerRamp /= 2f;
+                                if (steerRamp < 1f)
+                                {
+                                    steerRamp = 1f;
+                                }
+                            }
+                            else
+                            {
+                                steerRamp = 1f;
+                                hurtCollider.playerHitForce = originalPlayerForce;
+                                hurtCollider.physHitForce = originalPhysForce;
+                                hurtCollider.enemyHitForce = originalEnemyForce;
+                            }
+                        }
+                        Quaternion facingRotator = Quaternion.FromToRotation(transform.forward, currentDirection);
+                        physGrabObject.rb.AddTorque(new Vector3(facingRotator.x, facingRotator.y, facingRotator.z) * balancePower);
+                        if (ridingPlayer.isCrouching)
+                        {
                             steerRamp = 1f;
-                            hurtCollider.playerHitForce = originalPlayerForce;
-                            hurtCollider.physHitForce = originalPhysForce;
-                            hurtCollider.enemyHitForce = originalEnemyForce;
+                            currentDirection = Vector3.zero;
                         }
                     }
-                    Quaternion facingRotator = Quaternion.FromToRotation(transform.forward, currentDirection);
-                    physGrabObject.rb.AddTorque(new Vector3(facingRotator.x, facingRotator.y, facingRotator.z) * balancePower);
-                    if (ridingPlayer.isCrouching)
+                    else
                     {
                         steerRamp = 1f;
-                        currentDirection = Vector3.zero;
+                        hurtCollider.playerHitForce = originalPlayerForce;
+                        hurtCollider.physHitForce = originalPhysForce;
+                        hurtCollider.enemyHitForce = originalEnemyForce;
                     }
-                }
-                else
-                {
-                    steerRamp = 1f;
-                    hurtCollider.playerHitForce = originalPlayerForce;
-                    hurtCollider.physHitForce = originalPhysForce;
-                    hurtCollider.enemyHitForce = originalEnemyForce;
-                }
-                float hurtMultiplier = Mathf.InverseLerp(8f, rampMax, steerRamp) + 1f;
-                hurtCollider.playerHitForce = originalPlayerForce * hurtMultiplier;
-                hurtCollider.physHitForce = originalPhysForce * hurtMultiplier;
-                hurtCollider.enemyHitForce = originalEnemyForce * hurtMultiplier;
-                currentSteerPower = steerPower * steerRamp;
-                Quaternion rotator = Quaternion.FromToRotation(transform.up, balanceDirection);
-                physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balancePower);
-                bool grounded = false;
-                if (Physics.Raycast(rayStart.position, Vector3.down, out RaycastHit hit, floatHeight, floatMask, QueryTriggerInteraction.Ignore))
-                {
-                    physGrabObject.rb.AddForce(new Vector3(currentDirection.x * currentSteerPower, floatPower / hit.distance, currentDirection.z * currentSteerPower));
-                    grounded = true;
-                    hoverTimer = 0f;
-                }
-                else if (hoverTimer > 0f)
-                {
-                    if (hoverTimer <= 2f)
+                    float hurtMultiplier = Mathf.InverseLerp(8f, rampMax, steerRamp) + 1f;
+                    hurtCollider.playerHitForce = originalPlayerForce * hurtMultiplier;
+                    hurtCollider.physHitForce = originalPhysForce * hurtMultiplier;
+                    hurtCollider.enemyHitForce = originalEnemyForce * hurtMultiplier;
+                    currentSteerPower = steerPower * steerRamp;
+                    bool grounded = false;
+                    if (Physics.Raycast(rayStart.position, Vector3.down, out RaycastHit hit, floatHeight, floatMask, QueryTriggerInteraction.Ignore))
                     {
-                        hoverPowerCurrent = Mathf.Max(0f, hoverPowerCurrent - (Time.fixedDeltaTime * (hoverPower / 4f)));
+                        physGrabObject.rb.AddForce(new Vector3(currentDirection.x * currentSteerPower, floatPower / hit.distance, currentDirection.z * currentSteerPower));
+                        grounded = true;
+                        hoverTimer = 0f;
                     }
-                    physGrabObject.rb.AddForce(new Vector3(currentDirection.x * currentSteerPower, hoverPowerCurrent / (rayStart.position.y - hoverTargetY), currentDirection.z * currentSteerPower));
-                    hoverTimer -= Time.fixedDeltaTime;
-                }
-                else if (lastGrounded && !Physics.Raycast(rayStart.position, Vector3.down, floatHeight * 2f, floatMask, QueryTriggerInteraction.Ignore))
-                {
-                    hoverTimer = 6f;
-                    hoverTargetY = rayStart.position.y;
-                }
-                if (physCheckTimer <= 0f)
-                {
-                    physCheckTimer = 0.5f;
-                    lastLookDirection = lookDirection;
-                    lastGrounded = grounded;
-                    lastVelocityMag = physGrabObject.rb.velocity.magnitude;
-                }
-                else
-                {
-                    physCheckTimer -= Time.fixedDeltaTime;
+                    else if (hoverTimer > 0f)
+                    {
+                        if (hoverTimer <= 2f)
+                        {
+                            hoverPowerCurrent = Mathf.Max(0f, hoverPowerCurrent - (Time.fixedDeltaTime * (hoverPower / 4f)));
+                        }
+                        physGrabObject.rb.AddForce(new Vector3(currentDirection.x * currentSteerPower, hoverPowerCurrent / (rayStart.position.y - hoverTargetY), currentDirection.z * currentSteerPower));
+                        hoverTimer -= Time.fixedDeltaTime;
+                    }
+                    else if (lastGrounded && !Physics.Raycast(rayStart.position, Vector3.down, floatHeight * 2f, floatMask, QueryTriggerInteraction.Ignore))
+                    {
+                        hoverTimer = 6f;
+                        hoverTargetY = rayStart.position.y;
+                    }
+                    if (physCheckTimer <= 0f)
+                    {
+                        physCheckTimer = 0.5f;
+                        lastLookDirection = lookDirection;
+                        lastGrounded = grounded;
+                        lastVelocityMag = physGrabObject.rb.velocity.magnitude;
+                        UpdateMeshRot(Mathf.Clamp01(steerRamp / 8f) * -15f);
+                    }
+                    else
+                    {
+                        physCheckTimer -= Time.fixedDeltaTime;
+                    }
                 }
             }
         }
@@ -141,9 +151,9 @@ namespace REPOWildCardMod.Items
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                if (rammingSpeed != (steerRamp >= 9f))
+                if (rammingSpeed != lastVelocityMag > 4f)
                 {
-                    RammingSpeed(steerRamp >= 9f);
+                    RammingSpeed(lastVelocityMag > 4f);
                 }
             }
             if (containerColliders[0].tag != "Untagged")
@@ -188,15 +198,18 @@ namespace REPOWildCardMod.Items
                 {
                     PhysGrabber.instance.OverrideDisableRotationControls();
                 }
-                Vector3 cameraDirection = (PlayerController.instance.transform.rotation * Vector3.forward).normalized;
-                if (SemiFunc.IsMultiplayer())
+                if (SemiFunc.IsMultiplayer() && SemiFunc.IsNotMasterClient())
                 {
-                    physGrabObject.photonView.RPC("UpdateLookDirectionRPC", RpcTarget.MasterClient, cameraDirection);
+                    if (physGrabObject.rb.constraints == (RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ))
+                    {
+                        physGrabObject.rb.constraints = RigidbodyConstraints.FreezeRotation;
+                    }
+                    transform.rotation = Quaternion.Euler(0f, PlayerController.instance.transform.rotation.eulerAngles.y, 0f);
                 }
-                else
-                {
-                    UpdateLookDirectionRPC(cameraDirection);
-                }
+            }
+            else if (SemiFunc.IsMultiplayer() && SemiFunc.IsNotMasterClient() && physGrabObject.rb.constraints == RigidbodyConstraints.FreezeRotation)
+            {
+                physGrabObject.rb.constraints = RigidbodyConstraints.FreezeRotationX | RigidbodyConstraints.FreezeRotationZ;
             }
             if (rammingSpeed)
             {
@@ -235,38 +248,35 @@ namespace REPOWildCardMod.Items
                 trigger.transform.localScale = new Vector3(0.3f, 0.35f, 0.3f);
                 log.LogDebug($"Fyrus Star has no pilot!");
             }
-            else if (ridingPlayer == null)
+            else
             {
                 ridingPlayer = SemiFunc.PlayerAvatarGetFromPhotonID(photonID);
                 lastRider = ridingPlayer;
                 trigger.transform.localScale = new Vector3(0.4f, 0.35f, 0.4f);
                 log.LogDebug($"Fyrus Star Pilot: \"{ridingPlayer.playerName}\"");
             }
-            if ((playerContainer.gameObject.activeSelf != (photonID != -1)) && SemiFunc.IsMasterClientOrSingleplayer())
+            if (playerContainer.gameObject.activeSelf != (photonID != -1))
             {
-                EnableContainer(photonID != -1);
+                playerContainer.gameObject.SetActive(photonID != -1);
             }
         }
-        public void EnableContainer(bool enable)
+        public void UpdateMeshRot(float angle)
         {
             if (SemiFunc.IsMultiplayer())
             {
-                physGrabObject.photonView.RPC("EnableContainerRPC", RpcTarget.All, enable);
+                physGrabObject.photonView.RPC("UpdateMeshRotRPC", RpcTarget.All, angle);
             }
             else
             {
-                EnableContainerRPC(enable);
+                UpdateMeshRotRPC(angle);
             }
         }
         [PunRPC]
-        public void EnableContainerRPC(bool enable)
+        public void UpdateMeshRotRPC(float angle)
         {
-            playerContainer.gameObject.SetActive(enable);
-        }
-        [PunRPC]
-        public void UpdateLookDirectionRPC(Vector3 vector)
-        {
-            lookDirection = vector;
+            Vector3 newQuat = meshTransform.localRotation.eulerAngles;
+            newQuat.z = angle;
+            meshTransform.localRotation = Quaternion.Euler(newQuat);
         }
     }
 }

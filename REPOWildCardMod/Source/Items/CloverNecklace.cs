@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using Photon.Pun;
+using UnityEngine;
 namespace REPOWildCardMod.Items
 {
     public class CloverNecklace : MonoBehaviour
@@ -16,9 +17,10 @@ namespace REPOWildCardMod.Items
         public Vector3 forceRotation = new Vector3(110f, 0f, 180f);
         public bool holding;
         public PlayerAvatar lastHolder;
-        public float onTimer;
+        public float onTimer = 30f;
         public void Awake()
         {
+            onTimer = 30f;
             if (WildCardMod.instance.usingBeta)
             {
                 log.LogWarning("Clover Necklace may not work as expected due to REPO beta changes!");
@@ -49,10 +51,27 @@ namespace REPOWildCardMod.Items
         }
         public void Update()
         {
-            beeAudio.PlayLoop(itemToggle.toggleState, 1f, 0.25f);
-            if (physGrabObject.playerGrabbing.Count == 1 && lastHolder != physGrabObject.playerGrabbing[0].playerAvatar)
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                lastHolder = physGrabObject.playerGrabbing[0].playerAvatar;
+                if (physGrabObject.playerGrabbing.Count == 1 && lastHolder != physGrabObject.playerGrabbing[0].playerAvatar)
+                {
+                    lastHolder = physGrabObject.playerGrabbing[0].playerAvatar;
+                }
+                if (itemToggle.toggleState && (itemBattery.batteryLife <= 0f || onTimer <= 0f || (lastHolder != null && lastHolder.deadSet)))
+                {
+                    itemToggle.ToggleItem(false);
+                }
+                if (itemToggle.toggleState != itemBattery.batteryActive)
+                {
+                    onTimer = 30f;
+                    log.LogDebug($"Clover Necklace activated? \"{itemToggle.toggleState}\"");
+                    itemBattery.BatteryToggle(itemToggle.toggleState);
+                    Toggle(itemToggle.toggleState);
+                }
+                if (onTimer > 0f && itemToggle.toggleState)
+                {
+                    onTimer -= Time.deltaTime;
+                }
             }
             if (physGrabObject.grabbedLocal && !holding)
             {
@@ -63,35 +82,30 @@ namespace REPOWildCardMod.Items
             {
                 holding = false;
             }
-            if (itemBattery.batteryLife <= 0f != itemToggle.disabled)
+            beeAudio.PlayLoop(itemToggle.toggleState, 1f, 0.25f);
+        }
+        public void Toggle(bool state)
+        {
+            if (SemiFunc.IsMultiplayer())
             {
-                itemToggle.ToggleDisable(itemBattery.batteryLife <= 0f);
+                physGrabObject.photonView.RPC("ToggleRPC", RpcTarget.All, state);
             }
-            if (itemToggle.toggleState != itemBattery.batteryActive)
+            else
             {
-                if (itemToggle.toggleState)
-                {
-                    onTimer = 30f;
-                }
-                log.LogDebug($"Clover Necklace activated? \"{itemToggle.toggleState}\"");
-                itemBattery.BatteryToggle(itemToggle.toggleState);
-                hurtCollider.gameObject.SetActive(itemToggle.toggleState);
-                light.lightComponent.enabled = itemToggle.toggleState;
-                light.halo.enabled = itemToggle.toggleState;
-                ParticleSystem.MainModule main = particleSystem.main;
-                main.loop = itemToggle.toggleState;
-                if (itemToggle.toggleState)
-                {
-                    particleSystem.Play();
-                }
+                ToggleRPC(state);
             }
-            if ((itemBattery.batteryLife <= 0f && itemToggle.toggleState) || onTimer <= 0f || (lastHolder != null && lastHolder.deadSet))
+        }
+        [PunRPC]
+        public void ToggleRPC(bool state)
+        {
+            hurtCollider.gameObject.SetActive(state);
+            light.lightComponent.enabled = state;
+            light.halo.enabled = state;
+            ParticleSystem.MainModule main = particleSystem.main;
+            main.loop = state;
+            if (state)
             {
-                itemToggle.ToggleItem(false);
-            }
-            if (onTimer > 0f)
-            {
-                onTimer -= Time.deltaTime;
+                particleSystem.Play();
             }
         }
         public void EnemyHit()
