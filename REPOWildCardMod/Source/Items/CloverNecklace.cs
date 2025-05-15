@@ -56,6 +56,10 @@ namespace REPOWildCardMod.Items
                 if (physGrabObject.playerGrabbing.Count == 1 && lastHolder != physGrabObject.playerGrabbing[0].playerAvatar)
                 {
                     lastHolder = physGrabObject.playerGrabbing[0].playerAvatar;
+                    if (SemiFunc.IsMultiplayer())
+                    {
+                        physGrabObject.photonView.RPC("UpdateHolderRPC", RpcTarget.Others, lastHolder.photonView.ViewID);
+                    }
                 }
                 if (itemToggle.toggleState && (itemBattery.batteryLife <= 0f || onTimer <= 0f || (lastHolder != null && lastHolder.deadSet)))
                 {
@@ -94,6 +98,11 @@ namespace REPOWildCardMod.Items
             {
                 ToggleRPC(state);
             }
+        }
+        [PunRPC]
+        public void UpdateHolderRPC(int id)
+        {
+            lastHolder = SemiFunc.PlayerAvatarGetFromPhotonID(id);
         }
         [PunRPC]
         public void ToggleRPC(bool state)

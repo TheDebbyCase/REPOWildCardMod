@@ -1,3 +1,6 @@
+## 0.16.18
+- Fixed Clover Necklace always knocking down non-host players even if they are the one that turned it on
+
 ## 0.16.17
 - Moved Clover Necklace code around to avoid desync issues
 - Made some small changes to Fyrus Star to make it easier to use for non-host players
