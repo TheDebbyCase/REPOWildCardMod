@@ -1,3 +1,8 @@
+## 0.17.0
+- Error proofed the Chaos Emerald's sonic effect a tad
+- Gave the Dragon Ball wish effect a bunch more auditory pizzaz, and an additional effect
+- Attempted to patch up some Worm infection logic, and trying to get around a vanilla bug that causes the icon for the Worm Jar to only appear upon reopening a save
+
 ## 0.16.18
 - Fixed Clover Necklace always knocking down non-host players even if they are the one that turned it on
 

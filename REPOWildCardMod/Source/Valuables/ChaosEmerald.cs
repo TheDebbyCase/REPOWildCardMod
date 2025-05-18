@@ -15,8 +15,10 @@ namespace REPOWildCardMod.Valuables
         public string colour;
         public MeshRenderer meshRenderer;
         public Sound sonicLoop;
+        public GameObject hudAudio;
         public void Awake()
         {
+            hudAudio = WildCardMod.instance.miscPrefabsList.Find((x) => x.name == "Wildcard HUD Audio");
             if (WildCardMod.instance.usingBeta)
             {
                 log.LogWarning("Chaos Emeralds may not work as expected due to REPO beta changes!");
@@ -120,19 +122,8 @@ namespace REPOWildCardMod.Valuables
         }
         public void SuperSonic()
         {
-            GameObject newObject = Instantiate(CameraGlitch.Instance.gameObject);
-            Component[] components = newObject.GetComponents<Component>();
-            for (int i = 0; i < components.Length; i++)
-            {
-                if (components[i].GetType() == typeof(Animator))
-                {
-                    Destroy(components[i]);
-                }
-                else if (components[i].GetType() == typeof(AudioSource))
-                {
-                    sonicLoop.Source = components[i] as AudioSource;
-                }
-            }
+            GameObject newObject = Instantiate(hudAudio);
+            sonicLoop.Source = newObject.GetComponent<AudioSource>();
             newObject.transform.parent = PlayerController.instance.transform;
             newObject.transform.localPosition = Vector3.zero;
             SuperSonic superSonic = newObject.AddComponent<SuperSonic>();

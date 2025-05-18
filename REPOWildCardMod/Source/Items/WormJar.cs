@@ -5,7 +5,6 @@ using REPOLib.Extensions;
 using UnityEngine.Events;
 using System;
 using REPOWildCardMod.Extensions;
-using System.Linq;
 namespace REPOWildCardMod.Items
 {
     public class WormJar : MonoBehaviour
@@ -15,6 +14,7 @@ namespace REPOWildCardMod.Items
         public PhysGrabObject physGrabObject;
         public PhysGrabObjectImpactDetector impactDetector;
         public ItemAttributes itemAttributes;
+        public ItemEquippable itemEquippable;
         public PlayerAvatar lastPlayerGrabbed;
         public Sprite icon;
         public float noDestroyCooldown;
@@ -26,11 +26,22 @@ namespace REPOWildCardMod.Items
                 itemAttributes.icon = icon;
             }
         }
+        public void Start()
+        {
+            if (itemAttributes.icon != icon)
+            {
+                itemAttributes.icon = icon;
+            }
+        }
         public void Update()
         {
             if (itemAttributes.icon != icon)
             {
                 itemAttributes.icon = icon;
+            }
+            if (itemEquippable.isEquipped && itemEquippable.equippedSpot != null && (itemEquippable.equippedSpot.inventoryIcon == null || !itemEquippable.equippedSpot.inventoryIcon.enabled || itemEquippable.equippedSpot.inventoryIcon.sprite != icon))
+            {
+                itemEquippable.equippedSpot.SetEmoji(icon);
             }
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
@@ -357,10 +368,6 @@ namespace REPOWildCardMod.Items
                             }
                             investigateTimer = 10f;
                         }
-                    }
-                    if (!enemy.EnemyParent.forceLeave)
-                    {
-                        enemy.EnemyParent.forceLeave = true;
                     }
                     for (int i = 0; i < EnemyDirector.instance.enemiesSpawned.Count; i++)
                     {
