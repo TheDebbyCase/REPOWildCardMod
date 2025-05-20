@@ -1,3 +1,12 @@
+## 0.17.1
+- Fixed Dragon Ball Wish additional effect not working in multiplayer
+- Nerfed the amount of upgrades each player gets from the Dragon Ball Wish
+- Fixed Smith Note making everyone speak the tutorial
+- Slightly increased the speed at which Fyrus Star will start to hurt
+- Made Dragon Ball Wish upgrades sync when EvilCheetah's TeamUpgrades is present
+- Adjusted Worm Jar infection to hopefully avoid some weird behaviour
+- Fixed Chaos Emeralds always being white for clients
+
 ## 0.17.0
 - Error proofed the Chaos Emerald's sonic effect a tad
 - Gave the Dragon Ball wish effect a bunch more auditory pizzaz, and an additional effect

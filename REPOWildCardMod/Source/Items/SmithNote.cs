@@ -74,10 +74,13 @@ namespace REPOWildCardMod.Items
             {
                 StatsManager.instance.ItemPurchase(itemAttributes.item.itemAssetName);
             }
-            if (physGrabObject.grabbedLocal && !overriding && itemEquippable.currentState == ItemEquippable.ItemState.Idle && (!PhysGrabber.instance.overrideGrab || PhysGrabber.instance.overrideGrabTarget != physGrabObject))
+            if (physGrabObject.grabbedLocal && !overriding && !itemEquippable.isEquipped && (!PhysGrabber.instance.overrideGrab || PhysGrabber.instance.overrideGrabTarget != physGrabObject))
             {
                 if (neverGrab)
                 {
+                    ChatManager.instance.PossessChatScheduleStart(9);
+                    ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, "I should type my target in chat", 2f, Color.blue);
+                    ChatManager.instance.PossessChatScheduleEnd();
                     TutorialDirector.instance.ActivateTip(tutorial.pageName, 0.5f, true);
                     neverGrab = false;
                 }
@@ -168,13 +171,6 @@ namespace REPOWildCardMod.Items
             }
             if (itemToggle.toggleState && itemBattery.batteryLife > 0f)
             {
-                if (SemiFunc.IsMultiplayer() && firstActivate)
-                {
-                    ChatManager.instance.PossessChatScheduleStart(9);
-                    ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, "I should type my target in chat", 2f, Color.blue);
-                    ChatManager.instance.PossessChatScheduleEnd();
-                    firstActivate = false;
-                }
                 musicSound.PlayLoop(true, 0.75f, 0.75f);
                 if (!musicPlaying)
                 {

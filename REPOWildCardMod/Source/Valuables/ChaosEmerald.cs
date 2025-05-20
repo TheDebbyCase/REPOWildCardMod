@@ -44,23 +44,24 @@ namespace REPOWildCardMod.Valuables
                 string randomColour = colourNames[Random.Range(0, colourNames.Length)];
                 if (SemiFunc.IsMultiplayer())
                 {
-                    photonView.RPC("PickColorRPC", RpcTarget.All, randomColour);
+                    photonView.RPC("PickColorRPC", RpcTarget.All, randomColour, colourMap[randomColour].r, colourMap[randomColour].g, colourMap[randomColour].b, colourMap[randomColour].a);
                 }
                 else
                 {
-                    PickColorRPC(randomColour);
+                    PickColorRPC(randomColour, colourMap[randomColour].r, colourMap[randomColour].g, colourMap[randomColour].b, colourMap[randomColour].a);
                 }
             }
         }
         [PunRPC]
-        public void PickColorRPC(string colourName)
+        public void PickColorRPC(string colourName, float r, float g, float b, float a)
         {
             colour = colourName;
-            meshRenderer.material.SetColor("_BaseColor", colourMap[colour]);
+            Color chosenColour = new Color(r, g, b, a);
+            meshRenderer.material.SetColor("_BaseColor", chosenColour);
             GradientColorKey[] colorKeys = valuableObject.particleColors.colorKeys;
             for (int i = 0; i < colorKeys.Length; i++)
             {
-                colorKeys[i] = new GradientColorKey(colourMap[colour], colorKeys[i].time);
+                colorKeys[i] = new GradientColorKey(chosenColour, colorKeys[i].time);
             }
             valuableObject.particleColors.colorKeys = colorKeys;
             if (colour == "White")
@@ -69,7 +70,7 @@ namespace REPOWildCardMod.Valuables
             }
             else
             {
-                meshRenderer.material.SetColor("_EmissionColor", new Color(colourMap[colour].r / 2f, colourMap[colour].g / 2f, colourMap[colour].b / 2f, 1f));
+                meshRenderer.material.SetColor("_EmissionColor", new Color(r / 2f, g / 2f, b / 2f, 1f));
             }
         }
         public void Update()
@@ -85,39 +86,42 @@ namespace REPOWildCardMod.Valuables
                 }
             }
         }
-        public void AddPlayerEmerald()
+        [PunRPC]
+        public void AllAddPlayerEmeraldRPC()
         {
             log.LogDebug("Adding a Chaos Emerald point");
-            if (SemiFunc.IsMasterClientOrSingleplayer())
+            StatsUI.instance.Fetch();
+            StatsUI.instance.ShowStats();
+            CameraGlitch.Instance.PlayUpgrade();
+            GameDirector.instance.CameraImpact.ShakeDistance(5f, 1f, 6f, SemiFunc.PlayerAvatarLocal().transform.position, 0.2f);
+        }
+        public void MasterAddPlayerEmerald()
+        {
+            if (SemiFunc.IsMultiplayer())
             {
-                string steamID = SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal());
-                StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID]++;
-                StatsManager.instance.dictionaryOfDictionaries["chaosEmeraldsUnique"][colour]++;
-                if (StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID] >= 7)
-                {
-                    StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID] = 0;
-                    StatsManager.instance.DictionaryFill("chaosEmeraldsUnique", 0);
-                    SuperSonic();
-                }
-                if (SemiFunc.IsMultiplayer())
-                {
-                    photonView.RPC("PropogateEmeraldsRPC", RpcTarget.Others, StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID], steamID);
-                }
+                photonView.RPC("AllAddPlayerEmeraldRPC", RpcTarget.All);
+            }
+            else
+            {
+                AllAddPlayerEmeraldRPC();
+            }
+            string steamID = SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal());
+            StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID]++;
+            StatsManager.instance.dictionaryOfDictionaries["chaosEmeraldsUnique"][colour]++;
+            if (StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID] >= 7)
+            {
+                StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID] = 0;
+                StatsManager.instance.DictionaryFill("chaosEmeraldsUnique", 0);
+                SuperSonic();
+            }
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC("PropogateEmeraldsRPC", RpcTarget.Others, StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID], steamID);
             }
             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
             for (int i = 0; i < players.Count; i++)
             {
-                if (players[i].isLocal)
-                {
-                    StatsUI.instance.Fetch();
-                    StatsUI.instance.ShowStats();
-                    CameraGlitch.Instance.PlayUpgrade();
-                }
-                GameDirector.instance.CameraImpact.ShakeDistance(5f, 1f, 6f, players[i].clientPosition, 0.2f);
-                if (SemiFunc.IsMasterClientOrSingleplayer())
-                {
-                    players[i].playerHealth.MaterialEffectOverride(PlayerHealth.Effect.Upgrade);
-                }
+                players[i].playerHealth.MaterialEffectOverride(PlayerHealth.Effect.Upgrade);
             }
         }
         public void SuperSonic()
@@ -143,6 +147,21 @@ namespace REPOWildCardMod.Valuables
         public void SetEmeraldsRPC(string steamID, int emeralds)
         {
             StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = emeralds;
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                DestroyEmerald();
+            }
+        }
+        public void DestroyEmerald()
+        {
+            if (SemiFunc.IsMultiplayer())
+            {
+                physGrabObject.photonView.RPC("DestroyPhysGrabObjectRPC", RpcTarget.All);
+            }
+            else
+            {
+                physGrabObject.DestroyPhysGrabObjectRPC();
+            }
         }
     }
     public class SuperSonic : MonoBehaviour

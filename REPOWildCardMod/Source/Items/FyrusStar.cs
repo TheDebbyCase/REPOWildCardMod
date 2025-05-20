@@ -151,9 +151,9 @@ namespace REPOWildCardMod.Items
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                if (rammingSpeed != lastVelocityMag > 4f)
+                if (rammingSpeed != lastVelocityMag > 5f)
                 {
-                    RammingSpeed(lastVelocityMag > 4f);
+                    RammingSpeed(lastVelocityMag > 5f);
                 }
             }
             if (containerColliders[0].tag != "Untagged")

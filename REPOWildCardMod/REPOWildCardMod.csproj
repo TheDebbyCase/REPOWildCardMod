@@ -42,6 +42,9 @@
 	  <Reference Include="MoreUpgrades" Publicize="true">
 	    <HintPath>..\..\Misc Packages\MoreUpgrades.dll</HintPath>
 	  </Reference>
+	  <Reference Include="SharedUpgrades">
+	    <HintPath>..\..\..\..\AppData\Roaming\com.kesomannen.gale\repo\profiles\test\BepInEx\plugins\Traktool-SharedUpgrades\SharedUpgrades.dll</HintPath>
+	  </Reference>
 	  <Reference Include="UnityEditor">
 	    <HintPath>..\..\..\..\Unity\Unity Editor\2022.3.21f1\Editor\Data\Managed\UnityEditor.dll</HintPath>
 	  </Reference>

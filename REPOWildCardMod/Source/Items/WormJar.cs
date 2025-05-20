@@ -311,7 +311,7 @@ namespace REPOWildCardMod.Items
         }
         public void Update()
         {
-            if (gameObject.activeSelf && SemiFunc.IsMasterClientOrSingleplayer())
+            if (SemiFunc.IsMasterClientOrSingleplayer() && gameObject.activeSelf)
             {
                 if (lifetime > 0f)
                 {
@@ -381,6 +381,7 @@ namespace REPOWildCardMod.Items
                             WormSpread(spreadEnemy.Enemy);
                         }
                     }
+                    enemy.EnemyParent.forceLeave = true;
                 }
                 else
                 {
@@ -421,7 +422,7 @@ namespace REPOWildCardMod.Items
         }
         public void WormDeath()
         {
-            if (gameObject.activeSelf)
+            if (SemiFunc.IsMasterClientOrSingleplayer() && gameObject.activeSelf)
             {
                 enemy.EnemyParent.forceLeave = false;
                 if (enemy.HasStateInvestigate)

@@ -16,16 +16,18 @@ namespace REPOWildCardMod
     [BepInPlugin(modGUID, modName, modVersion)]
     [BepInDependency(REPOLib.MyPluginInfo.PLUGIN_GUID, BepInDependency.DependencyFlags.HardDependency)]
     [BepInDependency("bulletbot.moreupgrades", BepInDependency.DependencyFlags.SoftDependency)]
+    [BepInDependency("EvilCheetah.REPO.TeamBoosters", BepInDependency.DependencyFlags.SoftDependency)]
     public class WildCardMod : BaseUnityPlugin
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.17.0";
+        internal const string modVersion = "0.17.1";
         readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
         public static WildCardMod instance;
         public bool moreUpgradesPresent = false;
+        public bool oldSharedUpgradesPresent = false;
         public bool usingBeta = false;
         internal WildCardConfig ModConfig { get; private set; } = null!;
         public List<GameObject> valList = new List<GameObject>();
@@ -65,6 +67,10 @@ namespace REPOWildCardMod
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("bulletbot.moreupgrades"))
             {
                 moreUpgradesPresent = true;
+            }
+            if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("EvilCheetah.REPO.TeamBoosters"))
+            {
+                oldSharedUpgradesPresent = true;
             }
             if (Assembly.GetAssembly(typeof(Item)).GetType("BatteryVisualLogic") != null)
             {

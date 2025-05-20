@@ -100,33 +100,42 @@ namespace REPOWildCardMod.Valuables
         {
             shenronApproach.PlayLoop(StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][SemiFunc.PlayerGetSteamID(masterPlayer)] >= 6 && physGrabObject.grabbed, 2f, 0.5f);
         }
-        public void AddPlayerBall()
+        [PunRPC]
+        public void AllAddPlayerBallRPC()
         {
             log.LogDebug("Adding a Dragon Ball point");
             StatsUI.instance.Fetch();
             StatsUI.instance.ShowStats();
             CameraGlitch.Instance.PlayUpgrade();
             GameDirector.instance.CameraImpact.ShakeDistance(5f, 1f, 6f, SemiFunc.PlayerAvatarLocal().transform.position, 0.2f);
-            if (SemiFunc.IsMasterClientOrSingleplayer())
+        }
+        public void MasterAddPlayerBall()
+        {
+            if (SemiFunc.IsMultiplayer())
             {
-                string steamID = SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal());
-                StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID]++;
-                StatsManager.instance.dictionaryOfDictionaries["dragonBallsUnique"][starNumber.ToString()]++;
-                if (StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] >= 7)
-                {
-                    StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = 0;
-                    StatsManager.instance.DictionaryFill("dragonBallsUnique", 0);
-                    DragonBallWish();
-                }
-                if (SemiFunc.IsMultiplayer())
-                {
-                    photonView.RPC("PropogateBallsRPC", RpcTarget.Others, StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID], steamID);
-                }
-                List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                for (int i = 0; i < players.Count; i++)
-                {
-                    players[i].playerHealth.MaterialEffectOverride(PlayerHealth.Effect.Upgrade);
-                }
+                photonView.RPC("AllAddPlayerBallRPC", RpcTarget.All);
+            }
+            else
+            {
+                AllAddPlayerBallRPC();
+            }
+            string steamID = SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal());
+            StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID]++;
+            StatsManager.instance.dictionaryOfDictionaries["dragonBallsUnique"][starNumber.ToString()]++;
+            if (StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] >= 7)
+            {
+                StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = 0;
+                StatsManager.instance.DictionaryFill("dragonBallsUnique", 0);
+                DragonBallWish();
+            }
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC("PropogateBallsRPC", RpcTarget.Others, StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID], steamID);
+            }
+            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+            for (int i = 0; i < players.Count; i++)
+            {
+                players[i].playerHealth.MaterialEffectOverride(PlayerHealth.Effect.Upgrade);
             }
         }
         public void DragonBallWish()
@@ -135,7 +144,9 @@ namespace REPOWildCardMod.Valuables
             {
                 if (SemiFunc.IsMultiplayer())
                 {
-                    photonView.RPC("GenerateHUDElementsRPC", RpcTarget.All);
+                    GameObject newAudio = PhotonNetwork.InstantiateRoomObject("Misc/Wildcard HUD Audio", Vector3.zero, Quaternion.identity);
+                    GameObject newNewAudio = PhotonNetwork.InstantiateRoomObject("Misc/Wildcard HUD Audio", Vector3.zero, Quaternion.identity);
+                    photonView.RPC("GenerateHUDElementsRPC", RpcTarget.All, newAudio.GetComponent<PhotonView>().ViewID, newNewAudio.GetComponent<PhotonView>().ViewID);
                 }
                 else
                 {
@@ -144,10 +155,20 @@ namespace REPOWildCardMod.Valuables
             }
         }
         [PunRPC]
-        public void GenerateHUDElementsRPC()
+        public void GenerateHUDElementsRPC(int firstID = 0, int secondID = 0)
         {
-            GameObject newAudio = Instantiate(hudAudio);
-            GameObject newNewAudio = Instantiate(hudAudio);
+            GameObject newAudio;
+            GameObject newNewAudio;
+            if (SemiFunc.IsMultiplayer())
+            {
+                newAudio = PhotonView.Find(firstID).gameObject;
+                newNewAudio = PhotonView.Find(secondID).gameObject;
+            }
+            else
+            {
+                newAudio = Instantiate(hudAudio);
+                newNewAudio = Instantiate(hudAudio);
+            }
             shenronWish.Source = newAudio.GetComponent<AudioSource>();
             shenronVoice.Source = newNewAudio.GetComponent<AudioSource>();
             newAudio.transform.parent = PlayerController.instance.transform;
@@ -158,6 +179,7 @@ namespace REPOWildCardMod.Valuables
             shenronHUD.shenronWish = new Sound { Source = shenronWish.Source, Sounds = shenronWish.Sounds, Type = shenronWish.Type, Volume = shenronWish.Volume, VolumeRandom = shenronWish.VolumeRandom, Pitch = shenronWish.Pitch, PitchRandom = shenronWish.PitchRandom, SpatialBlend = shenronWish.SpatialBlend, ReverbMix = shenronWish.ReverbMix, Doppler = shenronWish.Doppler };
             shenronHUD.shenronVoice = new Sound { Source = shenronVoice.Source, Sounds = shenronVoice.Sounds, Type = shenronVoice.Type, Volume = shenronVoice.Volume, VolumeRandom = shenronVoice.VolumeRandom, Pitch = shenronVoice.Pitch, PitchRandom = shenronVoice.PitchRandom, SpatialBlend = shenronVoice.SpatialBlend, ReverbMix = shenronVoice.ReverbMix, Doppler = shenronVoice.Doppler };
             shenronHUD.spawnValuableClip = spawnValuableClip;
+            shenronHUD.photonView = newAudio.GetComponent<PhotonView>();
         }
         [PunRPC]
         public void PropogateBallsRPC(int balls, string masterID)
@@ -173,18 +195,31 @@ namespace REPOWildCardMod.Valuables
         public void SetBallsRPC(string steamID, int balls)
         {
             StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = balls;
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                DestroyBall();
+            }
         }
-        public void OnDestroy()
+        public void DestroyBall()
         {
-            if (SemiFunc.IsMasterClientOrSingleplayer() && levelDragonBalls.Contains(this))
+            if (levelDragonBalls.Contains(this))
             {
                 levelDragonBalls.Remove(this);
+                if (SemiFunc.IsMultiplayer())
+                {
+                    physGrabObject.photonView.RPC("DestroyPhysGrabObjectRPC", RpcTarget.All);
+                }
+                else
+                {
+                    physGrabObject.DestroyPhysGrabObjectRPC();
+                }
             }
         }
     }
     public class ShenronHUD : MonoBehaviour
     {
         static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        public PhotonView photonView;
         public float timer;
         public Sound shenronWish;
         public Sound shenronVoice;
@@ -210,6 +245,12 @@ namespace REPOWildCardMod.Valuables
             wishableUpgrades.Remove("Chaos Emeralds");
             wishableUpgrades.Remove("Map Player Count");
             wishableUpgrades.Remove("Throw");
+            wishableUpgrades.Remove("Head Charge");
+            wishableUpgrades.Remove("Head Power");
+            for (int i = 0; i < wishableUpgrades.Count; i++)
+            {
+                log.LogDebug($"Dragon Ball Wishable Upgrade {i}: \"{wishableUpgrades[i]}\"");
+            }
         }
         public void Update()
         {
@@ -270,19 +311,22 @@ namespace REPOWildCardMod.Valuables
         }
         public void SpawnValuable()
         {
-            shenronVoice.Play(transform.position);
-            if (SemiFunc.IsMasterClientOrSingleplayer())
+            if (SemiFunc.IsMultiplayer())
             {
-                if (SemiFunc.IsMultiplayer())
-                {
-                    PhotonNetwork.InstantiateRoomObject(ResourcesHelper.GetValuablePrefabPath(chosenValuable), valuableSpawnPosition, Random.rotationUniform);
-                }
-                else
-                {
-                    Instantiate(chosenValuable, valuableSpawnPosition, Random.rotationUniform);
-                }
+                PhotonNetwork.InstantiateRoomObject(ResourcesHelper.GetValuablePrefabPath(chosenValuable), valuableSpawnPosition, Random.rotationUniform);
+                photonView.RPC("SpawnValuableRPC", RpcTarget.All, valuableSpawnPosition);
             }
-            Instantiate(AssetManager.instance.prefabTeleportEffect, valuableSpawnPosition, Quaternion.identity).transform.localScale = Vector3.one * 2f;
+            else
+            {
+                Instantiate(chosenValuable, valuableSpawnPosition, Random.rotationUniform);
+                SpawnValuableRPC(valuableSpawnPosition);
+            }
+        }
+        [PunRPC]
+        public void SpawnValuableRPC(Vector3 spawnPos)
+        {
+            Instantiate(AssetManager.instance.prefabTeleportEffect, spawnPos, Quaternion.identity).transform.localScale = Vector3.one * 2f;
+            shenronVoice.Play(transform.position);
         }
         public void TryValuableReward()
         {
@@ -299,7 +343,8 @@ namespace REPOWildCardMod.Valuables
             else
             {
                 shenronVoice.Sounds = new AudioClip[] { spawnValuableClip };
-                shenronVoice.VolumeRandom = 0.2f;
+                shenronVoice.VolumeRandom = 0.1f;
+                shenronVoice.PitchRandom = 0.15f;
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
                     valuableType = Random.Range(0, 4);
@@ -330,7 +375,7 @@ namespace REPOWildCardMod.Valuables
                             }
                     }
                     valuableTimerInterval = 5f / randomAmounts[valuableType];
-                    valuablePool.RemoveAll(x => x.name == "Valuable Dragon Ball" || x.name == "Valuable Dummy Item Smith Note" || x.name == "Valuable Alpharad Dice");
+                    valuablePool.RemoveAll(x => x.name == "Valuable Dragon Ball" || x.name == "Valuable Dummy Item Smith Note");
                     chosenValuable = valuablePool[Random.Range(0, valuablePool.Count)];
                     valuableTimer = valuableTimerInterval;
                     log.LogDebug($"Dragon Ball Wish spawning {randomAmounts[valuableType]} {chosenValuable.name}s!");
@@ -375,7 +420,19 @@ namespace REPOWildCardMod.Valuables
             {
                 case "Health":
                     {
-                        for (int i = 0; i < 11; i++)
+                        if (WildCardMod.instance.oldSharedUpgradesPresent)
+                        {
+                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                            for (int i = 0; i < players.Count; i++)
+                            {
+                                for (int j = 0; j < 6; j++)
+                                {
+                                    PunManager.instance.UpgradePlayerHealth(SemiFunc.PlayerGetSteamID(players[i]));
+                                }
+                            }
+                            break;
+                        }
+                        for (int i = 0; i < 6; i++)
                         {
                             PunManager.instance.UpgradePlayerHealth(steamID);
                         }
@@ -383,7 +440,19 @@ namespace REPOWildCardMod.Valuables
                     }
                 case "Stamina":
                     {
-                        for (int i = 0; i < 11; i++)
+                        if (WildCardMod.instance.oldSharedUpgradesPresent)
+                        {
+                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                            for (int i = 0; i < players.Count; i++)
+                            {
+                                for (int j = 0; j < 6; j++)
+                                {
+                                    PunManager.instance.UpgradePlayerEnergy(SemiFunc.PlayerGetSteamID(players[i]));
+                                }
+                            }
+                            break;
+                        }
+                        for (int i = 0; i < 6; i++)
                         {
                             PunManager.instance.UpgradePlayerEnergy(steamID);
                         }
@@ -391,7 +460,19 @@ namespace REPOWildCardMod.Valuables
                     }
                 case "Launch":
                     {
-                        for (int i = 0; i < 11; i++)
+                        if (WildCardMod.instance.oldSharedUpgradesPresent)
+                        {
+                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                            for (int i = 0; i < players.Count; i++)
+                            {
+                                for (int j = 0; j < 6; j++)
+                                {
+                                    PunManager.instance.UpgradePlayerTumbleLaunch(SemiFunc.PlayerGetSteamID(players[i]));
+                                }
+                            }
+                            break;
+                        }
+                        for (int i = 0; i < 6; i++)
                         {
                             PunManager.instance.UpgradePlayerTumbleLaunch(steamID);
                         }
@@ -399,7 +480,19 @@ namespace REPOWildCardMod.Valuables
                     }
                 case "Speed":
                     {
-                        for (int i = 0; i < 11; i++)
+                        if (WildCardMod.instance.oldSharedUpgradesPresent)
+                        {
+                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                            for (int i = 0; i < players.Count; i++)
+                            {
+                                for (int j = 0; j < 6; j++)
+                                {
+                                    PunManager.instance.UpgradePlayerSprintSpeed(SemiFunc.PlayerGetSteamID(players[i]));
+                                }
+                            }
+                            break;
+                        }
+                        for (int i = 0; i < 6; i++)
                         {
                             PunManager.instance.UpgradePlayerSprintSpeed(steamID);
                         }
@@ -407,7 +500,19 @@ namespace REPOWildCardMod.Valuables
                     }
                 case "Strength":
                     {
-                        for (int i = 0; i < 11; i++)
+                        if (WildCardMod.instance.oldSharedUpgradesPresent)
+                        {
+                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                            for (int i = 0; i < players.Count; i++)
+                            {
+                                for (int j = 0; j < 6; j++)
+                                {
+                                    PunManager.instance.UpgradePlayerGrabStrength(SemiFunc.PlayerGetSteamID(players[i]));
+                                }
+                            }
+                            break;
+                        }
+                        for (int i = 0; i < 6; i++)
                         {
                             PunManager.instance.UpgradePlayerGrabStrength(steamID);
                         }
@@ -415,7 +520,19 @@ namespace REPOWildCardMod.Valuables
                     }
                 case "Range":
                     {
-                        for (int i = 0; i < 11; i++)
+                        if (WildCardMod.instance.oldSharedUpgradesPresent)
+                        {
+                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                            for (int i = 0; i < players.Count; i++)
+                            {
+                                for (int j = 0; j < 6; j++)
+                                {
+                                    PunManager.instance.UpgradePlayerGrabRange(SemiFunc.PlayerGetSteamID(players[i]));
+                                }
+                            }
+                            break;
+                        }
+                        for (int i = 0; i < 6; i++)
                         {
                             PunManager.instance.UpgradePlayerGrabRange(steamID);
                         }
@@ -423,7 +540,19 @@ namespace REPOWildCardMod.Valuables
                     }
                 case "Extra Jump":
                     {
-                        for (int i = 0; i < 11; i++)
+                        if (WildCardMod.instance.oldSharedUpgradesPresent)
+                        {
+                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                            for (int i = 0; i < players.Count; i++)
+                            {
+                                for (int j = 0; j < 6; j++)
+                                {
+                                    PunManager.instance.UpgradePlayerExtraJump(SemiFunc.PlayerGetSteamID(players[i]));
+                                }
+                            }
+                            break;
+                        }
+                        for (int i = 0; i < 6; i++)
                         {
                             PunManager.instance.UpgradePlayerExtraJump(steamID);
                         }
@@ -439,7 +568,17 @@ namespace REPOWildCardMod.Valuables
                         {
                             log.LogWarning($"Dragon Ball wish for upgrade: {upgrade} failed, retrying...");
                             wishableUpgrades.Remove(upgrade);
-                            TryUpgrade();
+                            if (wishableUpgrades.Count == 0)
+                            {
+                                wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(steamID).Keys.ToList();
+                                wishableUpgrades.Remove("Dragon Balls");
+                                wishableUpgrades.Remove("Chaos Emeralds");
+                                wishableUpgrades.Remove("Map Player Count");
+                                wishableUpgrades.Remove("Throw");
+                                wishableUpgrades.Remove("Head Charge");
+                                wishableUpgrades.Remove("Head Power");
+                            }
+                            MegaUpgrade(steamID, wishableUpgrades[Random.Range(0, wishableUpgrades.Count)]);
                         }
                         break;
                     }
@@ -454,7 +593,16 @@ namespace REPOWildCardMod.Valuables
                 return;
             }
             log.LogDebug($"Using MoreUpgrades to upgrade \"{upgrade}\"!");
-            MoreUpgrades.Classes.MoreUpgradesManager.instance.Upgrade(upgrade, steamID, 10);
+            if (WildCardMod.instance.oldSharedUpgradesPresent)
+            {
+                List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                for (int i = 0; i < players.Count; i++)
+                {
+                    MoreUpgrades.Classes.MoreUpgradesManager.instance.Upgrade(upgrade, SemiFunc.PlayerGetSteamID(players[i]), 5);
+                }
+                return;
+            }
+            MoreUpgrades.Classes.MoreUpgradesManager.instance.Upgrade(upgrade, steamID, 5);
         }
         public void OnDestroy()
         {

@@ -30,17 +30,19 @@ namespace REPOWildCardMod.Patches
                 __instance.rb.centerOfMass = centerOfMass.localPosition;
             }
         }
-        [HarmonyPatch(nameof(PhysGrabObject.DestroyPhysGrabObjectRPC))]
+        [HarmonyPatch(nameof(PhysGrabObject.DestroyPhysGrabObject))]
         [HarmonyPrefix]
-        public static bool ActivateValuableUpgrades(PhysGrabObject __instance)
+        public static bool PreRPCActivateValuableUpgrades(PhysGrabObject __instance)
         {
             if (RoundDirector.instance.dollarHaulList.Contains(__instance.gameObject) && __instance.transform.TryGetComponent<DragonBall>(out DragonBall dragonBall))
             {
-                dragonBall.AddPlayerBall();
+                dragonBall.MasterAddPlayerBall();
+                return false;
             }
-            if (RoundDirector.instance.dollarHaulList.Contains(__instance.gameObject) && __instance.transform.TryGetComponent<ChaosEmerald>(out ChaosEmerald chaosEmerald))
+            else if (RoundDirector.instance.dollarHaulList.Contains(__instance.gameObject) && __instance.transform.TryGetComponent<ChaosEmerald>(out ChaosEmerald chaosEmerald))
             {
-                chaosEmerald.AddPlayerEmerald();
+                chaosEmerald.MasterAddPlayerEmerald();
+                return false;
             }
             return true;
         }
