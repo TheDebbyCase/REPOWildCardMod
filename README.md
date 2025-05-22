@@ -79,7 +79,7 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	Original designs by [Akira Toriyama](https://en.wikipedia.org/wiki/Akira_Toriyama)  
 	Collect all 7!
 
-	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/SleepyheadPreview.png)
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/DragonBallPreview.png)
 	
 	</details>
 

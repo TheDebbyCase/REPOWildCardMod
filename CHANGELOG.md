@@ -1,3 +1,7 @@
+## 0.17.2
+- Attempted to make Smith Note tutorial guaranteed to play
+- Fixed README image for Dragon Balls showing Sleepyhead again
+
 ## 0.17.1
 - Fixed Dragon Ball Wish additional effect not working in multiplayer
 - Nerfed the amount of upgrades each player gets from the Dragon Ball Wish
