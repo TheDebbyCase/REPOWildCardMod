@@ -98,7 +98,10 @@ namespace REPOWildCardMod.Valuables
         }
         public void Update()
         {
-            shenronApproach.PlayLoop(StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][SemiFunc.PlayerGetSteamID(masterPlayer)] >= 6 && physGrabObject.grabbed, 2f, 0.5f);
+            if (masterPlayer != null)
+            {
+                shenronApproach.PlayLoop(StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][SemiFunc.PlayerGetSteamID(masterPlayer)] >= 6 && physGrabObject.grabbed, 2f, 0.5f);
+            }
         }
         [PunRPC]
         public void AllAddPlayerBallRPC()
@@ -171,8 +174,16 @@ namespace REPOWildCardMod.Valuables
             }
             shenronWish.Source = newAudio.GetComponent<AudioSource>();
             shenronVoice.Source = newNewAudio.GetComponent<AudioSource>();
-            newAudio.transform.parent = PlayerController.instance.transform;
-            newNewAudio.transform.parent = PlayerController.instance.transform;
+            if (SemiFunc.PlayerAvatarLocal().spectating)
+            {
+                newAudio.transform.parent = SpectateCamera.instance.transform;
+                newNewAudio.transform.parent = SpectateCamera.instance.transform;
+            }
+            else
+            {
+                newAudio.transform.parent = PlayerController.instance.transform;
+                newNewAudio.transform.parent = PlayerController.instance.transform;
+            }
             newAudio.transform.localPosition = Vector3.zero;
             newNewAudio.transform.localPosition = Vector3.zero;
             ShenronHUD shenronHUD = newAudio.AddComponent<ShenronHUD>();
@@ -265,7 +276,9 @@ namespace REPOWildCardMod.Valuables
                 List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                 for (int i = 0; i < players.Count; i++)
                 {
-                    players[i].playerHealth.bodyMaterial.SetColor("_EmissionColor", Color.Lerp(Color.black, emissionColor, Mathf.Clamp01((Mathf.Pow(0.5f - ((timer - 2.5f) / 12.5f), 2f) * -4f) + 1f)));
+                    float lerp = Mathf.Clamp01((Mathf.Pow(0.5f - ((timer - 2.5f) / 12.5f), 2f) * -4f) + 1f);
+                    players[i].playerHealth.bodyMaterial.SetColor("_EmissionColor", Color.Lerp(Color.black, emissionColor, lerp));
+                    players[i].playerDeathHead.headRenderer.material.SetColor("_EmissionColor", Color.Lerp(Color.black, emissionColor, lerp));
                 }
             }
             if (valuableTimer > 0f && spawnTimes < randomAmounts[valuableType])
@@ -612,6 +625,7 @@ namespace REPOWildCardMod.Valuables
                 if (players[i].playerHealth.bodyMaterial.GetColor("_EmissionColor") != Color.black)
                 {
                     players[i].playerHealth.bodyMaterial.SetColor("_EmissionColor", Color.black);
+                    players[i].playerDeathHead.headRenderer.material.SetColor("_EmissionColor", Color.black);
                 }
             }
         }

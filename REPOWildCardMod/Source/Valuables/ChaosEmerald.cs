@@ -1,6 +1,7 @@
 ﻿using Photon.Pun;
 using System.Collections.Generic;
 using System.Linq;
+using Unity.VisualScripting;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
@@ -126,12 +127,46 @@ namespace REPOWildCardMod.Valuables
         }
         public void SuperSonic()
         {
-            GameObject newObject = Instantiate(hudAudio);
+            SuperSonic existingSonic = PlayerController.instance.transform.GetComponentInChildren<SuperSonic>();
+            if (existingSonic != null)
+            {
+                if (SemiFunc.IsMultiplayer())
+                {
+                    existingSonic.photonView.RPC("DoubleTimerRPC", RpcTarget.All);
+                }
+                else
+                {
+                    existingSonic.DoubleTimerRPC();
+                }
+                return;
+            }
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC("SuperSonicRPC", RpcTarget.All, PhotonNetwork.InstantiateRoomObject("Misc/Wildcard HUD Audio", Vector3.zero, Quaternion.identity).GetComponent<PhotonView>().ViewID);
+            }
+            else
+            {
+                SuperSonicRPC(-1, Instantiate(hudAudio));
+            }
+        }
+        [PunRPC]
+        public void SuperSonicRPC(int id = -1, GameObject newObject = null)
+        {
+            if (SemiFunc.IsMultiplayer())
+            {
+                newObject = PhotonView.Find(id).gameObject;
+                if (SemiFunc.PlayerAvatarLocal().deadSet)
+                {
+                    Destroy(newObject);
+                    return;
+                }
+            }
             sonicLoop.Source = newObject.GetComponent<AudioSource>();
             newObject.transform.parent = PlayerController.instance.transform;
             newObject.transform.localPosition = Vector3.zero;
             SuperSonic superSonic = newObject.AddComponent<SuperSonic>();
             superSonic.sonicLoop = new Sound { Source = sonicLoop.Source, Sounds = sonicLoop.Sounds, Type = sonicLoop.Type, Volume = sonicLoop.Volume, VolumeRandom = sonicLoop.VolumeRandom, Pitch = sonicLoop.Pitch, PitchRandom = sonicLoop.PitchRandom, SpatialBlend = sonicLoop.SpatialBlend, ReverbMix = sonicLoop.ReverbMix, Doppler = sonicLoop.Doppler };
+            superSonic.photonView = newObject.GetComponent<PhotonView>();
         }
         [PunRPC]
         public void PropogateEmeraldsRPC(int emeralds, string masterID)
@@ -166,14 +201,20 @@ namespace REPOWildCardMod.Valuables
     }
     public class SuperSonic : MonoBehaviour
     {
+        public PhotonView photonView;
         public float overrideTimer;
         public Sound sonicLoop;
         public PlayerAvatar[] playersList;
-        public void Start()
+        public void Awake()
         {
             overrideTimer = 120f;
             playersList = SemiFunc.PlayerGetAll().ToArray();
             sonicLoop.LowPassIgnoreColliders.Add(PlayerController.instance.col);
+        }
+        [PunRPC]
+        public void DoubleTimerRPC()
+        {
+            overrideTimer *= 2f;
         }
         public void Update()
         {

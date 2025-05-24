@@ -1,6 +1,5 @@
 ﻿using HarmonyLib;
 using REPOWildCardMod.Extensions;
-using REPOWildCardMod.Items;
 namespace REPOWildCardMod.Patches
 {
     [HarmonyPatch(typeof(EnemyOnScreen))]

@@ -85,8 +85,7 @@ namespace REPOWildCardMod.Items
                 else
                 {
                     log.LogDebug($"Breaking Worm Jar");
-                    wormData.worm.enabled = true;
-                    wormData.worm.WakeUp(lastPlayerGrabbed.photonView.ViewID, SemiFunc.EnemyGetIndex(enemy));
+                    wormData.worm.WakeUp(lastPlayerGrabbed.photonView.ViewID);
                 }
             }
         }
@@ -104,6 +103,7 @@ namespace REPOWildCardMod.Items
         public float investigateTimer;
         public bool lowLife = false;
         public float spreadTimer = 1f;
+        public bool musicBegin = false;
         public void Awake()
         {
             musicLoop.LoopClip = musicLoop.Sounds[0];
@@ -116,7 +116,8 @@ namespace REPOWildCardMod.Items
         {
             if (SemiFunc.IsMultiplayer())
             {
-                photonView.RPC("InitializeRPC", RpcTarget.All, enemyIndex);
+                int enemyViewID = SemiFunc.EnemyGetFromIndex(enemyIndex).PhotonView.ViewID;
+                photonView.RPC("InitializeRPC", RpcTarget.All, enemyViewID);
             }
             else
             {
@@ -126,7 +127,14 @@ namespace REPOWildCardMod.Items
         [PunRPC]
         public void InitializeRPC(int enemyIndex)
         {
-            enemy = SemiFunc.EnemyGetFromIndex(enemyIndex);
+            if (SemiFunc.IsMultiplayer())
+            {
+                enemy = PhotonView.Find(enemyIndex).GetComponent<Enemy>();
+            }
+            else
+            {
+                enemy = SemiFunc.EnemyGetFromIndex(enemyIndex);
+            }
             slowChaseRef = enemy.GetComponent<EnemyStateChaseSlow>();
             transform.parent = utils.FindEnemyTransform(enemy.EnemyParent, "Head");
             Vector3 overrideLocalPos = Vector3.zero;
@@ -256,25 +264,23 @@ namespace REPOWildCardMod.Items
             transform.localPosition = overrideLocalPos;
             transform.localRotation = Quaternion.Euler(overrideLocalRot);
             transform.localScale = overrideLocalScale;
-            enabled = false;
         }
-        public void WakeUp(int playerID, int enemyIndex)
+        public void WakeUp(int playerID)
         {
             lifetime = 90f;
             if (SemiFunc.IsMultiplayer())
             {
-                photonView.RPC("WakeUpRPC", RpcTarget.All, playerID, enemyIndex);
+                photonView.RPC("WakeUpRPC", RpcTarget.All, playerID);
             }
             else
             {
-                WakeUpRPC(playerID, enemyIndex);
+                WakeUpRPC(playerID);
             }
         }
         [PunRPC]
-        public void WakeUpRPC(int playerID, int enemyIndex)
+        public void WakeUpRPC(int playerID)
         {
             gameObject.SetActive(true);
-            enemy = SemiFunc.EnemyGetFromIndex(enemyIndex);
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 enemy.EnemyParent.WormData().infected = true;
@@ -311,17 +317,21 @@ namespace REPOWildCardMod.Items
         }
         public void Update()
         {
+            if (musicBegin)
+            {
+                musicLoop.PlayLoop(!lowLife, 2f, 1f);
+            }
             if (SemiFunc.IsMasterClientOrSingleplayer() && gameObject.activeSelf)
             {
                 if (lifetime > 0f)
                 {
                     if (lifetime < 89f)
                     {
-                        musicLoop.PlayLoop(!lowLife, 2f, 1f);
+                        BeginMusic();
                     }
-                    if (lifetime < 5f != lowLife)
+                    if (lifetime < 5f && !lowLife)
                     {
-                        LowLife(lifetime < 5f);
+                        LowLife(true);
                     }
                     if (enemy.EnemyParent.SpawnedTimer > 0f)
                     {
@@ -389,6 +399,22 @@ namespace REPOWildCardMod.Items
                 }
             }
         }
+        public void BeginMusic()
+        {
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC("BeginMusicRPC", RpcTarget.All);
+            }
+            else
+            {
+                BeginMusicRPC();
+            }
+        }
+        [PunRPC]
+        public void BeginMusicRPC()
+        {
+            musicBegin = true;
+        }
         public void LowLife(bool low)
         {
             if (SemiFunc.IsMultiplayer())
@@ -415,8 +441,7 @@ namespace REPOWildCardMod.Items
                 {
                     WormAttach newWorm = wormData.worm;
                     log.LogDebug($"Worm spreading from a \"{enemy.EnemyParent.enemyName}\" to a \"{newEnemy.EnemyParent.enemyName}\"");
-                    newWorm.enabled = true;
-                    newWorm.WakeUp(motherPlayer.photonView.ViewID, SemiFunc.EnemyGetIndex(newEnemy));
+                    newWorm.WakeUp(motherPlayer.photonView.ViewID);
                 }
             }
         }
@@ -464,7 +489,6 @@ namespace REPOWildCardMod.Items
             log.LogDebug($"Killing Worm");
             enemy.EnemyParent.WormData().infected = false;
             gameObject.SetActive(false);
-            enabled = false;
         }
     }
     [Serializable]
