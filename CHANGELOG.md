@@ -1,3 +1,6 @@
+## 0.17.4
+- Added some checks to avoid error spams regarding audio loops
+
 ## 0.17.3
 - Fixed an issue where non-host players were unable to see the worm infection when the worm jar is used
 - Attempted to fix an issue where the dragon ball wish would not work properly if the host player is dead
