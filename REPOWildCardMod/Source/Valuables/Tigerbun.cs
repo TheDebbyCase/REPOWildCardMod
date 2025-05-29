@@ -16,6 +16,10 @@ namespace REPOWildCardMod.Valuables
         public Animator animator;
         public void Update()
         {
+            if (!LevelGenerator.Instance.Generated)
+            {
+                return;
+            }
             bool angry = physGrabObject.grabbed && valuableObject.dollarValueCurrent <= valuableObject.dollarValueOriginal / 2f;
             ravenousLoop.PlayLoop(angry, 2f, 1f);
             if (meshRenderer.materials[1].mainTexture != faceTextures[utils.BoolToInt(angry)])

@@ -41,6 +41,10 @@ namespace REPOWildCardMod.Valuables
         }
         public void Update()
         {
+            if (!LevelGenerator.Instance.Generated)
+            {
+                return;
+            }
             if (physGrabObject.grabbed)
             {
                 if (SemiFunc.IsMasterClientOrSingleplayer())
@@ -91,6 +95,10 @@ namespace REPOWildCardMod.Valuables
         }
         public void FixedUpdate()
         {
+            if (!LevelGenerator.Instance.Generated)
+            {
+                return;
+            }
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 if (physGrabObject.grabbed || dropTimer > 0f)

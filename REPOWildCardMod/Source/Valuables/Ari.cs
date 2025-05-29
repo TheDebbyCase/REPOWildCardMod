@@ -23,6 +23,10 @@ namespace REPOWildCardMod.Valuables
         }
         public void FixedUpdate()
         {
+            if (!LevelGenerator.Instance.Generated)
+            {
+                return;
+            }
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
@@ -51,6 +55,10 @@ namespace REPOWildCardMod.Valuables
         }
         public void Update()
         {
+            if (!LevelGenerator.Instance.Generated)
+            {
+                return;
+            }
             flapLoop.PlayLoop(animator.GetBool("Grabbed"), 1f, 1f);
             if (physGrabObject.grabbed || dropped)
             {

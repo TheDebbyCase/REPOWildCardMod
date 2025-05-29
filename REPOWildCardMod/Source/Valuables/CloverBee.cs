@@ -52,6 +52,10 @@ namespace REPOWildCardMod.Valuables
         }
         public void Update()
         {
+            if (!LevelGenerator.Instance.Generated)
+            {
+                return;
+            }
             bool angry = angerTimer > 0f;
             angryBees.PlayLoop(angry, 2f, 1f);
             happyBees.PlayLoop(!angry, 2f, 1f);

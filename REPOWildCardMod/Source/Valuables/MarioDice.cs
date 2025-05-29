@@ -25,6 +25,10 @@ namespace REPOWildCardMod.Valuables
         }
         public void FixedUpdate()
         {
+            if (!LevelGenerator.Instance.Generated)
+            {
+                return;
+            }
             if (SemiFunc.IsMasterClientOrSingleplayer() && diceTimer > 0f)
             {
                 if (Physics.Raycast(physGrabObject.centerPoint, Vector3.down, out RaycastHit hit, 0.125f, layerMask))
@@ -55,6 +59,10 @@ namespace REPOWildCardMod.Valuables
         }
         public void Update()
         {
+            if (!LevelGenerator.Instance.Generated)
+            {
+                return;
+            }
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 physGrabObject.OverrideIndestructible();

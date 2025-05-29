@@ -49,6 +49,10 @@ namespace REPOWildCardMod.Valuables
         }
         public void Update()
         {
+            if (!LevelGenerator.Instance.Generated)
+            {
+                return;
+            }
             if (SemiFunc.IsMultiplayer() && physGrabObject.grabbedLocal && PlayerVoiceChat.instance.isTalking && mooTrigger)
             {
                 int mooNum = new System.Random().Next(-3, 4);

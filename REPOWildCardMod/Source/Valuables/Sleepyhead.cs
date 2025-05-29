@@ -30,6 +30,10 @@ namespace REPOWildCardMod.Valuables
         public override void Update()
         {
             base.Update();
+            if (!LevelGenerator.Instance.Generated)
+            {
+                return;
+            }
             if (physGrabObject.grabbed && !trapTriggered && pickingUp)
             {
                 TrapStart();
