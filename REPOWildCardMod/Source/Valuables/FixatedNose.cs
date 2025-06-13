@@ -48,14 +48,30 @@ namespace REPOWildCardMod.Valuables
         }
         public void NoseExplode()
         {
-            if (Vector3.Distance(transform.position, PlayerAvatar.instance.clientPosition) < 10f && !physGrabObject.grabbedLocal)
+            if (Vector3.Distance(transform.position, PlayerAvatar.instance.transform.position) < 10f)
             {
                 CameraGlitch.Instance.PlayShort();
             }
-            enemyInvestigate = true;
-            enemyInvestigateRange = 10f;
             log.LogDebug($"{gameObject.name} is exploding!");
-            if (Random.value < 0.9f)
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                enemyInvestigate = true;
+                enemyInvestigateRange = 10f;
+                float random = Random.value;
+                if (SemiFunc.IsMultiplayer())
+                {
+                    photonView.RPC("ExplosionRPC", RpcTarget.All, random);
+                }
+                else
+                {
+                    ExplosionRPC(random);
+                }
+            }
+        }
+        [PunRPC]
+        public void ExplosionRPC(float random)
+        {
+            if (random < 0.9f)
             {
                 explodeScript.Spawn(transform.position, 0.245f, 5, 5, 2.5f);
             }

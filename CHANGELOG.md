@@ -1,3 +1,6 @@
+## 0.18.1
+- Fixed an issue where Fixated Nose would sometimes explode in different sizes for different clients
+
 ## 0.18.0
 - Added Oniimely's Hellgato!
 - Adjusted Smith Halo and Clover Bee float mechanics to avoid physics spasms
