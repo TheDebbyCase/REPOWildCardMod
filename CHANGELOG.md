@@ -1,3 +1,7 @@
+## 0.18.0
+- Added Oniimely's Hellgato!
+- Adjusted Smith Halo and Clover Bee float mechanics to avoid physics spasms
+
 ## 0.17.4
 - Added some checks to avoid error spams regarding audio loops
 

@@ -153,6 +153,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Hellgato</summary>
+	
+	Original design by [Oniimely](https://oniimely.carrd.co/)  
+	You win some you lose some!
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/HellgatoPreview.png)
+	
+	</details>
+
 - Shop Items
 	<details>
 	<summary>Smith Halo</summary>

@@ -40,7 +40,7 @@ namespace REPOWildCardMod.Valuables
                         physGrabObject.rb.AddForce((Random.insideUnitSphere / 2f) + (transform.up / 1.3f), ForceMode.Impulse);
                     }
                 }
-                else if (Physics.Raycast(physGrabObject.rb.worldCenterOfMass, -Vector3.up, out RaycastHit hit, floatHeight, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
+                else if (Physics.Raycast(physGrabObject.rb.worldCenterOfMass, -Vector3.up, out RaycastHit hit, floatHeight, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore) && !physGrabObject.colliders.Contains(hit.collider.transform))
                 {
                     physGrabObject.rb.AddForce(transform.up * (floatPower / hit.distance) * (1.1f - (Quaternion.Angle(Quaternion.identity, rotator) / 360f)));
                 }

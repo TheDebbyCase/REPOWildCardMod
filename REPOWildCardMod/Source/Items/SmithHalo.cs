@@ -27,7 +27,7 @@ namespace REPOWildCardMod.Items
             {
                 Quaternion rotator = Quaternion.FromToRotation(transform.up, Vector3.up);
                 physGrabObject.rb.AddTorque(new Vector3(rotator.x, rotator.y, rotator.z) * balanceForce);
-                if (Physics.Raycast(physGrabObject.rb.worldCenterOfMass, -Vector3.up, out RaycastHit hit, floatHeight, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore))
+                if (Physics.Raycast(physGrabObject.rb.worldCenterOfMass, -Vector3.up, out RaycastHit hit, floatHeight, LayerMask.GetMask("Default", "PhysGrabObject", "PhysGrabObjectCart", "PhysGrabObjectHinge", "Enemy", "Player"), QueryTriggerInteraction.Ignore) && !physGrabObject.colliders.Contains(hit.collider.transform))
                 {
                     physGrabObject.rb.AddForce(transform.up * (floatPower / hit.distance) * (1.1f - (Quaternion.Angle(Quaternion.identity, rotator) / 360f)));
                 }
