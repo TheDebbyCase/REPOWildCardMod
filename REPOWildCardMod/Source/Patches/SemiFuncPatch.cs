@@ -7,11 +7,15 @@ namespace REPOWildCardMod.Patches
     {
         [HarmonyPatch(nameof(SemiFunc.OnSceneSwitch))]
         [HarmonyPostfix]
-        public static void ClearInfectedList()
+        public static void ClearExtensionLists()
         {
             if (EnemyParentExtension.wormDataDictionary.Count > 0)
             {
                 EnemyParentExtension.wormDataDictionary.Clear();
+            }
+            if (PhysGrabObjectExtension.physOffsetDictionary.Count > 0)
+            {
+                PhysGrabObjectExtension.physOffsetDictionary.Clear();
             }
         }
     }

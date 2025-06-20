@@ -21,7 +21,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.18.1";
+        internal const string modVersion = "0.19.0";
         readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
@@ -33,6 +33,7 @@ namespace REPOWildCardMod
         public List<GameObject> valList = new List<GameObject>();
         public List<Item> itemList = new List<Item>();
         public List<Reskin> reskinList = new List<Reskin>();
+        public List<AudioReplacer> audioReplacerList = new List<AudioReplacer>();
         public List<GameObject> miscPrefabsList = new List<GameObject>();
         public static List<NetworkedEvent> networkedEvents = new List<NetworkedEvent>();
         public void Awake()
@@ -106,6 +107,11 @@ namespace REPOWildCardMod
                             reskinList.Add(bundle.LoadAsset<Reskin>(allAssetPaths[i]));
                             break;
                         }
+                    case "assets/my creations/resources/audio replacers":
+                        {
+                            audioReplacerList.Add(bundle.LoadAsset<AudioReplacer>(allAssetPaths[i]));
+                            break;
+                        }
                     case "assets/my creations/resources/misc":
                         {
                             UnityEngine.Object obj = bundle.LoadAsset(allAssetPaths[i]);
@@ -134,10 +140,11 @@ namespace REPOWildCardMod
         }
         public void HandleContent()
         {
-            ModConfig = new WildCardConfig(base.Config, valList, itemList, reskinList);
+            ModConfig = new WildCardConfig(base.Config, valList, itemList, reskinList, audioReplacerList);
             HandleValuables();
             HandleItems();
             HandleReskins();
+            HandleAudioReplacers();
             HandleMisc();
             HandleEvents();
         }
@@ -206,6 +213,25 @@ namespace REPOWildCardMod
                 }
             }
         }
+        public void HandleAudioReplacers()
+        {
+            for (int i = 0; i < audioReplacerList.Count; i++)
+            {
+                if (!ModConfig.isAudioReplacerEnabled[i].Value || ModConfig.audioReplaceChance[i].Value <= 0f)
+                {
+                    log.LogInfo($"{audioReplacerList[i].identifier} audio replacer was disabled!");
+                    return;
+                }
+                if (audioReplacerList[i].animClass == null)
+                {
+                    audioReplacerList[i].animClass = Type.GetType(audioReplacerList[i].identifier);
+                    if (audioReplacerList[i].animClass == null)
+                    {
+                        log.LogWarning($"{audioReplacerList[i].identifier} audio replacer will not work!");
+                    }
+                }
+            }
+        }
         public void HandleMisc()
         {
             for (int i = 0; i < miscPrefabsList.Count; i++)
@@ -218,6 +244,7 @@ namespace REPOWildCardMod
         public void HandleEvents()
         {
             networkedEvents.Add(new NetworkedEvent("Set Enemy Skin", WildCardUtils.SetEnemySkin));
+            networkedEvents.Add(new NetworkedEvent("Set Enemy Audio", WildCardUtils.SetEnemyAudio));
         }
         public void DoPatches()
         {
@@ -227,13 +254,14 @@ namespace REPOWildCardMod
             harmony.PatchAll(typeof(PhysGrabObjectPatches));
             harmony.PatchAll(typeof(PlayerAvatarPatches));
             harmony.PatchAll(typeof(StatsManagerPatches));
+            harmony.PatchAll(typeof(WorldSpaceUIValuePatches));
             harmony.PatchAll(typeof(WorldSpaceUIValueLostPatches));
             harmony.PatchAll(typeof(EnemyHunterPatches));
             harmony.PatchAll(typeof(SemiFuncPatches));
             harmony.PatchAll(typeof(EnemyOnScreenPatches));
             harmony.PatchAll(typeof(EnemyRunnerPatches));
             harmony.PatchAll(typeof(EnemyStateChasePatches));
-            if (ModConfig.harmonyPatches.Value)
+            if (ModConfig.harmonyPatches.Value && !ModConfig.isValEnabled.Find((x) => x.Definition.Key.Contains("Valuable Giwi Worm")).Value)
             {
                 harmony.PatchAll(typeof(PhysGrabberRayCheckPatch));
             }

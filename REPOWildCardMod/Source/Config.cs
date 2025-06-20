@@ -14,9 +14,12 @@ namespace REPOWildCardMod.Config
         internal readonly List<ConfigEntry<bool>> isReskinEnabled = new List<ConfigEntry<bool>>();
         internal readonly List<ConfigEntry<float>> reskinChance = new List<ConfigEntry<float>>();
         internal readonly List<List<ConfigEntry<float>>> reskinVariantChance = new List<List<ConfigEntry<float>>>();
+        internal readonly List<ConfigEntry<bool>> isAudioReplacerEnabled = new List<ConfigEntry<bool>>();
+        internal readonly List<ConfigEntry<float>> audioReplaceChance = new List<ConfigEntry<float>>();
+        internal readonly List<List<ConfigEntry<float>>> audioReplacerVariantChance = new List<List<ConfigEntry<float>>>();
         internal readonly ConfigEntry<bool> harmonyPatches;
         internal readonly ConfigEntry<bool> noteDestroy;
-        internal WildCardConfig(ConfigFile cfg, List<GameObject> valList, List<Item> itemList, List<Reskin> reskinList)
+        internal WildCardConfig(ConfigFile cfg, List<GameObject> valList, List<Item> itemList, List<Reskin> reskinList, List<AudioReplacer> audioReplacerList)
         {
             cfg.SaveOnConfigSet = false;
             for (int i = 0; i < valList.Count; i++)
@@ -49,6 +52,27 @@ namespace REPOWildCardMod.Config
                 else
                 {
                     log.LogError($"Reskin at index {i} was not valid!");
+                }
+            }
+            for (int i = 0; i < audioReplacerList.Count; i++)
+            {
+                if (audioReplacerList[i].identifier != "")
+                {
+                    isAudioReplacerEnabled.Add(cfg.Bind("Audio Replacers", $"Enable {audioReplacerList[i].identifier} audio replacer?", true));
+                    audioReplaceChance.Add(cfg.Bind("Audio Replacers", $"Chance for {audioReplacerList[i].identifier} audio replacer.", audioReplacerList[i].replaceChance.value, "Decimal between 0 and 1"));
+                    audioReplacerVariantChance.Add(new List<ConfigEntry<float>>());
+                    if (audioReplacerList[i].variantChances.Length > 1)
+                    {
+                        for (int j = 0; j < audioReplacerList[i].variantChances.Length; j++)
+                        {
+                            audioReplacerVariantChance[i].Add(cfg.Bind("Audio Replacers", $"Chance for variant {j + 1} of {audioReplacerList[i].identifier} audio replacer", audioReplacerList[i].variantChances[j].value, "Decimal between 0 and 1"));
+                        }
+                    }
+                    log.LogDebug($"Added configs for {audioReplacerList[i].identifier} audio replacer, had {audioReplacerVariantChance[i].Count} variants");
+                }
+                else
+                {
+                    log.LogError($"Audio Replacer at index {i} was not valid!");
                 }
             }
             harmonyPatches = cfg.Bind("Advanced", "Enable Giwi Harmony Patches?", true, "Only change this if you know what you're doing. Setting this to false will make Giwi Worm work unexpectedly");

@@ -1,5 +1,6 @@
 ﻿using UnityEditor;
 using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
@@ -11,6 +12,41 @@ namespace REPOWildCardMod.Utils
     public class WildCardUtils
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        public static void SetEnemyAudio(EventData eventData)
+        {
+            object[] data = (object[])eventData.CustomData;
+            int enemyIndex = (int)data[0];
+            AudioReplacer newAudio = WildCardMod.instance.audioReplacerList[(int)data[1]];
+            int variantIndex = (int)data[2];
+            EnemyParent enemyParent = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent;
+            Component animComponent = enemyParent.GetComponentInChildren(newAudio.animClass);
+            List<FieldInfo> fieldInfos = newAudio.animClass.GetFields().ToList();
+            List<Sound> toReplace = new List<Sound>();
+            for (int i = 0; i < fieldInfos.Count; i++)
+            {
+                if (fieldInfos[i].FieldType == typeof(Sound))
+                {
+                    toReplace.Add(fieldInfos[i].GetValue(animComponent) as Sound);
+                    continue;
+                }
+                fieldInfos.RemoveAt(i);
+            }
+            for (int i = 0; i < toReplace.Count; i++)
+            {
+                NewSounds newSound = newAudio.replacers[variantIndex].sounds.Find((x) => x.fieldName == fieldInfos[i].Name);
+                if (newSound == null)
+                {
+                    continue;
+                }
+                AudioClip[] newClips = newSound.newClips;
+                toReplace[i].Sounds = newClips;
+                if (newSound.overrideStartTime)
+                {
+                    toReplace[i].StartTimeOverride = newSound.overrideTime;
+                }
+                WildCardMod.instance.log.LogDebug($"{enemyParent.enemyName}: \"{newSound.fieldName}\" successfully replaced!");
+            }
+        }
         public static void SetEnemySkin(EventData eventData)
         {
             object[] data = (object[])eventData.CustomData;
@@ -18,52 +54,77 @@ namespace REPOWildCardMod.Utils
             Reskin newSkin = WildCardMod.instance.reskinList[(int)data[1]];
             int variantIndex = (int)data[2];
             string enemyName = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent.enemyName;
-            bool success = true;
-            switch (enemyName)
+            MeshFilter[] filters = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent.transform.GetComponentsInChildren<MeshFilter>(true);
+            List<Transform> transforms = new List<Transform>();
+            for (int i = 0; i < filters.Length; i++)
             {
-                case "Rugrat":
+                transforms.Add(filters[i].transform);
+            }
+            for (int i = 0; i < newSkin.replacers[variantIndex].bodyParts.Count; i++)
+            {
+                List<Transform> replacedTransforms = new List<Transform>();
+                for (int j = 0; j < transforms.Count; j++)
+                {
+                    if (replacedTransforms.Contains(transforms[j]))
                     {
-                        MeshFilter[] filters = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent.transform.GetComponentsInChildren<MeshFilter>(true);
-                        List<Transform> transforms = new List<Transform>();
-                        for (int i = 0; i < filters.Length; i++)
-                        {
-                            transforms.Add(filters[i].transform);
-                        }
-                        for (int i = 0; i < newSkin.replacers[variantIndex].bodyParts.Count; i++)
-                        {
-                            List<Transform> replacedTransforms = new List<Transform>();
-                            for (int j = 0; j < transforms.Count; j++)
-                            {
-                                if (replacedTransforms.Contains(transforms[j]))
-                                {
-                                    continue;
-                                }
-                                if (transforms[j].name == newSkin.replacers[variantIndex].bodyParts[i].transformName)
-                                {
-                                    transforms[j].GetComponent<MeshFilter>().mesh = newSkin.replacers[variantIndex].bodyParts[i].newMesh;
-                                    transforms[j].GetComponent<MeshRenderer>().materials = newSkin.replacers[variantIndex].bodyParts[i].newMaterials.ToArray();
-                                    replacedTransforms.Add(transforms[j]);
-                                    WildCardMod.instance.log.LogDebug($"{enemyName}: {transforms[j].name} successfully replaced!");
-                                    break;
-                                }
-                            }
-                        }
+                        continue;
+                    }
+                    if (transforms[j].name == newSkin.replacers[variantIndex].bodyParts[i].transformName)
+                    {
+                        transforms[j].GetComponent<MeshFilter>().mesh = newSkin.replacers[variantIndex].bodyParts[i].newMesh;
+                        transforms[j].GetComponent<MeshRenderer>().materials = newSkin.replacers[variantIndex].bodyParts[i].newMaterials.ToArray();
+                        replacedTransforms.Add(transforms[j]);
+                        WildCardMod.instance.log.LogDebug($"{enemyName}: \"{transforms[j].name}\" successfully replaced!");
                         break;
                     }
-                default:
-                    {
-                        success = false;
-                        break;
-                    }
+                }
             }
-            if (success)
-            {
-                WildCardMod.instance.log.LogInfo($"Successfully reskinned {enemyName}!");
-            }
-            else
-            {
-                WildCardMod.instance.log.LogWarning($"Attempted to reskin {enemyName} but something went wrong!");
-            }
+            //bool success = true;
+            //switch (enemyName)
+            //{
+            //    case "Rugrat":
+            //        {
+            //            MeshFilter[] filters = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent.transform.GetComponentsInChildren<MeshFilter>(true);
+            //            List<Transform> transforms = new List<Transform>();
+            //            for (int i = 0; i < filters.Length; i++)
+            //            {
+            //                transforms.Add(filters[i].transform);
+            //            }
+            //            for (int i = 0; i < newSkin.replacers[variantIndex].bodyParts.Count; i++)
+            //            {
+            //                List<Transform> replacedTransforms = new List<Transform>();
+            //                for (int j = 0; j < transforms.Count; j++)
+            //                {
+            //                    if (replacedTransforms.Contains(transforms[j]))
+            //                    {
+            //                        continue;
+            //                    }
+            //                    if (transforms[j].name == newSkin.replacers[variantIndex].bodyParts[i].transformName)
+            //                    {
+            //                        transforms[j].GetComponent<MeshFilter>().mesh = newSkin.replacers[variantIndex].bodyParts[i].newMesh;
+            //                        transforms[j].GetComponent<MeshRenderer>().materials = newSkin.replacers[variantIndex].bodyParts[i].newMaterials.ToArray();
+            //                        replacedTransforms.Add(transforms[j]);
+            //                        WildCardMod.instance.log.LogDebug($"{enemyName}: {transforms[j].name} successfully replaced!");
+            //                        break;
+            //                    }
+            //                }
+            //            }
+            //            break;
+            //        }
+            //    default:
+            //        {
+            //            success = false;
+            //            break;
+            //        }
+            //}
+            //if (success)
+            //{
+            //    WildCardMod.instance.log.LogInfo($"Successfully reskinned {enemyName}!");
+            //}
+            //else
+            //{
+            //    WildCardMod.instance.log.LogWarning($"Attempted to reskin {enemyName} but something went wrong!");
+            //}
         }
         public Transform FindEnemyTransform(EnemyParent targetEnemy, string type)
         {
@@ -527,6 +588,89 @@ namespace REPOWildCardMod.Utils
                 if (replacers.Count < i + 1)
                 {
                     replacers.Add(new Replacer());
+                }
+                else if (replacers.Count > variantChances.Length)
+                {
+                    replacers.RemoveAt(replacers.Count - 1);
+                }
+            }
+            float variantChancesTotal = 0f;
+            for (int i = 0; i < variantChances.Length; i++)
+            {
+                variantChancesTotal += variantChances[i].value;
+            }
+            if (variantChancesTotal > 1f)
+            {
+                for (int i = 0; i < variantChances.Length; i++)
+                {
+                    variantChances[i].value -= (float)Math.Round((decimal)((variantChancesTotal - 1f) / variantChances.Length), 2);
+                    if (variantChances[i].value < 0.001f)
+                    {
+                        variantChances[i].value = 0f;
+                    }
+                }
+            }
+            else if (variantChancesTotal < 1f)
+            {
+                for (int i = 0; i < variantChances.Length; i++)
+                {
+
+                    variantChances[i].value += (float)Math.Round((decimal)((1f - variantChancesTotal) / variantChances.Length), 2);
+                    if (variantChances[i].value > 0.999)
+                    {
+                        variantChances[i].value = 1f;
+                    }
+                }
+            }
+            variantsCurve = new AnimationCurve();
+            variantsCurve.AddKey(0f, 0f);
+            float cumulative = 0f;
+            for (int i = 0; i < variantChances.Length; i++)
+            {
+                variantsCurve.AddKey(cumulative + variantChances[i].value, (float)i + 1f);
+                cumulative += variantChances[i].value;
+            }
+            variantsCurve.keys[^1].value -= 1f;
+            for (int i = 0; i < variantsCurve.length; i++)
+            {
+                AnimationUtility.SetKeyLeftTangentMode(variantsCurve, i, AnimationUtility.TangentMode.Linear);
+                AnimationUtility.SetKeyRightTangentMode(variantsCurve, i, AnimationUtility.TangentMode.Linear);
+            }
+        }
+    }
+    [Serializable]
+    public class ReplacerAudio
+    {
+        public List<NewSounds> sounds = new List<NewSounds>();
+    }
+    [Serializable]
+    public class NewSounds
+    {
+        public string fieldName = "";
+        public bool overrideStartTime = false;
+        public float overrideTime = 0f;
+        public AudioClip[] newClips;
+    }
+    [CreateAssetMenu(menuName = "WCScriptableObjects/AudioReplacer", order = 1)]
+    public class AudioReplacer : ScriptableObject
+    {
+        public string identifier = "";
+        public Type animClass;
+        [Space]
+        public Chance replaceChance = new Chance { value = 1f };
+        public Chance[] variantChances = new Chance[0];
+        public AnimationCurve variantsCurve;
+        [Space]
+        public List<ReplacerAudio> replacers = new List<ReplacerAudio>();
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void OnValidate()
+        {
+            animClass = Type.GetType(identifier);
+            for (int i = 0; i < variantChances.Length; i++)
+            {
+                if (replacers.Count < i + 1)
+                {
+                    replacers.Add(new ReplacerAudio());
                 }
                 else if (replacers.Count > variantChances.Length)
                 {

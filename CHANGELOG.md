@@ -1,3 +1,6 @@
+## 0.19.0
+- Added Marikyuun's CalaSketchi!
+
 ## 0.18.1
 - Fixed an issue where Fixated Nose would sometimes explode in different sizes for different clients
 

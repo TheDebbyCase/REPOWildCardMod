@@ -163,6 +163,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>CalaSketchi</summary>
+	
+	Original design by [Marikyuun](https://www.twitch.tv/marikyuun)  
+	You'd better take care of it!
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/CalaSketchiPreview.png)
+	
+	</details>
+
 - Shop Items
 	<details>
 	<summary>Smith Halo</summary>
