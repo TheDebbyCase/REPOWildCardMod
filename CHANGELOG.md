@@ -1,3 +1,6 @@
+## 0.19.1
+- Made CalaSketchi increase in value while it's happy
+
 ## 0.19.0
 - Added Marikyuun's CalaSketchi!
 

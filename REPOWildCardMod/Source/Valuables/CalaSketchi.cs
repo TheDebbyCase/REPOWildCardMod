@@ -158,6 +158,15 @@ namespace REPOWildCardMod.Valuables
             hunger -= delta * 1.5f;
             energy -= delta * 1.5f;
             happy -= delta * 1.5f;
+            if (valueTimer > 0f)
+            {
+                valueTimer -= delta;
+            }
+            else
+            {
+                valueTimer = 1f;
+                Break(-100f);
+            }
             directionTimer -= delta;
             if (directionTimer <= 0f)
             {
@@ -281,7 +290,14 @@ namespace REPOWildCardMod.Valuables
             {
                 hunger -= 10f;
             }
-            hungrySounds.Play(transform.position);
+            if (state == SketchiState.Hungry)
+            {
+                hungrySounds.Play(transform.position);
+            }
+            else
+            {
+                happySounds.Play(transform.position);
+            }
         }
         public void SoundEffect()
         {
