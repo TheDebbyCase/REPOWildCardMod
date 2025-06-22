@@ -1,3 +1,7 @@
+## 0.19.2
+- Added Mely Bonk as a shop weapon!
+- Limited the amount of value the CalaSketchi can gain
+
 ## 0.19.1
 - Made CalaSketchi increase in value while it's happy
 

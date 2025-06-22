@@ -224,6 +224,16 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
+	<details>
+	<summary>Mely Bonk</summary>
+	
+	Original design by [Oniimely](https://oniimely.carrd.co/)  
+	It'll make you jump for joy
+
+	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/MelyBonkPreview.png)
+	
+	</details>
+
 - Reskins
 	<details>
 	<summary>Digi-RugCats</summary>

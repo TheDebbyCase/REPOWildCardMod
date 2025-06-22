@@ -165,7 +165,14 @@ namespace REPOWildCardMod.Valuables
             else
             {
                 valueTimer = 1f;
-                Break(-100f);
+                if (physGrabObject.impactDetector.valuableObject.dollarValueCurrent < physGrabObject.impactDetector.valuableObject.dollarValueOriginal + 2500f)
+                {
+                    Break(-100f);
+                }
+                else
+                {
+                    Break(0f);
+                }
             }
             directionTimer -= delta;
             if (directionTimer <= 0f)
