@@ -1,3 +1,7 @@
+## 0.19.3
+- Fixed CalaSketchi not moving
+- Reworked Mely Bonk a bit so it's not incredibly overpowered
+
 ## 0.19.2
 - Added Mely Bonk as a shop weapon!
 - Limited the amount of value the CalaSketchi can gain

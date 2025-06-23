@@ -284,6 +284,7 @@ namespace REPOWildCardMod.Valuables
                 vector = Vector2.zero;
             }
             direction = vector;
+            moveSpeed = speed;
             animator.SetBool("Vertical", Mathf.Abs(vector.y) > Mathf.Abs(vector.x));
             animator.SetBool("Moving", !isStill);
             if (!isStill)

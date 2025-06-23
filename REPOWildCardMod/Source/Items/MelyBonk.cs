@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 namespace REPOWildCardMod.Items
 {
     public class MelyBonk : MonoBehaviour
@@ -8,12 +9,10 @@ namespace REPOWildCardMod.Items
         public ItemMelee itemMelee;
         public ParticleSystem sparkleParticles;
         public LayerMask mask;
-        public ParticleSystem.EmissionModule emissionModule;
         public ExplosionPreset explosionPreset;
         public void Awake()
         {
             mask = SemiFunc.LayerMaskGetPhysGrabObject() + LayerMask.GetMask("Player") + LayerMask.GetMask("Default") + LayerMask.GetMask("Enemy");
-            emissionModule = sparkleParticles.emission;
         }
         public void Update()
         {
@@ -21,22 +20,16 @@ namespace REPOWildCardMod.Items
             {
                 PhysGrabber.instance.OverrideGrabDistance(2f);
             }
-            if (emissionModule.rateOverTimeMultiplier > 1f)
-            {
-                emissionModule.rateOverTimeMultiplier -= Time.deltaTime * 2f;
-            }
-            else if (emissionModule.rateOverTimeMultiplier < 1f)
-            {
-                emissionModule.rateOverTimeMultiplier = 1f;
-            }
         }
         public void OnHit()
         {
             explosionPreset.explosionSoundMedium.Play(transform.position, 0.5f);
             explosionPreset.explosionSoundMediumGlobal.Play(transform.position, 0.5f);
-            emissionModule.rateOverTimeMultiplier = 6f;
             sparkleParticles.Emit(10);
             Collider[] hits = Physics.OverlapSphere(physGrabObject.impactDetector.contactPoint, 5f, mask, QueryTriggerInteraction.Collide);
+            List<PhysGrabObject> validPhysHits = new List<PhysGrabObject>();
+            List<EnemyParent> validEnemyHits = new List<EnemyParent>();
+            bool durabilityLoss = false;
             for (int i = 0; i < hits.Length; i++)
             {
                 if (hits[i].gameObject.CompareTag("Player"))
@@ -52,34 +45,46 @@ namespace REPOWildCardMod.Items
                         player.tumble.TumbleRequest(true, false);
                         player.tumble.TumbleOverrideTime(0.5f);
                         player.tumble.TumbleForce(Vector3.up * 15f);
+                        continue;
                     }
                 }
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
+                    EnemyParent enemy = hits[i].gameObject.GetComponentInParent<EnemyParent>();
+                    if (!validEnemyHits.Contains(enemy) && enemy != null)
+                    {
+                        log.LogDebug($"Mely Bonk hitting {enemy.enemyName}");
+                        if (enemy.Enemy.HasStateStunned)
+                        {
+                            enemy.Enemy.StateStunned.Set(1f);
+                        }
+                        enemy.Enemy.Freeze(0.2f);
+                        if (enemy.Enemy.HasRigidbody)
+                        {
+                            enemy.Enemy.Rigidbody.FreezeForces(Vector3.up * 4f, Random.onUnitSphere);
+                        }
+                        if (enemy.Enemy.HasHealth)
+                        {
+                            enemy.Enemy.Health.Hurt(20, Vector3.up * 2.5f);
+                        }
+                        validEnemyHits.Add(enemy);
+                        durabilityLoss = true;
+                        continue;
+                    }
                     if (hits[i].gameObject.CompareTag("Phys Grab Object"))
                     {
                         PhysGrabObject physGrabObject = hits[i].gameObject.GetComponentInParent<PhysGrabObject>();
-                        if (physGrabObject != null && physGrabObject != this.physGrabObject)
+                        if (!validPhysHits.Contains(physGrabObject) && physGrabObject != null && physGrabObject != this.physGrabObject)
                         {
-                            physGrabObject.rb.AddForce(Vector3.up * 0.5f, ForceMode.Impulse);
-                        }
-                    }
-                    else
-                    {
-                        EnemyParent enemy = hits[i].gameObject.GetComponentInParent<EnemyParent>();
-                        if (enemy != null)
-                        {
-                            if (enemy.Enemy.HasRigidbody)
-                            {
-                                enemy.Enemy.Rigidbody.FreezeForces(Vector3.up, Random.onUnitSphere);
-                            }
-                            if (enemy.Enemy.HasHealth)
-                            {
-                                enemy.Enemy.Health.Hurt(20, Vector3.up);
-                            }
+                            physGrabObject.rb.AddForce(Vector3.up * 2.5f * Mathf.Max(1f, 1f / physGrabObject.rb.mass), ForceMode.Impulse);
+                            validPhysHits.Add(physGrabObject);
                         }
                     }
                 }
+            }
+            if (durabilityLoss)
+            {
+                itemMelee.EnemyOrPVPSwingHit();
             }
         }
     }
