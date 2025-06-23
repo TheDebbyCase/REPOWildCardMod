@@ -38,7 +38,7 @@ namespace REPOWildCardMod.Config
                 if (reskinList[i].identifier != "")
                 {
                     isReskinEnabled.Add(cfg.Bind("Reskins", $"Enable {reskinList[i].identifier} reskin?", true));
-                    reskinChance.Add(cfg.Bind("Reskins", $"Chance for {reskinList[i].identifier} reskin.", reskinList[i].replaceChance.value, "Decimal between 0 and 1"));
+                    reskinChance.Add(cfg.Bind("Reskins", $"Chance for {reskinList[i].identifier} reskin", reskinList[i].replaceChance.value, "Decimal between 0 and 1"));
                     reskinVariantChance.Add(new List<ConfigEntry<float>>());
                     if (reskinList[i].variantChances.Length > 1)
                     {
@@ -59,7 +59,7 @@ namespace REPOWildCardMod.Config
                 if (audioReplacerList[i].identifier != "")
                 {
                     isAudioReplacerEnabled.Add(cfg.Bind("Audio Replacers", $"Enable {audioReplacerList[i].identifier} audio replacer?", true));
-                    audioReplaceChance.Add(cfg.Bind("Audio Replacers", $"Chance for {audioReplacerList[i].identifier} audio replacer.", audioReplacerList[i].replaceChance.value, "Decimal between 0 and 1"));
+                    audioReplaceChance.Add(cfg.Bind("Audio Replacers", $"Chance for {audioReplacerList[i].identifier} audio replacer", audioReplacerList[i].replaceChance.value, "Decimal between 0 and 1"));
                     audioReplacerVariantChance.Add(new List<ConfigEntry<float>>());
                     if (audioReplacerList[i].variantChances.Length > 1)
                     {

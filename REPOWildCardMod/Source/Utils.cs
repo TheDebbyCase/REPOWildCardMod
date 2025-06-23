@@ -19,31 +19,32 @@ namespace REPOWildCardMod.Utils
             AudioReplacer newAudio = WildCardMod.instance.audioReplacerList[(int)data[1]];
             int variantIndex = (int)data[2];
             EnemyParent enemyParent = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent;
-            Component animComponent = enemyParent.GetComponentInChildren(newAudio.animClass);
+            Component animComponent = enemyParent.GetComponentInChildren(newAudio.animClass, true);
             List<FieldInfo> fieldInfos = newAudio.animClass.GetFields().ToList();
             List<Sound> toReplace = new List<Sound>();
+            Dictionary<Sound, FieldInfo> soundInfoDict = new Dictionary<Sound, FieldInfo>();
             for (int i = 0; i < fieldInfos.Count; i++)
             {
                 if (fieldInfos[i].FieldType == typeof(Sound))
                 {
-                    toReplace.Add(fieldInfos[i].GetValue(animComponent) as Sound);
-                    continue;
+                    soundInfoDict.Add(fieldInfos[i].GetValue(animComponent) as Sound, fieldInfos[i]);
                 }
-                fieldInfos.RemoveAt(i);
             }
+            toReplace = soundInfoDict.Keys.ToList();
             for (int i = 0; i < toReplace.Count; i++)
             {
-                NewSounds newSound = newAudio.replacers[variantIndex].sounds.Find((x) => x.fieldName == fieldInfos[i].Name);
-                if (newSound == null)
+                NewSounds newSound = newAudio.replacers[variantIndex].sounds.Find((x) => x.fieldName == soundInfoDict[toReplace[i]].Name);
+                if (newSound == null || (newSound != null && newSound.newClips.Length == 0))
                 {
                     continue;
                 }
-                AudioClip[] newClips = newSound.newClips;
-                toReplace[i].Sounds = newClips;
-                if (newSound.overrideStartTime)
+                List<AudioClip> newClips = newSound.newClips.ToList();
+                if (newSound.addon)
                 {
-                    toReplace[i].StartTimeOverride = newSound.overrideTime;
+                    newClips.AddRange(toReplace[i].Sounds);
                 }
+                toReplace[i].Sounds = newClips.ToArray();
+                toReplace[i].Volume = newSound.volumeOverride;
                 WildCardMod.instance.log.LogDebug($"{enemyParent.enemyName}: \"{newSound.fieldName}\" successfully replaced!");
             }
         }
@@ -79,52 +80,6 @@ namespace REPOWildCardMod.Utils
                     }
                 }
             }
-            //bool success = true;
-            //switch (enemyName)
-            //{
-            //    case "Rugrat":
-            //        {
-            //            MeshFilter[] filters = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent.transform.GetComponentsInChildren<MeshFilter>(true);
-            //            List<Transform> transforms = new List<Transform>();
-            //            for (int i = 0; i < filters.Length; i++)
-            //            {
-            //                transforms.Add(filters[i].transform);
-            //            }
-            //            for (int i = 0; i < newSkin.replacers[variantIndex].bodyParts.Count; i++)
-            //            {
-            //                List<Transform> replacedTransforms = new List<Transform>();
-            //                for (int j = 0; j < transforms.Count; j++)
-            //                {
-            //                    if (replacedTransforms.Contains(transforms[j]))
-            //                    {
-            //                        continue;
-            //                    }
-            //                    if (transforms[j].name == newSkin.replacers[variantIndex].bodyParts[i].transformName)
-            //                    {
-            //                        transforms[j].GetComponent<MeshFilter>().mesh = newSkin.replacers[variantIndex].bodyParts[i].newMesh;
-            //                        transforms[j].GetComponent<MeshRenderer>().materials = newSkin.replacers[variantIndex].bodyParts[i].newMaterials.ToArray();
-            //                        replacedTransforms.Add(transforms[j]);
-            //                        WildCardMod.instance.log.LogDebug($"{enemyName}: {transforms[j].name} successfully replaced!");
-            //                        break;
-            //                    }
-            //                }
-            //            }
-            //            break;
-            //        }
-            //    default:
-            //        {
-            //            success = false;
-            //            break;
-            //        }
-            //}
-            //if (success)
-            //{
-            //    WildCardMod.instance.log.LogInfo($"Successfully reskinned {enemyName}!");
-            //}
-            //else
-            //{
-            //    WildCardMod.instance.log.LogWarning($"Attempted to reskin {enemyName} but something went wrong!");
-            //}
         }
         public Transform FindEnemyTransform(EnemyParent targetEnemy, string type)
         {
@@ -647,14 +602,15 @@ namespace REPOWildCardMod.Utils
     public class NewSounds
     {
         public string fieldName = "";
-        public bool overrideStartTime = false;
-        public float overrideTime = 0f;
+        public bool addon = false;
+        public float volumeOverride = 0.5f;
         public AudioClip[] newClips;
     }
     [CreateAssetMenu(menuName = "WCScriptableObjects/AudioReplacer", order = 1)]
     public class AudioReplacer : ScriptableObject
     {
         public string identifier = "";
+        public string enemyName = "";
         public Type animClass;
         [Space]
         public Chance replaceChance = new Chance { value = 1f };

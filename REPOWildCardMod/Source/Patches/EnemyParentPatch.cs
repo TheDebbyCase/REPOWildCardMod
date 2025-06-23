@@ -94,7 +94,7 @@ namespace REPOWildCardMod.Patches
             AudioReplacer newAudio = null;
             for (int i = 0; i < audioReplacers.Count; i++)
             {
-                if (audioReplacers[i].identifier == enemyParent.enemyName && config.isAudioReplacerEnabled[i].Value && config.audioReplaceChance[i].Value > 0f)
+                if (audioReplacers[i].enemyName == enemyParent.enemyName && config.isAudioReplacerEnabled[i].Value && config.audioReplaceChance[i].Value > 0f)
                 {
                     potentialAudios.Add(audioReplacers[i]);
                 }
