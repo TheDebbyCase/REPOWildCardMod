@@ -234,7 +234,7 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	
 	</details>
 
-- Reskins
+- Asset Replacements
 	<details>
 	<summary>Digi-RugCats</summary>
 	
@@ -242,6 +242,14 @@ or the GitHub page [here](https://github.com/TheDebbyCase/REPOWildCardMod)!
 	Maybe now you want to kill them less..?
 
 	![Preview](https://raw.githubusercontent.com/TheDebbyCase/REPOWildCardMod/main/Images/DigiRugCatPreview.png)
+	
+	</details>
+
+	<details>
+	<summary>Chef Froggi</summary>
+	
+	Voiced by [froggiflow](https://bsky.app/profile/froggiflow.bsky.social),  
+	No preview cause it's all audio, but it's loud!
 	
 	</details>
 

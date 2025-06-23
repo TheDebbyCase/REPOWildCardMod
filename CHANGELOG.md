@@ -1,3 +1,6 @@
+## 0.20.0
+- Added Chef Froggi as an audio replacement for the Chef, chance is configurable
+
 ## 0.19.3
 - Fixed CalaSketchi not moving
 - Reworked Mely Bonk a bit so it's not incredibly overpowered
