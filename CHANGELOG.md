@@ -1,3 +1,7 @@
+## 0.21.1
+- Fixed Giwi Worm being uncontrollable
+- Fixed Smith Note never spawning
+
 ## 0.21.0
 - Updated to work with the new update!
 
