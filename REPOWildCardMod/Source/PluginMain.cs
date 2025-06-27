@@ -28,7 +28,6 @@ namespace REPOWildCardMod
         public static WildCardMod instance;
         public bool moreUpgradesPresent = false;
         public bool oldSharedUpgradesPresent = false;
-        public bool usingBeta = false;
         internal WildCardConfig ModConfig { get; private set; } = null!;
         public List<GameObject> valList = new List<GameObject>();
         public List<Item> itemList = new List<Item>();
@@ -72,11 +71,6 @@ namespace REPOWildCardMod
             if (BepInEx.Bootstrap.Chainloader.PluginInfos.ContainsKey("EvilCheetah.REPO.TeamBoosters"))
             {
                 oldSharedUpgradesPresent = true;
-            }
-            if (Assembly.GetAssembly(typeof(Item)).GetType("BatteryVisualLogic") != null)
-            {
-                log.LogDebug("REPO is using the beta branch");
-                usingBeta = true;
             }
             PropogateLists();
             HandleContent();
