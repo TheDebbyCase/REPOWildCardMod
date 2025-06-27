@@ -14,13 +14,6 @@ namespace REPOWildCardMod.Items
         public float floatPower = 5f;
         public float floatHeight = 0.5f;
         public float glidePower = 0.5f;
-        public void Awake()
-        {
-            if (WildCardMod.instance.usingBeta)
-            {
-                log.LogWarning("Halo may not work as expected due to REPO beta changes!");
-            }
-        }
         public void FixedUpdate()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())

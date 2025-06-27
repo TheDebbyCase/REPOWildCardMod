@@ -21,7 +21,7 @@ namespace REPOWildCardMod
     {
         internal const string modGUID = "deB.WildCard";
         internal const string modName = "WILDCARD REPO";
-        internal const string modVersion = "0.20.0";
+        internal const string modVersion = "0.21.0";
         readonly Harmony harmony = new Harmony(modGUID);
         internal ManualLogSource log = null!;
         public WildCardUtils utils;
@@ -262,7 +262,7 @@ namespace REPOWildCardMod
             harmony.PatchAll(typeof(EnemyRunnerPatches));
             harmony.PatchAll(typeof(EnemyStateChasePatches));
             harmony.PatchAll(typeof(SoundPatches));
-            if (ModConfig.harmonyPatches.Value && !ModConfig.isValEnabled.Find((x) => x.Definition.Key.Contains("Valuable Giwi Worm")).Value)
+            if (ModConfig.harmonyPatches.Value && ModConfig.isValEnabled.Find((x) => x.Definition.Key.Contains("Valuable Giwi Worm")).Value)
             {
                 harmony.PatchAll(typeof(PhysGrabberRayCheckPatch));
             }

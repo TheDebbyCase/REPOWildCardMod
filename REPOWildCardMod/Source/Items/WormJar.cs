@@ -374,7 +374,7 @@ namespace REPOWildCardMod.Items
                             LevelPoint levelPoint = SemiFunc.LevelPointGetFurthestFromPlayer(Vector3.zero, 10f);
                             if (levelPoint != null)
                             {
-                                enemy.StateInvestigate.Set(levelPoint.transform.position);
+                                enemy.StateInvestigate.Set(levelPoint.transform.position, true);
                             }
                             investigateTimer = 10f;
                         }
@@ -452,7 +452,7 @@ namespace REPOWildCardMod.Items
                 enemy.EnemyParent.forceLeave = false;
                 if (enemy.HasStateInvestigate)
                 {
-                    enemy.StateInvestigate.Set(motherPlayer.transform.position);
+                    enemy.StateInvestigate.Set(motherPlayer.transform.position, false);
                 }
                 if (SemiFunc.IsMultiplayer())
                 {

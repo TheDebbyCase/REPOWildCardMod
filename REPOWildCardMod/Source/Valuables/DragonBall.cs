@@ -195,6 +195,10 @@ namespace REPOWildCardMod.Valuables
             shenronHUD.shenronVoice = new Sound { Source = shenronVoice.Source, Sounds = shenronVoice.Sounds, Type = shenronVoice.Type, Volume = shenronVoice.Volume, VolumeRandom = shenronVoice.VolumeRandom, Pitch = shenronVoice.Pitch, PitchRandom = shenronVoice.PitchRandom, SpatialBlend = shenronVoice.SpatialBlend, ReverbMix = shenronVoice.ReverbMix, Doppler = shenronVoice.Doppler };
             shenronHUD.spawnValuableClip = spawnValuableClip;
             shenronHUD.photonView = newAudio.GetComponent<PhotonView>();
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                DestroyBall();
+            }
         }
         [PunRPC]
         public void PropogateBallsRPC(int balls, string masterID)
@@ -210,24 +214,20 @@ namespace REPOWildCardMod.Valuables
         public void SetBallsRPC(string steamID, int balls)
         {
             StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = balls;
-            if (SemiFunc.IsMasterClientOrSingleplayer())
-            {
-                DestroyBall();
-            }
         }
         public void DestroyBall()
         {
             if (levelDragonBalls.Contains(this))
             {
                 levelDragonBalls.Remove(this);
-                if (SemiFunc.IsMultiplayer())
-                {
-                    physGrabObject.photonView.RPC("DestroyPhysGrabObjectRPC", RpcTarget.All);
-                }
-                else
-                {
-                    physGrabObject.DestroyPhysGrabObjectRPC();
-                }
+            }
+            if (SemiFunc.IsMultiplayer())
+            {
+                physGrabObject.photonView.RPC("DestroyPhysGrabObjectRPC", RpcTarget.All);
+            }
+            else
+            {
+                physGrabObject.DestroyPhysGrabObjectRPC();
             }
         }
     }
@@ -442,14 +442,14 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 6; j++)
+                                for (int j = 0; j < 5; j++)
                                 {
                                     PunManager.instance.UpgradePlayerHealth(SemiFunc.PlayerGetSteamID(players[i]));
                                 }
                             }
                             break;
                         }
-                        for (int i = 0; i < 6; i++)
+                        for (int i = 0; i < 5; i++)
                         {
                             PunManager.instance.UpgradePlayerHealth(steamID);
                         }
@@ -462,14 +462,14 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 6; j++)
+                                for (int j = 0; j < 5; j++)
                                 {
                                     PunManager.instance.UpgradePlayerEnergy(SemiFunc.PlayerGetSteamID(players[i]));
                                 }
                             }
                             break;
                         }
-                        for (int i = 0; i < 6; i++)
+                        for (int i = 0; i < 5; i++)
                         {
                             PunManager.instance.UpgradePlayerEnergy(steamID);
                         }
@@ -482,14 +482,14 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 6; j++)
+                                for (int j = 0; j < 5; j++)
                                 {
                                     PunManager.instance.UpgradePlayerTumbleLaunch(SemiFunc.PlayerGetSteamID(players[i]));
                                 }
                             }
                             break;
                         }
-                        for (int i = 0; i < 6; i++)
+                        for (int i = 0; i < 5; i++)
                         {
                             PunManager.instance.UpgradePlayerTumbleLaunch(steamID);
                         }
@@ -502,14 +502,14 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 6; j++)
+                                for (int j = 0; j < 5; j++)
                                 {
                                     PunManager.instance.UpgradePlayerSprintSpeed(SemiFunc.PlayerGetSteamID(players[i]));
                                 }
                             }
                             break;
                         }
-                        for (int i = 0; i < 6; i++)
+                        for (int i = 0; i < 5; i++)
                         {
                             PunManager.instance.UpgradePlayerSprintSpeed(steamID);
                         }
@@ -522,14 +522,14 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 6; j++)
+                                for (int j = 0; j < 5; j++)
                                 {
                                     PunManager.instance.UpgradePlayerGrabStrength(SemiFunc.PlayerGetSteamID(players[i]));
                                 }
                             }
                             break;
                         }
-                        for (int i = 0; i < 6; i++)
+                        for (int i = 0; i < 5; i++)
                         {
                             PunManager.instance.UpgradePlayerGrabStrength(steamID);
                         }
@@ -542,14 +542,14 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 6; j++)
+                                for (int j = 0; j < 5; j++)
                                 {
                                     PunManager.instance.UpgradePlayerGrabRange(SemiFunc.PlayerGetSteamID(players[i]));
                                 }
                             }
                             break;
                         }
-                        for (int i = 0; i < 6; i++)
+                        for (int i = 0; i < 5; i++)
                         {
                             PunManager.instance.UpgradePlayerGrabRange(steamID);
                         }
@@ -562,16 +562,56 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 6; j++)
+                                for (int j = 0; j < 5; j++)
                                 {
                                     PunManager.instance.UpgradePlayerExtraJump(SemiFunc.PlayerGetSteamID(players[i]));
                                 }
                             }
                             break;
                         }
-                        for (int i = 0; i < 6; i++)
+                        for (int i = 0; i < 5; i++)
                         {
                             PunManager.instance.UpgradePlayerExtraJump(steamID);
+                        }
+                        break;
+                    }
+                case "Crouch Rest":
+                    {
+                        if (WildCardMod.instance.oldSharedUpgradesPresent)
+                        {
+                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                            for (int i = 0; i < players.Count; i++)
+                            {
+                                for (int j = 0; j < 5; j++)
+                                {
+                                    PunManager.instance.UpgradePlayerCrouchRest(SemiFunc.PlayerGetSteamID(players[i]));
+                                }
+                            }
+                            break;
+                        }
+                        for (int i = 0; i < 5; i++)
+                        {
+                            PunManager.instance.UpgradePlayerCrouchRest(steamID);
+                        }
+                        break;
+                    }
+                case "Tumble Wings":
+                    {
+                        if (WildCardMod.instance.oldSharedUpgradesPresent)
+                        {
+                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                            for (int i = 0; i < players.Count; i++)
+                            {
+                                for (int j = 0; j < 5; j++)
+                                {
+                                    PunManager.instance.UpgradePlayerTumbleWings(SemiFunc.PlayerGetSteamID(players[i]));
+                                }
+                            }
+                            break;
+                        }
+                        for (int i = 0; i < 5; i++)
+                        {
+                            PunManager.instance.UpgradePlayerTumbleWings(steamID);
                         }
                         break;
                     }

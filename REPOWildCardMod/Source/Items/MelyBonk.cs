@@ -84,7 +84,7 @@ namespace REPOWildCardMod.Items
             }
             if (durabilityLoss)
             {
-                itemMelee.EnemyOrPVPSwingHit();
+                itemMelee.EnemySwingHit();
             }
         }
     }

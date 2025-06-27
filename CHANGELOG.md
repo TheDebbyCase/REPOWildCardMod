@@ -1,3 +1,6 @@
+## 0.21.0
+- Updated to work with the new update!
+
 ## 0.20.0
 - Added Chef Froggi as an audio replacement for the Chef, chance is configurable
 

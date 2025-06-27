@@ -1,7 +1,6 @@
 ﻿using Photon.Pun;
 using System.Collections.Generic;
 using System.Linq;
-using Unity.VisualScripting;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
 {
@@ -20,10 +19,6 @@ namespace REPOWildCardMod.Valuables
         public void Awake()
         {
             hudAudio = WildCardMod.instance.miscPrefabsList.Find((x) => x.name == "Wildcard HUD Audio");
-            if (WildCardMod.instance.usingBeta)
-            {
-                log.LogWarning("Chaos Emeralds may not work as expected due to REPO beta changes!");
-            }
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
                 string[] colourNames = StatsManager.instance.dictionaryOfDictionaries["chaosEmeraldsUnique"].Keys.ToArray();
@@ -142,31 +137,37 @@ namespace REPOWildCardMod.Valuables
             }
             if (SemiFunc.IsMultiplayer())
             {
-                photonView.RPC("SuperSonicRPC", RpcTarget.All, PhotonNetwork.InstantiateRoomObject("Misc/Wildcard HUD Audio", Vector3.zero, Quaternion.identity).GetComponent<PhotonView>().ViewID);
+                GameObject newObject = PhotonNetwork.InstantiateRoomObject("Misc/Wildcard HUD Audio", Vector3.zero, Quaternion.identity);
+                photonView.RPC("SuperSonicRPC", RpcTarget.All, newObject.GetComponent<PhotonView>().ViewID);
             }
             else
             {
-                SuperSonicRPC(-1, Instantiate(hudAudio));
+                SuperSonicLogic(Instantiate(hudAudio));
             }
         }
         [PunRPC]
-        public void SuperSonicRPC(int id = -1, GameObject newObject = null)
+        public void SuperSonicRPC(int id = -1)
         {
-            if (SemiFunc.IsMultiplayer())
+            GameObject newObject = PhotonView.Find(id).gameObject;
+            if (SemiFunc.PlayerAvatarLocal().deadSet)
             {
-                newObject = PhotonView.Find(id).gameObject;
-                if (SemiFunc.PlayerAvatarLocal().deadSet)
-                {
-                    Destroy(newObject);
-                    return;
-                }
+                Destroy(newObject);
+                return;
             }
+            SuperSonicLogic(newObject);
+        }
+        public void SuperSonicLogic(GameObject newObject)
+        {
             sonicLoop.Source = newObject.GetComponent<AudioSource>();
             newObject.transform.parent = PlayerController.instance.transform;
             newObject.transform.localPosition = Vector3.zero;
             SuperSonic superSonic = newObject.AddComponent<SuperSonic>();
             superSonic.sonicLoop = new Sound { Source = sonicLoop.Source, Sounds = sonicLoop.Sounds, Type = sonicLoop.Type, Volume = sonicLoop.Volume, VolumeRandom = sonicLoop.VolumeRandom, Pitch = sonicLoop.Pitch, PitchRandom = sonicLoop.PitchRandom, SpatialBlend = sonicLoop.SpatialBlend, ReverbMix = sonicLoop.ReverbMix, Doppler = sonicLoop.Doppler };
             superSonic.photonView = newObject.GetComponent<PhotonView>();
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                DestroyEmerald();
+            }
         }
         [PunRPC]
         public void PropogateEmeraldsRPC(int emeralds, string masterID)
@@ -182,10 +183,6 @@ namespace REPOWildCardMod.Valuables
         public void SetEmeraldsRPC(string steamID, int emeralds)
         {
             StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = emeralds;
-            if (SemiFunc.IsMasterClientOrSingleplayer())
-            {
-                DestroyEmerald();
-            }
         }
         public void DestroyEmerald()
         {
@@ -205,7 +202,7 @@ namespace REPOWildCardMod.Valuables
         public float overrideTimer;
         public Sound sonicLoop;
         public PlayerAvatar[] playersList;
-        public void Awake()
+        public void Start()
         {
             overrideTimer = 120f;
             playersList = SemiFunc.PlayerGetAll().ToArray();

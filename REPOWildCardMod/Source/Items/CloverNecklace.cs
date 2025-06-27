@@ -21,10 +21,6 @@ namespace REPOWildCardMod.Items
         public void Awake()
         {
             onTimer = 30f;
-            if (WildCardMod.instance.usingBeta)
-            {
-                log.LogWarning("Clover Necklace may not work as expected due to REPO beta changes!");
-            }
         }
         public void FixedUpdate()
         {
