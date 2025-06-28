@@ -1,3 +1,6 @@
+## 0.21.2
+- Fixed Giwi Worm and Fyrus Star audio not being set up correctly, unsure if this affected anything
+
 ## 0.21.1
 - Fixed Giwi Worm being uncontrollable
 - Fixed Smith Note never spawning
