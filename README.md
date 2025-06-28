@@ -263,6 +263,7 @@ Subscribe to [WILDCARD](https://www.youtube.com/@WILDCARDorg) members by looking
 
 ## Extra Credits
 
+- [pogglemon](https://twitter.com/pogglemon), [LightLuminari](https://twitter.com/LightLuminari) and [Gumi](https://www.twitch.tv/gloomygumi) for helping me test multiplayer!
 - [kael](https://bsky.app/profile/kael3.bsky.social) for just being so supportive, I just really wanted to put xem on here!
 - [SunflowerSmith](https://www.twitch.tv/sunflowersmith) for adding my Lethal Company mod to their group's modpack, playing with it on-stream, and making suggestions directly!
 - [WhiteSpike](https://thunderstore.io/c/lethal-company/p/WhiteSpike), [Robyn](https://thunderstore.io/c/lethal-company/p/Mom_Llama), [MattyMatty](https://thunderstore.io/c/lethal-company/p/mattymatty/), [XuXiaolan](https://thunderstore.io/c/lethal-company/p/XuXiaolan), [Zaggy](https://thunderstore.io/c/lethal-company/p/Zaggy1024), [IAmBatby](https://thunderstore.io/c/lethal-company/p/IAmBatby/) for giving me various tips and advice!

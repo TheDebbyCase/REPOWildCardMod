@@ -7,6 +7,7 @@ using System.Text.RegularExpressions;
 using UnityEngine;
 using System.Linq;
 using ExitGames.Client.Photon;
+using Photon.Pun;
 namespace REPOWildCardMod.Utils
 {
     public class WildCardUtils
@@ -15,10 +16,10 @@ namespace REPOWildCardMod.Utils
         public static void SetEnemyAudio(EventData eventData)
         {
             object[] data = (object[])eventData.CustomData;
-            int enemyIndex = (int)data[0];
-            AudioReplacer newAudio = WildCardMod.instance.audioReplacerList[(int)data[1]];
-            int variantIndex = (int)data[2];
-            EnemyParent enemyParent = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent;
+            EnemyAudioLogic(PhotonView.Find((int)data[0]).GetComponent<Enemy>().EnemyParent, WildCardMod.instance.audioReplacerList[(int)data[1]], (int)data[2]);
+        }
+        public static void EnemyAudioLogic(EnemyParent enemyParent, AudioReplacer newAudio, int variantIndex)
+        {
             Component animComponent = enemyParent.GetComponentInChildren(newAudio.animClass, true);
             List<FieldInfo> fieldInfos = newAudio.animClass.GetFields().ToList();
             List<Sound> toReplace = new List<Sound>();
@@ -51,11 +52,12 @@ namespace REPOWildCardMod.Utils
         public static void SetEnemySkin(EventData eventData)
         {
             object[] data = (object[])eventData.CustomData;
-            int enemyIndex = (int)data[0];
-            Reskin newSkin = WildCardMod.instance.reskinList[(int)data[1]];
-            int variantIndex = (int)data[2];
-            string enemyName = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent.enemyName;
-            MeshFilter[] filters = SemiFunc.EnemyGetFromIndex(enemyIndex).EnemyParent.transform.GetComponentsInChildren<MeshFilter>(true);
+            EnemySkinLogic(PhotonView.Find((int)data[0]).GetComponent<Enemy>().EnemyParent, WildCardMod.instance.reskinList[(int)data[1]], (int)data[2]);
+        }
+        public static void EnemySkinLogic(EnemyParent enemyParent, Reskin newSkin, int variantIndex)
+        {
+            string enemyName = enemyParent.enemyName;
+            MeshFilter[] filters = enemyParent.transform.GetComponentsInChildren<MeshFilter>(true);
             List<Transform> transforms = new List<Transform>();
             for (int i = 0; i < filters.Length; i++)
             {

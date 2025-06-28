@@ -115,7 +115,7 @@ namespace REPOWildCardMod.Items
         }
         public void EnemyHit()
         {
-            itemBattery.batteryLife -= 10f;
+            itemBattery.batteryLife -= 2.5f;
             for (int i = 0; i < physGrabObject.playerGrabbing.Count; i++)
             {
                 Enemy enemy = SemiFunc.EnemyGetNearest(transform.position, 5f, false);

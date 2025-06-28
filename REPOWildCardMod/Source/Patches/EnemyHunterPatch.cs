@@ -11,8 +11,7 @@ namespace REPOWildCardMod.Patches
         {
             if (__instance.enemy.EnemyParent.WormData().infected && __instance.currentState == EnemyHunter.State.Aim)
             {
-                __instance.currentState = EnemyHunter.State.Investigate;
-                __instance.stateImpulse = false;
+                __instance.UpdateState(EnemyHunter.State.Idle);
             }
             return true;
         }

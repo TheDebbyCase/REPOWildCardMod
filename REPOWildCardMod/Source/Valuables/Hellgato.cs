@@ -149,6 +149,17 @@ namespace REPOWildCardMod.Valuables
         }
         public void Break(float value)
         {
+            if (SemiFunc.IsMasterClientOrSingleplayer())
+            {
+                BreakMasterRPC(value);
+            }
+            else
+            {
+                impactDetector.photonView.RPC("BreakMasterRPC", RpcTarget.MasterClient, value, physGrabObject.centerPoint, 2, true);
+            }
+        }
+        public void BreakMasterRPC(float value)
+        {
             if (SemiFunc.IsMultiplayer())
             {
                 impactDetector.photonView.RPC("BreakRPC", RpcTarget.All, value, physGrabObject.centerPoint, 2, true);

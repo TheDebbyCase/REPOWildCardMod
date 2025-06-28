@@ -23,6 +23,8 @@ namespace REPOWildCardMod.Valuables
         public List<int> availableStars = new List<int>();
         public List<string> wishableUpgrades;
         public PlayerAvatar masterPlayer;
+        public int extractFinishedPlayers = 0;
+        public int playersBallsSet = 0;
         public void Awake()
         {
             hudAudio = WildCardMod.instance.miscPrefabsList.Find((x) => x.name == "Wildcard HUD Audio");
@@ -111,10 +113,20 @@ namespace REPOWildCardMod.Valuables
         public void AllAddPlayerBallRPC()
         {
             log.LogDebug("Adding a Dragon Ball point");
+            playersBallsSet = 0;
             StatsUI.instance.Fetch();
             StatsUI.instance.ShowStats();
             CameraGlitch.Instance.PlayUpgrade();
             GameDirector.instance.CameraImpact.ShakeDistance(5f, 1f, 6f, SemiFunc.PlayerAvatarLocal().transform.position, 0.2f);
+        }
+        [PunRPC]
+        public void ExtractCompleteRPC()
+        {
+            extractFinishedPlayers += 1;
+            if (extractFinishedPlayers >= SemiFunc.PlayerGetList().Count)
+            {
+                DestroyBall();
+            }
         }
         public void MasterAddPlayerBall()
         {
@@ -135,15 +147,16 @@ namespace REPOWildCardMod.Valuables
                 StatsManager.instance.DictionaryFill("dragonBallsUnique", 0);
                 DragonBallWish();
             }
-            if (SemiFunc.IsMultiplayer())
-            {
-                photonView.RPC("PropogateBallsRPC", RpcTarget.Others, StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID], steamID);
-            }
             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
             for (int i = 0; i < players.Count; i++)
             {
                 players[i].playerHealth.MaterialEffectOverride(PlayerHealth.Effect.Upgrade);
             }
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC("PropogateBallsRPC", RpcTarget.Others, StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID], steamID);
+            }
+            ExtractCompleteRPC();
         }
         public void DragonBallWish()
         {
@@ -195,10 +208,6 @@ namespace REPOWildCardMod.Valuables
             shenronHUD.shenronVoice = new Sound { Source = shenronVoice.Source, Sounds = shenronVoice.Sounds, Type = shenronVoice.Type, Volume = shenronVoice.Volume, VolumeRandom = shenronVoice.VolumeRandom, Pitch = shenronVoice.Pitch, PitchRandom = shenronVoice.PitchRandom, SpatialBlend = shenronVoice.SpatialBlend, ReverbMix = shenronVoice.ReverbMix, Doppler = shenronVoice.Doppler };
             shenronHUD.spawnValuableClip = spawnValuableClip;
             shenronHUD.photonView = newAudio.GetComponent<PhotonView>();
-            if (SemiFunc.IsMasterClientOrSingleplayer())
-            {
-                DestroyBall();
-            }
         }
         [PunRPC]
         public void PropogateBallsRPC(int balls, string masterID)
@@ -214,6 +223,11 @@ namespace REPOWildCardMod.Valuables
         public void SetBallsRPC(string steamID, int balls)
         {
             StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = balls;
+            playersBallsSet += 1;
+            if (playersBallsSet >= SemiFunc.PlayerGetList().Count)
+            {
+                photonView.RPC("ExtractCompleteRPC", RpcTarget.MasterClient);
+            }
         }
         public void DestroyBall()
         {

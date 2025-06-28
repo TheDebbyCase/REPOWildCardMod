@@ -1,7 +1,7 @@
 ﻿using Photon.Pun;
 using REPOWildCardMod.Extensions;
-using TMPro;
 using UnityEngine;
+using static Steamworks.InventoryItem;
 namespace REPOWildCardMod.Valuables
 {
     public enum SketchiState
@@ -121,8 +121,14 @@ namespace REPOWildCardMod.Valuables
         }
         public void StateIdle(float delta)
         {
-            hunger -= delta * 1.5f;
-            energy -= delta * 1.5f;
+            if (hunger > 0f)
+            {
+                hunger -= delta * 1.5f;
+            }
+            if (energy > 0f)
+            {
+                energy -= delta * 1.5f;
+            }
             directionTimer -= delta;
             if (directionTimer <= 0f)
             {
@@ -155,9 +161,18 @@ namespace REPOWildCardMod.Valuables
         }
         public void StateHappy(float delta)
         {
-            hunger -= delta * 1.5f;
-            energy -= delta * 1.5f;
-            happy -= delta * 1.5f;
+            if (hunger > 0f)
+            {
+                hunger -= delta * 1.5f;
+            }
+            if (energy > 0f)
+            {
+                energy -= delta * 1.5f;
+            }
+            if (happy > 0f)
+            {
+                happy -= delta * 1.5f;
+            }
             if (valueTimer > 0f)
             {
                 valueTimer -= delta;
@@ -210,7 +225,10 @@ namespace REPOWildCardMod.Valuables
             {
                 hunger -= delta * 1.5f;
             }
-            energy += 4.5f * delta;
+            if (energy > 0f)
+            {
+                energy += 4.5f * delta;
+            }
             if (energy >= 100f || (energy >= 85f && Random.value < 0.01f))
             {
                 if (hunger <= 0f)
@@ -229,7 +247,10 @@ namespace REPOWildCardMod.Valuables
         }
         public void StateHungry(float delta)
         {
-            energy -= delta * 1.5f;
+            if (energy > 0f)
+            {
+                energy -= delta * 1.5f;
+            }
             if (valueTimer > 0f)
             {
                 valueTimer -= delta;
@@ -258,11 +279,11 @@ namespace REPOWildCardMod.Valuables
         {
             if (SemiFunc.IsMultiplayer())
             {
-                physGrabObject.impactDetector.photonView.RPC("BreakRPC", RpcTarget.All, value, physGrabObject.centerPoint, 2, true);
+                physGrabObject.impactDetector.photonView.RPC("BreakRPC", RpcTarget.All, value, physGrabObject.centerPoint + (Vector3.up * 0.25f), 2, true);
             }
             else
             {
-                physGrabObject.impactDetector.BreakRPC(value, physGrabObject.centerPoint, 2, true);
+                physGrabObject.impactDetector.BreakRPC(value, physGrabObject.centerPoint + (Vector3.up * 0.25f), 2, true);
             }
         }
         public void ChangeDirection(bool isStill, Vector2 vector, float speed)
@@ -294,9 +315,9 @@ namespace REPOWildCardMod.Valuables
         }
         public void BreakEffect()
         {
-            if (SemiFunc.IsMasterClientOrSingleplayer() && state != SketchiState.Hungry)
+            if (SemiFunc.IsMasterClientOrSingleplayer() && !(state == SketchiState.Hungry || state == SketchiState.Happy))
             {
-                hunger -= 10f;
+                hunger = Mathf.Clamp(hunger - Mathf.Max(0f, 10f), 0f, 100f);
             }
             if (state == SketchiState.Hungry)
             {

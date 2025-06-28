@@ -1,3 +1,15 @@
+## 0.21.3
+- Fixed Mario Dice not exploding
+- Attempted to fix CalaSketchi being eternally hungry
+- Attempted to fix Dragon Balls and Chaos Emeralds not being destroyed on extraction
+- Adjusted Smith Note battery to be more intuitive, killing players is now free!
+- Fixed Hellgato not losing or gaining value when held by non-hosts
+- Fixed DigiRugcats not working for non-hosts
+- Fixed Huntsman becoming a statue when worm infected while aiming
+- Fixed Mely Bonk not launching players consistently
+- Adjusted Mely Bonk battery
+- Reduced Clover Necklace battery usage
+
 ## 0.21.2
 - Fixed Giwi Worm and Fyrus Star audio not being set up correctly, unsure if this affected anything
 

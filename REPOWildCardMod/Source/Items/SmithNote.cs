@@ -213,7 +213,7 @@ namespace REPOWildCardMod.Items
                 {
                     if (playersDead[playerNames[i]])
                     {
-                        pageOneString += $"<color=\"red\"><s>{playerNames[i]}<s></color>\n";
+                        pageOneString += $"<color=\"red\"><s>{playerNames[i]}</s></color>\n";
                     }
                     else
                     {
@@ -224,7 +224,10 @@ namespace REPOWildCardMod.Items
                 SetPageText(0, pageOneString);
                 for (int i = 0; i < Mathf.Min(enemyNames.Count, 12); i++)
                 {
-                    pageTwoString += $"{enemyNames[i]}\n";
+                    if (currentEnemies[enemyNames[i]].Count != 0)
+                    {
+                        pageTwoString += $"{enemyNames[i]}\n";
+                    }
                 }
                 pageTwoString.TrimEnd('\n');
                 SetPageText(1, pageTwoString);
@@ -236,7 +239,7 @@ namespace REPOWildCardMod.Items
                 {
                     if (playersDead.ContainsKey(combinedList[i]) && playersDead[combinedList[i]])
                     {
-                        pageOneString += $"<color=\"red\"><s>{combinedList[i]}<s></color>\n";
+                        pageOneString += $"<color=\"red\"><s>{combinedList[i]}</s></color>\n";
                     }
                     else
                     {
@@ -249,7 +252,7 @@ namespace REPOWildCardMod.Items
                 {
                     if (playersDead.ContainsKey(combinedList[i]) && playersDead[combinedList[i]])
                     {
-                        pageTwoString += $"<color=\"red\"><s>{combinedList[i]}<s></color>\n";
+                        pageTwoString += $"<color=\"red\"><s>{combinedList[i]}</s></color>\n";
                     }
                     else
                     {
@@ -550,10 +553,6 @@ namespace REPOWildCardMod.Items
                         {
                             itemBattery.batteryLife -= 50f;
                         }
-                    }
-                    else
-                    {
-                        itemBattery.batteryLife -= 10f;
                     }
                 }
                 itemToggle.ToggleItem(toggle: false);

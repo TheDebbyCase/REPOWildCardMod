@@ -80,7 +80,14 @@ namespace REPOWildCardMod.Patches
                         }
                         log.LogDebug($"{enemyParent.enemyName} reskin selected variant {variantIndex + 1}");
                     }
-                    WildCardMod.networkedEvents.Find((x) => x.Name == "Set Enemy Skin").RaiseEvent(new object[] { SemiFunc.EnemyGetIndex(enemyParent.Enemy), skinIndex, variantIndex }, REPOLib.Modules.NetworkingEvents.RaiseAll, SendOptions.SendReliable);
+                    if (SemiFunc.IsMultiplayer())
+                    {
+                        WildCardMod.networkedEvents.Find((x) => x.Name == "Set Enemy Skin").RaiseEvent(new object[] { enemyParent.Enemy.PhotonView.ViewID, skinIndex, variantIndex }, REPOLib.Modules.NetworkingEvents.RaiseAll, SendOptions.SendReliable);
+                    }
+                    else
+                    {
+                        WildCardUtils.EnemySkinLogic(enemyParent, newSkin, variantIndex);
+                    }
                 }
             }
         }
@@ -126,7 +133,14 @@ namespace REPOWildCardMod.Patches
                         }
                         log.LogDebug($"{enemyParent.enemyName} audio replacer selected variant {variantIndex + 1}");
                     }
-                    WildCardMod.networkedEvents.Find((x) => x.Name == "Set Enemy Audio").RaiseEvent(new object[] { SemiFunc.EnemyGetIndex(enemyParent.Enemy), audioIndex, variantIndex }, REPOLib.Modules.NetworkingEvents.RaiseAll, SendOptions.SendReliable);
+                    if (SemiFunc.IsMultiplayer())
+                    {
+                        WildCardMod.networkedEvents.Find((x) => x.Name == "Set Enemy Audio").RaiseEvent(new object[] { enemyParent.Enemy.PhotonView.ViewID, audioIndex, variantIndex }, REPOLib.Modules.NetworkingEvents.RaiseAll, SendOptions.SendReliable);
+                    }
+                    else
+                    {
+                        WildCardUtils.EnemyAudioLogic(enemyParent, newAudio, variantIndex);
+                    }
                 }
             }
         }

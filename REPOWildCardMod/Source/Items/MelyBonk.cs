@@ -26,30 +26,30 @@ namespace REPOWildCardMod.Items
             explosionPreset.explosionSoundMedium.Play(transform.position, 0.5f);
             explosionPreset.explosionSoundMediumGlobal.Play(transform.position, 0.5f);
             sparkleParticles.Emit(10);
-            Collider[] hits = Physics.OverlapSphere(physGrabObject.impactDetector.contactPoint, 5f, mask, QueryTriggerInteraction.Collide);
-            List<PhysGrabObject> validPhysHits = new List<PhysGrabObject>();
-            List<EnemyParent> validEnemyHits = new List<EnemyParent>();
-            bool durabilityLoss = false;
-            for (int i = 0; i < hits.Length; i++)
+            if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                if (hits[i].gameObject.CompareTag("Player"))
+                Collider[] hits = Physics.OverlapSphere(physGrabObject.impactDetector.contactPoint, 5f, mask, QueryTriggerInteraction.Collide);
+                List<PhysGrabObject> validPhysHits = new List<PhysGrabObject>();
+                List<EnemyParent> validEnemyHits = new List<EnemyParent>();
+                bool durabilityLoss = false;
+                for (int i = 0; i < hits.Length; i++)
                 {
-                    PlayerAvatar player = hits[i].gameObject.GetComponentInParent<PlayerAvatar>();
-                    if (player == null)
+                    if (hits[i].gameObject.CompareTag("Player"))
                     {
-                        player = hits[i].gameObject.GetComponentInParent<PlayerController>().playerAvatarScript;
+                        PlayerAvatar player = hits[i].gameObject.GetComponentInParent<PlayerAvatar>();
+                        if (player == null)
+                        {
+                            player = hits[i].gameObject.GetComponentInParent<PlayerController>().playerAvatarScript;
+                        }
+                        if (player != null && player.isGrounded && !player.physGrabber.grabbed || (player.physGrabber.grabbed && player.physGrabber.grabbedPhysGrabObject != physGrabObject))
+                        {
+                            log.LogDebug("Mely Bonk Launching Player");
+                            player.tumble.TumbleRequest(true, false);
+                            player.tumble.TumbleOverrideTime(0.5f);
+                            player.tumble.TumbleForce(Vector3.up * 15f);
+                            continue;
+                        }
                     }
-                    if (player != null && player.isLocal && player.isGrounded && !player.physGrabber.grabbed || (player.physGrabber.grabbed && player.physGrabber.grabbedPhysGrabObject != physGrabObject))
-                    {
-                        log.LogDebug("Mely Bonk Launching Player");
-                        player.tumble.TumbleRequest(true, false);
-                        player.tumble.TumbleOverrideTime(0.5f);
-                        player.tumble.TumbleForce(Vector3.up * 15f);
-                        continue;
-                    }
-                }
-                if (SemiFunc.IsMasterClientOrSingleplayer())
-                {
                     EnemyParent enemy = hits[i].gameObject.GetComponentInParent<EnemyParent>();
                     if (!validEnemyHits.Contains(enemy) && enemy != null)
                     {
@@ -65,7 +65,7 @@ namespace REPOWildCardMod.Items
                         }
                         if (enemy.Enemy.HasHealth)
                         {
-                            enemy.Enemy.Health.Hurt(20, Vector3.up * 2.5f);
+                            enemy.Enemy.Health.Hurt(35, Vector3.up * 2.5f);
                         }
                         validEnemyHits.Add(enemy);
                         durabilityLoss = true;
@@ -81,10 +81,10 @@ namespace REPOWildCardMod.Items
                         }
                     }
                 }
-            }
-            if (durabilityLoss)
-            {
-                itemMelee.EnemySwingHit();
+                if (durabilityLoss)
+                {
+                    itemMelee.EnemySwingHit();
+                }
             }
         }
     }
