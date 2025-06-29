@@ -10,6 +10,8 @@ namespace REPOWildCardMod.Items
         public ParticleSystem sparkleParticles;
         public LayerMask mask;
         public ExplosionPreset explosionPreset;
+        public bool itemBroken;
+        public Collider headCollider;
         public void Awake()
         {
             mask = SemiFunc.LayerMaskGetPhysGrabObject() + LayerMask.GetMask("Player") + LayerMask.GetMask("Default") + LayerMask.GetMask("Enemy");
@@ -19,6 +21,21 @@ namespace REPOWildCardMod.Items
             if (physGrabObject.grabbedLocal)
             {
                 PhysGrabber.instance.OverrideGrabDistance(2f);
+            }
+            if (itemMelee.isBroken)
+            {
+                if (!itemBroken)
+                {
+                    itemBroken = true;
+                    sparkleParticles.Stop();
+                    headCollider.gameObject.SetActive(false);
+                }
+            }
+            else if (itemBroken)
+            {
+                itemBroken = false;
+                sparkleParticles.Play();
+                headCollider.gameObject.SetActive(true);
             }
         }
         public void OnHit()

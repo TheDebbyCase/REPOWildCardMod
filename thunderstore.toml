@@ -1,10 +1,10 @@
 [config]
-schemaVersion = "0.21.3"
+schemaVersion = "0.21.4"
 
 [package]
 namespace = "deB"
 name = "WILDCARD_REPO"
-versionNumber = "0.21.3"
+versionNumber = "0.21.4"
 description = "Adds content based on YouTube org WILDCARD!"
 websiteUrl = "https://github.com/TheDebbyCase/REPOWildCardMod"
 containsNsfwContent = false

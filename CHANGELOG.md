@@ -1,3 +1,7 @@
+## 0.21.4
+- Buffed Mely Bonk damage and force when directly hitting
+- Made Mely Bonk easier to charge from being broken
+
 ## 0.21.3
 - Fixed Mario Dice not exploding
 - Attempted to fix CalaSketchi being eternally hungry
