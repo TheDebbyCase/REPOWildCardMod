@@ -70,9 +70,12 @@ namespace REPOWildCardMod.Items
             {
                 if (neverGrab)
                 {
-                    ChatManager.instance.PossessChatScheduleStart(9);
-                    ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, "I should type my target in chat", 2f, Color.blue);
-                    ChatManager.instance.PossessChatScheduleEnd();
+                    if (SemiFunc.IsMultiplayer())
+                    {
+                        ChatManager.instance.PossessChatScheduleStart(9);
+                        ChatManager.instance.PossessChat(ChatManager.PossessChatID.LovePotion, "I should type my target in chat", 2f, Color.blue);
+                        ChatManager.instance.PossessChatScheduleEnd();
+                    }
                     bool tips = GameplayManager.instance.tips;
                     GameplayManager.instance.tips = true;
                     TutorialDirector.instance.ActivateTip(tutorial.pageName, 0.5f, true);

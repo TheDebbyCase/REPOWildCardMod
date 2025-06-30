@@ -1,3 +1,6 @@
+## 0.21.6
+- Fixed some missing references in Giwi Worm, fixed an error that occurs when using the Smith Note in Singleplayer
+
 ## 0.21.5
 - Fixed Dragon Ball wish valuables spawning sound effect not working
 
