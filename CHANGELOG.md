@@ -1,3 +1,6 @@
+## 0.21.5
+- Fixed Dragon Ball wish valuables spawning sound effect not working
+
 ## 0.21.4
 - Buffed Mely Bonk damage and force when directly hitting
 - Made Mely Bonk easier to charge from being broken
