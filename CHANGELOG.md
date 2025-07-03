@@ -1,3 +1,6 @@
+## 0.21.7
+- Fixed Smith Note destroying itself too soon with self destroy config option on
+
 ## 0.21.6
 - Fixed some missing references in Giwi Worm, fixed an error that occurs when using the Smith Note in Singleplayer
 

@@ -477,6 +477,15 @@ namespace REPOWildCardMod.Items
             {
                 KilledRPC(true, killer, true);
             }
+            yield return new WaitForSeconds(0.25f);
+            if (WildCardMod.instance.ModConfig.noteDestroy.Value)
+            {
+                physGrabObject.DestroyPhysGrabObject();
+            }
+            else
+            {
+                RefreshLists();
+            }
         }
         [PunRPC]
         public void KillPlayerRPC(string player, string killer)
@@ -536,8 +545,15 @@ namespace REPOWildCardMod.Items
                 PlayerAvatar.instance.playerHealth.health = 0;
                 PlayerAvatar.instance.playerHealth.Hurt(1, savingGrace: false);
             }
-            yield return new WaitForSeconds(1f);
-            RefreshLists();
+            yield return new WaitForSeconds(0.25f);
+            if (WildCardMod.instance.ModConfig.noteDestroy.Value)
+            {
+                physGrabObject.DestroyPhysGrabObject();
+            }
+            else
+            {
+                RefreshLists();
+            }
         }
         [PunRPC]
         public void KilledRPC(bool dead, string killer, bool enemy)
@@ -550,7 +566,7 @@ namespace REPOWildCardMod.Items
                     {
                         if (WildCardMod.instance.ModConfig.noteDestroy.Value)
                         {
-                            physGrabObject.DestroyPhysGrabObject();
+                            itemBattery.batteryLife = 0;
                         }
                         else
                         {
