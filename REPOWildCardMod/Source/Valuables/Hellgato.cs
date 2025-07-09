@@ -155,7 +155,7 @@ namespace REPOWildCardMod.Valuables
             }
             else
             {
-                impactDetector.photonView.RPC("BreakMasterRPC", RpcTarget.MasterClient, value, physGrabObject.centerPoint, 2, true);
+                photonView.RPC("BreakMasterRPC", RpcTarget.MasterClient, value);
             }
         }
         public void BreakMasterRPC(float value)

@@ -457,7 +457,7 @@ namespace REPOWildCardMod.Items
                     }
                     else
                     {
-                        log.LogDebug($"Smith Note failed to kill a {selectedEnemy.enemyName}");
+                        log.LogInfo($"Smith Note failed to kill a {selectedEnemy.enemyName}");
                     }
                 }
             }
@@ -467,7 +467,7 @@ namespace REPOWildCardMod.Items
             }
             else
             {
-                log.LogDebug($"Smith Note failed to kill {selectedEnemy.enemyName}");
+                log.LogInfo($"Smith Note failed to kill {selectedEnemy.enemyName}");
             }
             if (SemiFunc.IsMultiplayer())
             {

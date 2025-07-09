@@ -1,3 +1,7 @@
+## 0.21.8
+- Slightly changed Smith Note logging
+- Potential fix for Hellgato impact effects not playing
+
 ## 0.21.7
 - Fixed Smith Note destroying itself too soon with self destroy config option on
 
