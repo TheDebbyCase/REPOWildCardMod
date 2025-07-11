@@ -1,4 +1,5 @@
 ﻿using Photon.Pun;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -18,6 +19,7 @@ namespace REPOWildCardMod.Valuables
         public GameObject hudAudio;
         public int extractFinishedPlayers = 0;
         public int playersEmeraldsSet = 0;
+        public Coroutine extractCoroutine;
         public void Awake()
         {
             hudAudio = WildCardMod.instance.miscPrefabsList.Find((x) => x.name == "Wildcard HUD Audio");
@@ -98,10 +100,17 @@ namespace REPOWildCardMod.Valuables
         public void ExtractCompleteRPC()
         {
             extractFinishedPlayers += 1;
-            if (extractFinishedPlayers >= SemiFunc.PlayerGetList().Count)
+            log.LogDebug($"extractFinishedPlayers == {extractFinishedPlayers}");
+            if (extractCoroutine == null)
             {
-                DestroyEmerald();
+                extractCoroutine = StartCoroutine(ExtractCompleteCoroutine());
             }
+        }
+        public IEnumerator ExtractCompleteCoroutine()
+        {
+            yield return new WaitUntil(() => extractFinishedPlayers >= SemiFunc.PlayerGetList().Count);
+            log.LogDebug("Calling DestroyEmerald()");
+            DestroyEmerald();
         }
         public void MasterAddPlayerEmerald()
         {
@@ -129,7 +138,7 @@ namespace REPOWildCardMod.Valuables
             }
             if (SemiFunc.IsMultiplayer())
             {
-                photonView.RPC("PropogateEmeraldsRPC", RpcTarget.Others, StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID], steamID);
+                photonView.RPC("PropogateEmeraldsRPC", RpcTarget.Others, StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][steamID]);
             }
             ExtractCompleteRPC();
         }
@@ -179,24 +188,14 @@ namespace REPOWildCardMod.Valuables
             superSonic.photonView = newObject.GetComponent<PhotonView>();
         }
         [PunRPC]
-        public void PropogateEmeraldsRPC(int emeralds, string masterID)
+        public void PropogateEmeraldsRPC(int emeralds)
         {
-            StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][masterID] = emeralds;
-            string localSteamID = SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal());
-            if (emeralds != StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][localSteamID])
+            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+            for (int i = 0; i < players.Count; i++)
             {
-                photonView.RPC("SetEmeraldsRPC", RpcTarget.All, localSteamID, emeralds);
+                StatsManager.instance.dictionaryOfDictionaries["playerUpgradeChaosEmeralds"][SemiFunc.PlayerGetSteamID(players[i])] = emeralds;
             }
-        }
-        [PunRPC]
-        public void SetEmeraldsRPC(string steamID, int emeralds)
-        {
-            StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = emeralds;
-            playersEmeraldsSet += 1;
-            if (playersEmeraldsSet >= SemiFunc.PlayerGetList().Count)
-            {
-                photonView.RPC("ExtractCompleteRPC", RpcTarget.MasterClient);
-            }
+            photonView.RPC("ExtractCompleteRPC", RpcTarget.MasterClient);
         }
         public void DestroyEmerald()
         {

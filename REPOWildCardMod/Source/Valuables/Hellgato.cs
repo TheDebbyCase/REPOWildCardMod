@@ -158,6 +158,7 @@ namespace REPOWildCardMod.Valuables
                 photonView.RPC("BreakMasterRPC", RpcTarget.MasterClient, value);
             }
         }
+        [PunRPC]
         public void BreakMasterRPC(float value)
         {
             if (SemiFunc.IsMultiplayer())

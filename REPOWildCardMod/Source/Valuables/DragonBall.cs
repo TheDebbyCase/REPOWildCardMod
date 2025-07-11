@@ -1,5 +1,6 @@
 ﻿using Photon.Pun;
 using REPOLib.Modules;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -25,6 +26,7 @@ namespace REPOWildCardMod.Valuables
         public PlayerAvatar masterPlayer;
         public int extractFinishedPlayers = 0;
         public int playersBallsSet = 0;
+        public Coroutine extractCoroutine;
         public void Awake()
         {
             hudAudio = WildCardMod.instance.miscPrefabsList.Find((x) => x.name == "Wildcard HUD Audio");
@@ -123,10 +125,17 @@ namespace REPOWildCardMod.Valuables
         public void ExtractCompleteRPC()
         {
             extractFinishedPlayers += 1;
-            if (extractFinishedPlayers >= SemiFunc.PlayerGetList().Count)
+            log.LogDebug($"extractFinishedPlayers == {extractFinishedPlayers}");
+            if (extractCoroutine == null)
             {
-                DestroyBall();
+                extractCoroutine = StartCoroutine(ExtractCompleteCoroutine());
             }
+        }
+        public IEnumerator ExtractCompleteCoroutine()
+        {
+            yield return new WaitUntil(() => extractFinishedPlayers >= SemiFunc.PlayerGetList().Count);
+            log.LogDebug("Calling DestroyBall()");
+            DestroyBall();
         }
         public void MasterAddPlayerBall()
         {
@@ -154,7 +163,7 @@ namespace REPOWildCardMod.Valuables
             }
             if (SemiFunc.IsMultiplayer())
             {
-                photonView.RPC("PropogateBallsRPC", RpcTarget.Others, StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID], steamID);
+                photonView.RPC("PropogateBallsRPC", RpcTarget.All, StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID]);
             }
             ExtractCompleteRPC();
         }
@@ -210,24 +219,14 @@ namespace REPOWildCardMod.Valuables
             shenronHUD.photonView = newAudio.GetComponent<PhotonView>();
         }
         [PunRPC]
-        public void PropogateBallsRPC(int balls, string masterID)
+        public void PropogateBallsRPC(int balls)
         {
-            StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][masterID] = balls;
-            string localSteamID = SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal());
-            if (balls != StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][localSteamID])
+            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+            for (int i = 0; i < players.Count; i++)
             {
-                photonView.RPC("SetBallsRPC", RpcTarget.All, localSteamID, balls);
+                StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][SemiFunc.PlayerGetSteamID(players[i])] = balls;
             }
-        }
-        [PunRPC]
-        public void SetBallsRPC(string steamID, int balls)
-        {
-            StatsManager.instance.dictionaryOfDictionaries["playerUpgradeDragonBalls"][steamID] = balls;
-            playersBallsSet += 1;
-            if (playersBallsSet >= SemiFunc.PlayerGetList().Count)
-            {
-                photonView.RPC("ExtractCompleteRPC", RpcTarget.MasterClient);
-            }
+            photonView.RPC("ExtractCompleteRPC", RpcTarget.MasterClient);
         }
         public void DestroyBall()
         {
