@@ -1,3 +1,6 @@
+## 0.21.10
+- Attempted to fix CalaSketchi spawning inside walls sometimes
+
 ## 0.21.9
 - Fixed Dragon Balls and Chaos Emeralds not being destroyed on extraction
 - Fixed Hellgato not changing value when non-hosts use it
