@@ -443,6 +443,78 @@ namespace REPOWildCardMod.Valuables
                 }
             }
         }
+        [PunRPC]
+        public void UpgradeHealthRPC(string id, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                PunManager.instance.UpgradePlayerHealth(id);
+            }
+        }
+        [PunRPC]
+        public void UpgradeStaminaRPC(string id, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                PunManager.instance.UpgradePlayerEnergy(id);
+            }
+        }
+        [PunRPC]
+        public void UpgradeLaunchRPC(string id, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                PunManager.instance.UpgradePlayerTumbleLaunch(id);
+            }
+        }
+        [PunRPC]
+        public void UpgradeSpeedRPC(string id, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                PunManager.instance.UpgradePlayerSprintSpeed(id);
+            }
+        }
+        [PunRPC]
+        public void UpgradeStrengthRPC(string id, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                PunManager.instance.UpgradePlayerGrabStrength(id);
+            }
+        }
+        [PunRPC]
+        public void UpgradeRangeRPC(string id, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                PunManager.instance.UpgradePlayerGrabRange(id);
+            }
+        }
+        [PunRPC]
+        public void UpgradeJumpRPC(string id, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                PunManager.instance.UpgradePlayerExtraJump(id);
+            }
+        }
+        [PunRPC]
+        public void UpgradeRestRPC(string id, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                PunManager.instance.UpgradePlayerCrouchRest(id);
+            }
+        }
+        [PunRPC]
+        public void UpgradeWingsRPC(string id, int amount)
+        {
+            for (int i = 0; i < amount; i++)
+            {
+                PunManager.instance.UpgradePlayerTumbleWings(id);
+            }
+        }
         public void MegaUpgrade(string steamID, string upgrade)
         {
             log.LogDebug($"Dragon Ball Mega Upgrading: \"{upgrade}\"");
@@ -455,17 +527,20 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 5; j++)
+                                string id = SemiFunc.PlayerGetSteamID(players[i]);
+                                if (SemiFunc.IsMultiplayer())
                                 {
-                                    PunManager.instance.UpgradePlayerHealth(SemiFunc.PlayerGetSteamID(players[i]));
+                                    photonView.RPC("UpgradeHealthRPC", RpcTarget.Others, id, 5);
                                 }
+                                UpgradeHealthRPC(id, 5);
                             }
                             break;
                         }
-                        for (int i = 0; i < 5; i++)
+                        if (SemiFunc.IsMultiplayer())
                         {
-                            PunManager.instance.UpgradePlayerHealth(steamID);
+                            photonView.RPC("UpgradeHealthRPC", RpcTarget.Others, steamID, 5);
                         }
+                        UpgradeHealthRPC(steamID, 5);
                         break;
                     }
                 case "Stamina":
@@ -475,17 +550,20 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 5; j++)
+                                string id = SemiFunc.PlayerGetSteamID(players[i]);
+                                if (SemiFunc.IsMultiplayer())
                                 {
-                                    PunManager.instance.UpgradePlayerEnergy(SemiFunc.PlayerGetSteamID(players[i]));
+                                    photonView.RPC("UpgradeStaminaRPC", RpcTarget.Others, id, 5);
                                 }
+                                UpgradeStaminaRPC(id, 5);
                             }
                             break;
                         }
-                        for (int i = 0; i < 5; i++)
+                        if (SemiFunc.IsMultiplayer())
                         {
-                            PunManager.instance.UpgradePlayerEnergy(steamID);
+                            photonView.RPC("UpgradeStaminaRPC", RpcTarget.Others, steamID, 5);
                         }
+                        UpgradeStaminaRPC(steamID, 5);
                         break;
                     }
                 case "Launch":
@@ -495,17 +573,20 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 5; j++)
+                                string id = SemiFunc.PlayerGetSteamID(players[i]);
+                                if (SemiFunc.IsMultiplayer())
                                 {
-                                    PunManager.instance.UpgradePlayerTumbleLaunch(SemiFunc.PlayerGetSteamID(players[i]));
+                                    photonView.RPC("UpgradeLaunchRPC", RpcTarget.Others, id, 5);
                                 }
+                                UpgradeLaunchRPC(id, 5);
                             }
                             break;
                         }
-                        for (int i = 0; i < 5; i++)
+                        if (SemiFunc.IsMultiplayer())
                         {
-                            PunManager.instance.UpgradePlayerTumbleLaunch(steamID);
+                            photonView.RPC("UpgradeLaunchRPC", RpcTarget.Others, steamID, 5);
                         }
+                        UpgradeLaunchRPC(steamID, 5);
                         break;
                     }
                 case "Speed":
@@ -515,17 +596,20 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 5; j++)
+                                string id = SemiFunc.PlayerGetSteamID(players[i]);
+                                if (SemiFunc.IsMultiplayer())
                                 {
-                                    PunManager.instance.UpgradePlayerSprintSpeed(SemiFunc.PlayerGetSteamID(players[i]));
+                                    photonView.RPC("UpgradeSpeedRPC", RpcTarget.Others, id, 5);
                                 }
+                                UpgradeSpeedRPC(id, 5);
                             }
                             break;
                         }
-                        for (int i = 0; i < 5; i++)
+                        if (SemiFunc.IsMultiplayer())
                         {
-                            PunManager.instance.UpgradePlayerSprintSpeed(steamID);
+                            photonView.RPC("UpgradeSpeedRPC", RpcTarget.Others, steamID, 5);
                         }
+                        UpgradeSpeedRPC(steamID, 5);
                         break;
                     }
                 case "Strength":
@@ -535,17 +619,20 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 5; j++)
+                                string id = SemiFunc.PlayerGetSteamID(players[i]);
+                                if (SemiFunc.IsMultiplayer())
                                 {
-                                    PunManager.instance.UpgradePlayerGrabStrength(SemiFunc.PlayerGetSteamID(players[i]));
+                                    photonView.RPC("UpgradeStrengthRPC", RpcTarget.Others, id, 5);
                                 }
+                                UpgradeStrengthRPC(id, 5);
                             }
                             break;
                         }
-                        for (int i = 0; i < 5; i++)
+                        if (SemiFunc.IsMultiplayer())
                         {
-                            PunManager.instance.UpgradePlayerGrabStrength(steamID);
+                            photonView.RPC("UpgradeStrengthRPC", RpcTarget.Others, steamID, 5);
                         }
+                        UpgradeStrengthRPC(steamID, 5);
                         break;
                     }
                 case "Range":
@@ -555,17 +642,20 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 5; j++)
+                                string id = SemiFunc.PlayerGetSteamID(players[i]);
+                                if (SemiFunc.IsMultiplayer())
                                 {
-                                    PunManager.instance.UpgradePlayerGrabRange(SemiFunc.PlayerGetSteamID(players[i]));
+                                    photonView.RPC("UpgradeRangeRPC", RpcTarget.Others, id, 5);
                                 }
+                                UpgradeRangeRPC(id, 5);
                             }
                             break;
                         }
-                        for (int i = 0; i < 5; i++)
+                        if (SemiFunc.IsMultiplayer())
                         {
-                            PunManager.instance.UpgradePlayerGrabRange(steamID);
+                            photonView.RPC("UpgradeRangeRPC", RpcTarget.Others, steamID, 5);
                         }
+                        UpgradeRangeRPC(steamID, 5);
                         break;
                     }
                 case "Extra Jump":
@@ -575,17 +665,20 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 5; j++)
+                                string id = SemiFunc.PlayerGetSteamID(players[i]);
+                                if (SemiFunc.IsMultiplayer())
                                 {
-                                    PunManager.instance.UpgradePlayerExtraJump(SemiFunc.PlayerGetSteamID(players[i]));
+                                    photonView.RPC("UpgradeJumpRPC", RpcTarget.Others, id, 5);
                                 }
+                                UpgradeJumpRPC(id, 5);
                             }
                             break;
                         }
-                        for (int i = 0; i < 5; i++)
+                        if (SemiFunc.IsMultiplayer())
                         {
-                            PunManager.instance.UpgradePlayerExtraJump(steamID);
+                            photonView.RPC("UpgradeJumpRPC", RpcTarget.Others, steamID, 5);
                         }
+                        UpgradeJumpRPC(steamID, 5);
                         break;
                     }
                 case "Crouch Rest":
@@ -595,17 +688,20 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 5; j++)
+                                string id = SemiFunc.PlayerGetSteamID(players[i]);
+                                if (SemiFunc.IsMultiplayer())
                                 {
-                                    PunManager.instance.UpgradePlayerCrouchRest(SemiFunc.PlayerGetSteamID(players[i]));
+                                    photonView.RPC("UpgradeRestRPC", RpcTarget.Others, id, 5);
                                 }
+                                UpgradeRestRPC(id, 5);
                             }
                             break;
                         }
-                        for (int i = 0; i < 5; i++)
+                        if (SemiFunc.IsMultiplayer())
                         {
-                            PunManager.instance.UpgradePlayerCrouchRest(steamID);
+                            photonView.RPC("UpgradeRestRPC", RpcTarget.Others, steamID, 5);
                         }
+                        UpgradeRestRPC(steamID, 5);
                         break;
                     }
                 case "Tumble Wings":
@@ -615,17 +711,20 @@ namespace REPOWildCardMod.Valuables
                             List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
                             for (int i = 0; i < players.Count; i++)
                             {
-                                for (int j = 0; j < 5; j++)
+                                string id = SemiFunc.PlayerGetSteamID(players[i]);
+                                if (SemiFunc.IsMultiplayer())
                                 {
-                                    PunManager.instance.UpgradePlayerTumbleWings(SemiFunc.PlayerGetSteamID(players[i]));
+                                    photonView.RPC("UpgradeWingsRPC", RpcTarget.Others, id, 5);
                                 }
+                                UpgradeWingsRPC(id, 5);
                             }
                             break;
                         }
-                        for (int i = 0; i < 5; i++)
+                        if (SemiFunc.IsMultiplayer())
                         {
-                            PunManager.instance.UpgradePlayerTumbleWings(steamID);
+                            photonView.RPC("UpgradeWingsRPC", RpcTarget.Others, steamID, 5);
                         }
+                        UpgradeWingsRPC(steamID, 5);
                         break;
                     }
                 default:

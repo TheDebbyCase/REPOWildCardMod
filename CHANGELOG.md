@@ -1,3 +1,6 @@
+## 0.21.11
+- Fix for Dragon Ball Wish upgrades not applying instantly for non-host players
+
 ## 0.21.10
 - Attempted to fix CalaSketchi spawning inside walls sometimes
 
