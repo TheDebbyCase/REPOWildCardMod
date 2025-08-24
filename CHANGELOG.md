@@ -1,3 +1,10 @@
+## 0.22.1
+- Fixed Dragon Ball upgrade Max / Per config options resetting to defaults on each game launch
+- Added a config option to choose whether only vanilla upgrades are considered
+
+## 0.22.0
+- Added a BUNCH of config options for the Dragon Ball Wish
+
 ## 0.21.11
 - Fix for Dragon Ball Wish upgrades not applying instantly for non-host players
 

@@ -1,10 +1,13 @@
 ﻿using HarmonyLib;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 namespace REPOWildCardMod.Patches
 {
     [HarmonyPatch(typeof(StatsManager))]
     public static class StatsManagerPatches
     {
+        public static bool doneConfig = false;
         [HarmonyPatch(nameof(StatsManager.Start))]
         [HarmonyPrefix]
         public static bool AddChaosDragonUpgrade(StatsManager __instance)
@@ -29,6 +32,41 @@ namespace REPOWildCardMod.Patches
             }
             __instance.dictionaryOfDictionaries["dragonBallsUnique"] = dragonBallsDict;
             __instance.dictionaryOfDictionaries["chaosEmeraldsUnique"] = chaosEmeraldsDict;
+        }
+        [HarmonyPatch(nameof(StatsManager.RunStartStats))]
+        [HarmonyPostfix]
+        public static void DragonBallWishUpgrades(StatsManager __instance)
+        {
+            if (doneConfig)
+            {
+                return;
+            }
+            List<KeyValuePair<string, Dictionary<string, int>>> dictionaryPairs = __instance.dictionaryOfDictionaries.ToList();
+            List<string> upgradeStrings = new List<string>();
+            Regex regex = new Regex("(?<!^)(?=[A-Z])");
+            for (int i = 0; i < dictionaryPairs.Count; i++)
+            {
+                string upgradeString = dictionaryPairs[i].Key;
+                if (!upgradeString.StartsWith("playerUpgrade"))
+                {
+                    continue;
+                }
+                string[] splitString = regex.Split(upgradeString);
+                upgradeString = "";
+                bool stringEnd = false;
+                for (int j = 0; j < splitString.Length; j++)
+                {
+                    if (stringEnd)
+                    {
+                        upgradeString += $"{splitString[j]} ";
+                    }
+                    stringEnd = splitString[j] == "Upgrade" || stringEnd;
+                }
+                upgradeString = upgradeString.Trim();
+                upgradeStrings.Add(upgradeString);
+            }
+            WildCardMod.instance.ModConfig.WishUpgradesConfig(upgradeStrings);
+            doneConfig = true;
         }
     }
 }

@@ -3,6 +3,7 @@ using REPOLib.Modules;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using UnityEngine;
 namespace REPOWildCardMod.Valuables
@@ -230,10 +231,6 @@ namespace REPOWildCardMod.Valuables
         }
         public void DestroyBall()
         {
-            if (levelDragonBalls.Contains(this))
-            {
-                levelDragonBalls.Remove(this);
-            }
             if (SemiFunc.IsMultiplayer())
             {
                 physGrabObject.photonView.RPC("DestroyPhysGrabObjectRPC", RpcTarget.All);
@@ -243,10 +240,20 @@ namespace REPOWildCardMod.Valuables
                 physGrabObject.DestroyPhysGrabObjectRPC();
             }
         }
+        public void OnDestroy()
+        {
+            if (levelDragonBalls.Contains(this))
+            {
+                levelDragonBalls.Remove(this);
+            }
+        }
     }
     public class ShenronHUD : MonoBehaviour
     {
         static readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
+        public static List<string> wishBlacklist = new List<string>() { "Dragon Balls", "Chaos Emeralds", "Map Player Count", "Throw", "Head Charge", "Head Power" };
+        public static string[] vanillaUpgrades = new string[] { "Health", "Stamina", "Launch", "Speed", "Strength", "Range", "Extra Jump", "Crouch Rest", "Tumble Wings" };
+        public int[] randomAmounts = new int[] { Random.Range(Mathf.Max(0, WildCardMod.instance.ModConfig.wishValuableAmounts[0].Value), Mathf.Max(1, WildCardMod.instance.ModConfig.wishValuableAmounts[0].Value + 1, WildCardMod.instance.ModConfig.wishValuableAmounts[1].Value + 1)), Random.Range(Mathf.Max(0, WildCardMod.instance.ModConfig.wishValuableAmounts[2].Value), Mathf.Max(1, WildCardMod.instance.ModConfig.wishValuableAmounts[2].Value + 1, WildCardMod.instance.ModConfig.wishValuableAmounts[3].Value + 1)), Random.Range(Mathf.Max(0, WildCardMod.instance.ModConfig.wishValuableAmounts[4].Value), Mathf.Max(1, WildCardMod.instance.ModConfig.wishValuableAmounts[4].Value + 1, WildCardMod.instance.ModConfig.wishValuableAmounts[5].Value + 1)), Random.Range(Mathf.Max(0, WildCardMod.instance.ModConfig.wishValuableAmounts[6].Value), Mathf.Max(1, WildCardMod.instance.ModConfig.wishValuableAmounts[6].Value + 1, WildCardMod.instance.ModConfig.wishValuableAmounts[7].Value + 1)) };
         public PhotonView photonView;
         public float timer;
         public Sound shenronWish;
@@ -254,9 +261,9 @@ namespace REPOWildCardMod.Valuables
         public bool voiceImpulse = true;
         public bool upgradesGiven = false;
         public List<string> wishableUpgrades;
+        public Dictionary<string, WishUpgrade> upgradesInfo = new Dictionary<string, WishUpgrade>();
         public AudioClip spawnValuableClip;
         public int valuableType;
-        public int[] randomAmounts = new int[] { Random.Range(15, 21), Random.Range(9, 13), Random.Range(6, 10), Random.Range(3, 7) };
         public GameObject chosenValuable;
         public float valuableTimerInterval = -1f;
         public float valuableTimer = 0f;
@@ -269,15 +276,30 @@ namespace REPOWildCardMod.Valuables
             shenronWish.LowPassIgnoreColliders.Add(PlayerController.instance.col);
             shenronVoice.LowPassIgnoreColliders.Add(PlayerController.instance.col);
             wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal())).Keys.ToList();
-            wishableUpgrades.Remove("Dragon Balls");
-            wishableUpgrades.Remove("Chaos Emeralds");
-            wishableUpgrades.Remove("Map Player Count");
-            wishableUpgrades.Remove("Throw");
-            wishableUpgrades.Remove("Head Charge");
-            wishableUpgrades.Remove("Head Power");
+            wishBlacklist.AddRange(WildCardMod.instance.ModConfig.wishBlacklist.Value.Replace(" ", "").Split(","));
+            if (WildCardMod.instance.ModConfig.vanillaOnlyUpgrades.Value)
+            {
+                wishBlacklist.AddRange(wishableUpgrades.Where((x) => !vanillaUpgrades.Contains(x)));
+            }
+            wishableUpgrades.RemoveAll(wishBlacklist.Contains);
+            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
             for (int i = 0; i < wishableUpgrades.Count; i++)
             {
                 log.LogDebug($"Dragon Ball Wishable Upgrade {i}: \"{wishableUpgrades[i]}\"");
+                string[] valueString = WildCardMod.instance.ModConfig.wishMaxPerDict[wishableUpgrades[i]].Value.Replace(" ", "").Split(",");
+                if (valueString.Length == 2 && int.TryParse(valueString[0], out int cap) && int.TryParse(valueString[1], out int per))
+                {
+                    WishUpgrade newUpgradeInfo = new WishUpgrade(cap, per);
+                    for (int j = 0; j < players.Count; j++)
+                    {
+                        newUpgradeInfo.playersAtCap.Add(players[j].steamID, false);
+                    }
+                    upgradesInfo.Add(wishableUpgrades[i], newUpgradeInfo);
+                }
+                else
+                {
+                    log.LogWarning($"{wishableUpgrades[i]} Upgrade Wish config was set up wrong!");
+                }
             }
         }
         public void Update()
@@ -362,47 +384,59 @@ namespace REPOWildCardMod.Valuables
         {
             if (RoundDirector.instance.allExtractionPointsCompleted)
             {
-                SemiFunc.StatSetRunCurrency(SemiFunc.StatGetRunCurrency() + 20);
-                SemiFunc.StatSetRunTotalHaul(SemiFunc.StatGetRunTotalHaul() + 20);
+                int currencyToAdd = Mathf.Max(0, WildCardMod.instance.ModConfig.wishCurrencyAmount.Value);
+                SemiFunc.StatSetRunCurrency(SemiFunc.StatGetRunCurrency() + currencyToAdd);
+                SemiFunc.StatSetRunTotalHaul(SemiFunc.StatGetRunTotalHaul() + currencyToAdd);
                 CurrencyUI.instance.FetchCurrency();
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
-                    RoundDirector.instance.totalHaul += 20000;
+                    RoundDirector.instance.totalHaul += currencyToAdd * 1000;
                 }
             }
             else
             {
+                if (randomAmounts.All((x) => x == 0))
+                {
+                    return;
+                }
                 shenronVoice.Sounds = new AudioClip[] { spawnValuableClip };
                 shenronVoice.VolumeRandom = 0.1f;
                 shenronVoice.PitchRandom = 0.15f;
                 if (SemiFunc.IsMasterClientOrSingleplayer())
                 {
-                    valuableType = Random.Range(0, 4);
                     valuableSpawnPosition = SemiFunc.LevelPointsGetClosestToPlayer().transform.position + (Vector3.up * 1.5f);
                     LevelValuables levelPool = LevelGenerator.Instance.Level.ValuablePresets[Random.Range(0, LevelGenerator.Instance.Level.ValuablePresets.Count)];
                     List<GameObject> valuablePool = null;
-                    switch (valuableType)
+                    while (valuablePool == null)
                     {
-                        case 0:
-                            {
-                                valuablePool = levelPool.tiny;
-                                break;
-                            }
-                        case 1:
-                            {
-                                valuablePool = levelPool.small;
-                                break;
-                            }
-                        case 2:
-                            {
-                                valuablePool = levelPool.medium;
-                                break;
-                            }
-                        case 3:
-                            {
-                                valuablePool = levelPool.big;
-                                break;
-                            }
+                        valuableType = Random.Range(0, 4);
+                        if (randomAmounts[valuableType] == 0)
+                        {
+                            continue;
+                        }
+                        switch (valuableType)
+                        {
+                            case 0:
+                                {
+                                    valuablePool = levelPool.tiny;
+                                    break;
+                                }
+                            case 1:
+                                {
+                                    valuablePool = levelPool.small;
+                                    break;
+                                }
+                            case 2:
+                                {
+                                    valuablePool = levelPool.medium;
+                                    break;
+                                }
+                            case 3:
+                                {
+                                    valuablePool = levelPool.big;
+                                    break;
+                                }
+                        }
                     }
                     valuableTimerInterval = 5f / randomAmounts[valuableType];
                     valuablePool.RemoveAll(x => x.name == "Valuable Dragon Ball" || x.name == "Valuable Dummy Item Smith Note");
@@ -442,6 +476,130 @@ namespace REPOWildCardMod.Valuables
                     MegaUpgrade(SemiFunc.PlayerGetSteamID(SemiFunc.PlayerAvatarLocal()), wishableUpgrades[Random.Range(0, wishableUpgrades.Count)]);
                 }
             }
+        }
+        public void MegaUpgrade(string steamID, string upgrade)
+        {
+            log.LogDebug($"Dragon Ball Mega Upgrading: \"{upgrade}\"");
+            int cap = upgradesInfo[upgrade].cap;
+            int per = upgradesInfo[upgrade].per;
+            int amount = per;
+            if (cap > 0)
+            {
+                int upgradeAmount = StatsManager.instance.FetchPlayerUpgrades(steamID)[upgrade];
+                int capDiff = cap - upgradeAmount;
+                amount = Mathf.Min(per, capDiff);
+                upgradesInfo[upgrade].playersAtCap[steamID] = capDiff <= 0;
+            }
+            if (amount <= 0)
+            {
+                wishableUpgrades.Remove(upgrade);
+                if (WishableCapped(steamID, out wishableUpgrades))
+                {
+                    MegaUpgrade(steamID, wishableUpgrades[Random.Range(0, wishableUpgrades.Count)]);
+                }
+                return;
+            }
+            if (vanillaUpgrades.Contains(upgrade))
+            {
+                if (WildCardMod.instance.oldSharedUpgradesPresent)
+                {
+                    List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                    for (int i = 0; i < players.Count; i++)
+                    {
+                        string id = SemiFunc.PlayerGetSteamID(players[i]);
+                        amount = Mathf.Min(per, cap - StatsManager.instance.FetchPlayerUpgrades(id)[upgrade]);
+                        if (amount <= 0)
+                        {
+                            continue;
+                        }
+                        DoUpgrade(id, amount, upgrade);
+                    }
+                }
+                else
+                {
+                    DoUpgrade(steamID, amount, upgrade);
+                }
+            }
+            else if (WildCardMod.instance.moreUpgradesPresent)
+            {
+                MoreUpgradesUpgrade(steamID, upgrade);
+            }
+            else
+            {
+                log.LogWarning($"Dragon Ball wish for upgrade: {upgrade} failed, retrying...");
+                wishBlacklist.Add(upgrade);
+                if (WishableCapped(steamID, out wishableUpgrades))
+                {
+                    MegaUpgrade(steamID, wishableUpgrades[Random.Range(0, wishableUpgrades.Count)]);
+                }
+            }
+        }
+        public bool WishableCapped(string steamID, out List<string> cappedWishables)
+        {
+            if (wishableUpgrades.Count == 0)
+            {
+                wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(steamID).Keys.ToList();
+                wishableUpgrades.RemoveAll(wishBlacklist.Contains);
+            }
+            cappedWishables = new List<string>(wishableUpgrades);
+            for (int i = 0; i < wishableUpgrades.Count; i++)
+            {
+                if (upgradesInfo[wishableUpgrades[i]].playersAtCap[steamID])
+                {
+                    cappedWishables.Remove(wishableUpgrades[i]);
+                }
+            }
+            return cappedWishables.Count > 0;
+        }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        public void MoreUpgradesUpgrade(string steamID, string upgrade)
+        {
+            if (MoreUpgrades.Plugin.instance.upgradeItems.Find((x) => x.name == upgrade) == null)
+            {
+                wishBlacklist.Add(upgrade);
+                log.LogWarning($"Dragon Ball wish upgrade tried to use MoreUpgrades' \"{upgrade}\" but something went wrong");
+                return;
+            }
+            log.LogDebug($"Using MoreUpgrades to upgrade \"{upgrade}\"!");
+            int cap = upgradesInfo[upgrade].cap;
+            int per = upgradesInfo[upgrade].per;
+            int amount = Mathf.Min(per, cap - StatsManager.instance.FetchPlayerUpgrades(steamID)[upgrade]);
+            if (amount <= 0)
+            {
+                wishableUpgrades.Remove(upgrade);
+                if (wishableUpgrades.Count == 0)
+                {
+                    wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(steamID).Keys.ToList();
+                    wishableUpgrades.RemoveAll(wishBlacklist.Contains);
+                }
+                MegaUpgrade(steamID, wishableUpgrades[Random.Range(0, wishableUpgrades.Count)]);
+                return;
+            }
+            if (WildCardMod.instance.oldSharedUpgradesPresent)
+            {
+                List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
+                for (int i = 0; i < players.Count; i++)
+                {
+                    MoreUpgrades.Classes.MoreUpgradesManager.instance.Upgrade(upgrade, SemiFunc.PlayerGetSteamID(players[i]), amount);
+                }
+                return;
+            }
+            MoreUpgrades.Classes.MoreUpgradesManager.instance.Upgrade(upgrade, steamID, amount);
+        }
+        public void DoUpgrade(string id, int amount, string upgrade)
+        {
+            string methodString = $"Upgrade{upgrade}RPC".Replace(" ", string.Empty);
+            MethodInfo method = typeof(ShenronHUD).GetMethod(methodString);
+            if (method == null)
+            {
+                log.LogWarning($"Upgrade method for \"{upgrade}\" could not be found!");
+                return;
+            }
+            if (SemiFunc.IsMultiplayer())
+            {
+                photonView.RPC(methodString, RpcTarget.Others, id, amount);
+            }
+            method.Invoke(this, new object[] { id, amount });
         }
         [PunRPC]
         public void UpgradeHealthRPC(string id, int amount)
@@ -492,7 +650,7 @@ namespace REPOWildCardMod.Valuables
             }
         }
         [PunRPC]
-        public void UpgradeJumpRPC(string id, int amount)
+        public void UpgradeExtraJumpRPC(string id, int amount)
         {
             for (int i = 0; i < amount; i++)
             {
@@ -500,7 +658,7 @@ namespace REPOWildCardMod.Valuables
             }
         }
         [PunRPC]
-        public void UpgradeRestRPC(string id, int amount)
+        public void UpgradeCrouchRestRPC(string id, int amount)
         {
             for (int i = 0; i < amount; i++)
             {
@@ -508,270 +666,12 @@ namespace REPOWildCardMod.Valuables
             }
         }
         [PunRPC]
-        public void UpgradeWingsRPC(string id, int amount)
+        public void UpgradeTumbleWingsRPC(string id, int amount)
         {
             for (int i = 0; i < amount; i++)
             {
                 PunManager.instance.UpgradePlayerTumbleWings(id);
             }
-        }
-        public void MegaUpgrade(string steamID, string upgrade)
-        {
-            log.LogDebug($"Dragon Ball Mega Upgrading: \"{upgrade}\"");
-            switch (upgrade)
-            {
-                case "Health":
-                    {
-                        if (WildCardMod.instance.oldSharedUpgradesPresent)
-                        {
-                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                            for (int i = 0; i < players.Count; i++)
-                            {
-                                string id = SemiFunc.PlayerGetSteamID(players[i]);
-                                if (SemiFunc.IsMultiplayer())
-                                {
-                                    photonView.RPC("UpgradeHealthRPC", RpcTarget.Others, id, 5);
-                                }
-                                UpgradeHealthRPC(id, 5);
-                            }
-                            break;
-                        }
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            photonView.RPC("UpgradeHealthRPC", RpcTarget.Others, steamID, 5);
-                        }
-                        UpgradeHealthRPC(steamID, 5);
-                        break;
-                    }
-                case "Stamina":
-                    {
-                        if (WildCardMod.instance.oldSharedUpgradesPresent)
-                        {
-                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                            for (int i = 0; i < players.Count; i++)
-                            {
-                                string id = SemiFunc.PlayerGetSteamID(players[i]);
-                                if (SemiFunc.IsMultiplayer())
-                                {
-                                    photonView.RPC("UpgradeStaminaRPC", RpcTarget.Others, id, 5);
-                                }
-                                UpgradeStaminaRPC(id, 5);
-                            }
-                            break;
-                        }
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            photonView.RPC("UpgradeStaminaRPC", RpcTarget.Others, steamID, 5);
-                        }
-                        UpgradeStaminaRPC(steamID, 5);
-                        break;
-                    }
-                case "Launch":
-                    {
-                        if (WildCardMod.instance.oldSharedUpgradesPresent)
-                        {
-                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                            for (int i = 0; i < players.Count; i++)
-                            {
-                                string id = SemiFunc.PlayerGetSteamID(players[i]);
-                                if (SemiFunc.IsMultiplayer())
-                                {
-                                    photonView.RPC("UpgradeLaunchRPC", RpcTarget.Others, id, 5);
-                                }
-                                UpgradeLaunchRPC(id, 5);
-                            }
-                            break;
-                        }
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            photonView.RPC("UpgradeLaunchRPC", RpcTarget.Others, steamID, 5);
-                        }
-                        UpgradeLaunchRPC(steamID, 5);
-                        break;
-                    }
-                case "Speed":
-                    {
-                        if (WildCardMod.instance.oldSharedUpgradesPresent)
-                        {
-                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                            for (int i = 0; i < players.Count; i++)
-                            {
-                                string id = SemiFunc.PlayerGetSteamID(players[i]);
-                                if (SemiFunc.IsMultiplayer())
-                                {
-                                    photonView.RPC("UpgradeSpeedRPC", RpcTarget.Others, id, 5);
-                                }
-                                UpgradeSpeedRPC(id, 5);
-                            }
-                            break;
-                        }
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            photonView.RPC("UpgradeSpeedRPC", RpcTarget.Others, steamID, 5);
-                        }
-                        UpgradeSpeedRPC(steamID, 5);
-                        break;
-                    }
-                case "Strength":
-                    {
-                        if (WildCardMod.instance.oldSharedUpgradesPresent)
-                        {
-                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                            for (int i = 0; i < players.Count; i++)
-                            {
-                                string id = SemiFunc.PlayerGetSteamID(players[i]);
-                                if (SemiFunc.IsMultiplayer())
-                                {
-                                    photonView.RPC("UpgradeStrengthRPC", RpcTarget.Others, id, 5);
-                                }
-                                UpgradeStrengthRPC(id, 5);
-                            }
-                            break;
-                        }
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            photonView.RPC("UpgradeStrengthRPC", RpcTarget.Others, steamID, 5);
-                        }
-                        UpgradeStrengthRPC(steamID, 5);
-                        break;
-                    }
-                case "Range":
-                    {
-                        if (WildCardMod.instance.oldSharedUpgradesPresent)
-                        {
-                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                            for (int i = 0; i < players.Count; i++)
-                            {
-                                string id = SemiFunc.PlayerGetSteamID(players[i]);
-                                if (SemiFunc.IsMultiplayer())
-                                {
-                                    photonView.RPC("UpgradeRangeRPC", RpcTarget.Others, id, 5);
-                                }
-                                UpgradeRangeRPC(id, 5);
-                            }
-                            break;
-                        }
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            photonView.RPC("UpgradeRangeRPC", RpcTarget.Others, steamID, 5);
-                        }
-                        UpgradeRangeRPC(steamID, 5);
-                        break;
-                    }
-                case "Extra Jump":
-                    {
-                        if (WildCardMod.instance.oldSharedUpgradesPresent)
-                        {
-                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                            for (int i = 0; i < players.Count; i++)
-                            {
-                                string id = SemiFunc.PlayerGetSteamID(players[i]);
-                                if (SemiFunc.IsMultiplayer())
-                                {
-                                    photonView.RPC("UpgradeJumpRPC", RpcTarget.Others, id, 5);
-                                }
-                                UpgradeJumpRPC(id, 5);
-                            }
-                            break;
-                        }
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            photonView.RPC("UpgradeJumpRPC", RpcTarget.Others, steamID, 5);
-                        }
-                        UpgradeJumpRPC(steamID, 5);
-                        break;
-                    }
-                case "Crouch Rest":
-                    {
-                        if (WildCardMod.instance.oldSharedUpgradesPresent)
-                        {
-                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                            for (int i = 0; i < players.Count; i++)
-                            {
-                                string id = SemiFunc.PlayerGetSteamID(players[i]);
-                                if (SemiFunc.IsMultiplayer())
-                                {
-                                    photonView.RPC("UpgradeRestRPC", RpcTarget.Others, id, 5);
-                                }
-                                UpgradeRestRPC(id, 5);
-                            }
-                            break;
-                        }
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            photonView.RPC("UpgradeRestRPC", RpcTarget.Others, steamID, 5);
-                        }
-                        UpgradeRestRPC(steamID, 5);
-                        break;
-                    }
-                case "Tumble Wings":
-                    {
-                        if (WildCardMod.instance.oldSharedUpgradesPresent)
-                        {
-                            List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                            for (int i = 0; i < players.Count; i++)
-                            {
-                                string id = SemiFunc.PlayerGetSteamID(players[i]);
-                                if (SemiFunc.IsMultiplayer())
-                                {
-                                    photonView.RPC("UpgradeWingsRPC", RpcTarget.Others, id, 5);
-                                }
-                                UpgradeWingsRPC(id, 5);
-                            }
-                            break;
-                        }
-                        if (SemiFunc.IsMultiplayer())
-                        {
-                            photonView.RPC("UpgradeWingsRPC", RpcTarget.Others, steamID, 5);
-                        }
-                        UpgradeWingsRPC(steamID, 5);
-                        break;
-                    }
-                default:
-                    {
-                        if (WildCardMod.instance.moreUpgradesPresent)
-                        {
-                            MoreUpgradesUpgrade(steamID, upgrade);
-                        }
-                        else
-                        {
-                            log.LogWarning($"Dragon Ball wish for upgrade: {upgrade} failed, retrying...");
-                            wishableUpgrades.Remove(upgrade);
-                            if (wishableUpgrades.Count == 0)
-                            {
-                                wishableUpgrades = StatsManager.instance.FetchPlayerUpgrades(steamID).Keys.ToList();
-                                wishableUpgrades.Remove("Dragon Balls");
-                                wishableUpgrades.Remove("Chaos Emeralds");
-                                wishableUpgrades.Remove("Map Player Count");
-                                wishableUpgrades.Remove("Throw");
-                                wishableUpgrades.Remove("Head Charge");
-                                wishableUpgrades.Remove("Head Power");
-                            }
-                            MegaUpgrade(steamID, wishableUpgrades[Random.Range(0, wishableUpgrades.Count)]);
-                        }
-                        break;
-                    }
-            }
-        }
-        [MethodImpl(MethodImplOptions.NoInlining)]
-        public void MoreUpgradesUpgrade(string steamID, string upgrade)
-        {
-            if (MoreUpgrades.Plugin.instance.upgradeItems.Find((x) => x.name == upgrade) == null)
-            {
-                log.LogWarning($"Dragon Ball wish upgrade tried to use MoreUpgrades' \"{upgrade}\" but something went wrong");
-                return;
-            }
-            log.LogDebug($"Using MoreUpgrades to upgrade \"{upgrade}\"!");
-            if (WildCardMod.instance.oldSharedUpgradesPresent)
-            {
-                List<PlayerAvatar> players = SemiFunc.PlayerGetAll();
-                for (int i = 0; i < players.Count; i++)
-                {
-                    MoreUpgrades.Classes.MoreUpgradesManager.instance.Upgrade(upgrade, SemiFunc.PlayerGetSteamID(players[i]), 5);
-                }
-                return;
-            }
-            MoreUpgrades.Classes.MoreUpgradesManager.instance.Upgrade(upgrade, steamID, 5);
         }
         public void OnDestroy()
         {
@@ -784,6 +684,17 @@ namespace REPOWildCardMod.Valuables
                     players[i].playerDeathHead.headRenderer.material.SetColor("_EmissionColor", Color.black);
                 }
             }
+        }
+        public class WishUpgrade
+        {
+            public WishUpgrade(int cap = 0, int per = 5)
+            {
+                this.cap = cap;
+                this.per = per;
+            }
+            public int cap;
+            public int per;
+            public Dictionary<string, bool> playersAtCap = new Dictionary<string, bool>();
         }
     }
 }
