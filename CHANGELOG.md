@@ -1,3 +1,6 @@
+## 0.23.0
+- Added a statue of Oniimely, because I can
+
 ## 0.22.1
 - Fixed Dragon Ball upgrade Max / Per config options resetting to defaults on each game launch
 - Added a config option to choose whether only vanilla upgrades are considered
