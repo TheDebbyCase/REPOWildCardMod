@@ -1,3 +1,6 @@
+## 0.24.0
+- Updated for R.E.P.O version 0.3.0
+
 ## 0.23.0
 - Added a statue of Oniimely, because I can
 
