@@ -146,6 +146,40 @@ namespace REPOWildCardMod.Utils
                         }
                         break;
                     }
+                case "Bella":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Head (mesh)");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Birthday Boy":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Head (mesh)");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
                 case "Bowtie":
                     {
                         switch (type)
@@ -180,6 +214,23 @@ namespace REPOWildCardMod.Utils
                         }
                         break;
                     }
+                case "Cleanup Crew":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "ANIM HEAD MESH");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
                 case "Clown":
                     {
                         switch (type)
@@ -187,6 +238,23 @@ namespace REPOWildCardMod.Utils
                             case "Head":
                                 {
                                     finalTransform = transforms.Find((x) => x.name == "[ANIM HAT]");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Elsa":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "code_head_idle");
                                     break;
                                 }
                             default:
@@ -231,6 +299,23 @@ namespace REPOWildCardMod.Utils
                         }
                         break;
                     }
+                case "Headgrab":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "mesh top_of_head");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
                 case "Hidden":
                     {
                         switch (type)
@@ -265,6 +350,23 @@ namespace REPOWildCardMod.Utils
                         }
                         break;
                     }
+                case "Loom":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Top head (mesh)");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
                 case "Mentalist":
                     {
                         switch (type)
@@ -272,6 +374,23 @@ namespace REPOWildCardMod.Utils
                             case "Head":
                                 {
                                     finalTransform = transforms.Find((x) => x.name == "ANIM head_raw");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Oogly":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Head Look");
                                     break;
                                 }
                             default:
@@ -374,6 +493,23 @@ namespace REPOWildCardMod.Utils
                             case "Head":
                                 {
                                     finalTransform = transforms.Find((x) => x.name == "enemy slow mouth flying top");
+                                    break;
+                                }
+                            default:
+                                {
+                                    valid = false;
+                                    break;
+                                }
+                        }
+                        break;
+                    }
+                case "Tick":
+                    {
+                        switch (type)
+                        {
+                            case "Head":
+                                {
+                                    finalTransform = transforms.Find((x) => x.name == "Mesh");
                                     break;
                                 }
                             default:
@@ -488,14 +624,7 @@ namespace REPOWildCardMod.Utils
             {
                 binary = 0;
             }
-            if (binary == 1)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return binary == 1;
         }
         public int BoolToInt(bool binary)
         {
@@ -503,10 +632,7 @@ namespace REPOWildCardMod.Utils
             {
                 return 1;
             }
-            else
-            {
-                return 0;
-            }
+            return 0;
         }
     }
     [Serializable]

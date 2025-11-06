@@ -62,11 +62,11 @@ namespace REPOWildCardMod.Items
         }
         public void Update()
         {
-            if (SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.RunIsLevel() && RoundDirector.instance.allExtractionPointsCompleted && (roomVolumeCheck.inTruck || itemEquippable.isEquipped) && StatsManager.instance.itemsPurchased[itemAttributes.item.itemAssetName] == 0)
+            if (SemiFunc.IsMasterClientOrSingleplayer() && SemiFunc.RunIsLevel() && RoundDirector.instance.allExtractionPointsCompleted && (roomVolumeCheck.inTruck || itemEquippable.isEquipped) && StatsManager.instance.itemsPurchased[itemAttributes.item.name] == 0)
             {
-                StatsManager.instance.ItemPurchase(itemAttributes.item.itemAssetName);
+                StatsManager.instance.ItemPurchase(itemAttributes.item.name);
             }
-            if (physGrabObject.grabbedLocal && !overriding && !itemEquippable.isEquipped && (!PhysGrabber.instance.overrideGrab || PhysGrabber.instance.overrideGrabTarget != physGrabObject))
+            if (physGrabObject.grabbedLocal && !overriding && !itemEquippable.isEquipped && PhysGrabber.instance.overrideGrabTarget != physGrabObject)
             {
                 if (neverGrab)
                 {

@@ -317,7 +317,10 @@ namespace REPOWildCardMod.Valuables
                 {
                     float lerp = Mathf.Clamp01((Mathf.Pow(0.5f - ((timer - 2.5f) / 12.5f), 2f) * -4f) + 1f);
                     players[i].playerHealth.bodyMaterial.SetColor("_EmissionColor", Color.Lerp(Color.black, emissionColor, lerp));
-                    players[i].playerDeathHead.headRenderer.material.SetColor("_EmissionColor", Color.Lerp(Color.black, emissionColor, lerp));
+                    for (int j = 0; j < players[i].playerDeathHead.colorMeshRenderers.Length; j++)
+                    {
+                        players[i].playerDeathHead.colorMeshRenderers[j].material.SetColor("_EmissionColor", Color.Lerp(Color.black, emissionColor, lerp));
+                    }
                 }
             }
             if (valuableTimer > 0f && spawnTimes < randomAmounts[valuableType])
@@ -365,7 +368,7 @@ namespace REPOWildCardMod.Valuables
         {
             if (SemiFunc.IsMultiplayer())
             {
-                PhotonNetwork.InstantiateRoomObject(ResourcesHelper.GetValuablePrefabPath(chosenValuable), valuableSpawnPosition, Random.rotationUniform);
+                PhotonNetwork.InstantiateRoomObject($"Valuables/{chosenValuable.name}", valuableSpawnPosition, Random.rotationUniform);
                 photonView.RPC("SpawnValuableRPC", RpcTarget.All, valuableSpawnPosition);
             }
             else
@@ -406,7 +409,7 @@ namespace REPOWildCardMod.Valuables
                 {
                     valuableSpawnPosition = SemiFunc.LevelPointsGetClosestToPlayer().transform.position + (Vector3.up * 1.5f);
                     LevelValuables levelPool = LevelGenerator.Instance.Level.ValuablePresets[Random.Range(0, LevelGenerator.Instance.Level.ValuablePresets.Count)];
-                    List<GameObject> valuablePool = null;
+                    List<PrefabRef> valuablePool = null;
                     while (valuablePool == null)
                     {
                         valuableType = Random.Range(0, 4);
@@ -439,8 +442,8 @@ namespace REPOWildCardMod.Valuables
                         }
                     }
                     valuableTimerInterval = 5f / randomAmounts[valuableType];
-                    valuablePool.RemoveAll(x => x.name == "Valuable Dragon Ball" || x.name == "Valuable Dummy Item Smith Note");
-                    chosenValuable = valuablePool[Random.Range(0, valuablePool.Count)];
+                    valuablePool.RemoveAll(x => x.PrefabName == "Valuable Dragon Ball" || x.PrefabName == "Valuable Dummy Item Smith Note");
+                    chosenValuable = valuablePool[Random.Range(0, valuablePool.Count)].Prefab;
                     valuableTimer = valuableTimerInterval;
                     log.LogDebug($"Dragon Ball Wish spawning {randomAmounts[valuableType]} {chosenValuable.name}s!");
                 }
@@ -681,7 +684,10 @@ namespace REPOWildCardMod.Valuables
                 if (players[i].playerHealth.bodyMaterial.GetColor("_EmissionColor") != Color.black)
                 {
                     players[i].playerHealth.bodyMaterial.SetColor("_EmissionColor", Color.black);
-                    players[i].playerDeathHead.headRenderer.material.SetColor("_EmissionColor", Color.black);
+                    for (int j = 0; j < players[i].playerDeathHead.colorMeshRenderers.Length; j++)
+                    {
+                        players[i].playerDeathHead.colorMeshRenderers[j].material.SetColor("_EmissionColor", Color.black);
+                    }
                 }
             }
         }

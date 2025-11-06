@@ -4,27 +4,17 @@ namespace REPOWildCardMod.Valuables
     public class DummyValuable : MonoBehaviour
     {
         readonly BepInEx.Logging.ManualLogSource log = WildCardMod.instance.log;
-        public ScriptableObject script;
+        public GameObject prefab;
         public void Awake()
         {
             if (SemiFunc.IsMasterClientOrSingleplayer())
             {
-                switch (script)
+                if (prefab.TryGetComponent(out ItemAttributes itemAttributes))
                 {
-                    case Item item:
-                        {
-                            item = StatsManager.instance.itemDictionary[item.itemAssetName];
-                            log.LogDebug($"Spawning {item.itemName} from dummy!");
-                            GameObject prefab = REPOLib.Modules.Items.SpawnItem(item, transform.position, transform.rotation); ;
-                            prefab.SetActive(true);
-                            log.LogDebug($"Spawned {prefab.name}!");
-                            break;
-                        }
-                    default:
-                        {
-                            log.LogWarning($"{name} was unable to spawn!");
-                            break;
-                        }
+                    log.LogDebug($"Spawning {itemAttributes.item.itemName} from dummy!");
+                    GameObject newPrefab = REPOLib.Modules.Items.SpawnItem(itemAttributes.item, transform.position, transform.rotation);
+                    newPrefab.SetActive(true);
+                    log.LogDebug($"Spawned {prefab.name}!");
                 }
                 ValuableDirector.instance.totalMaxAmount++;
                 ValuableDirector.instance.valuableTargetAmount--;

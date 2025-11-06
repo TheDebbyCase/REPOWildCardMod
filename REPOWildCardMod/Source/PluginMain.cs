@@ -30,7 +30,7 @@ namespace REPOWildCardMod
         public bool oldSharedUpgradesPresent = false;
         internal WildCardConfig ModConfig { get; private set; } = null!;
         public List<GameObject> valList = new List<GameObject>();
-        public List<Item> itemList = new List<Item>();
+        public List<GameObject> itemList = new List<GameObject>();
         public List<Reskin> reskinList = new List<Reskin>();
         public List<AudioReplacer> audioReplacerList = new List<AudioReplacer>();
         public List<GameObject> miscPrefabsList = new List<GameObject>();
@@ -93,7 +93,7 @@ namespace REPOWildCardMod
                         }
                     case "assets/my creations/resources/items":
                         {
-                            itemList.Add(bundle.LoadAsset<Item>(allAssetPaths[i]));
+                            itemList.Add(bundle.LoadAsset<GameObject>(allAssetPaths[i]));
                             break;
                         }
                     case "assets/my creations/resources/reskins":
@@ -152,18 +152,13 @@ namespace REPOWildCardMod
                     bool register = true;
                     if (valList[i].TryGetComponent(out DummyValuable dummy))
                     {
-                        switch (dummy.script)
+                        if (dummy.prefab.TryGetComponent(out ItemAttributes item))
                         {
-                            case Item item:
-                                {
-                                    itemList.Add(item);
-                                    break;
-                                }
-                            default:
-                                {
-                                    register = false;
-                                    break;
-                                }
+                            itemList.Add(item.gameObject);
+                        }
+                        else
+                        {
+                            register = false;
                         }
                     }
                     if (register)
@@ -188,7 +183,7 @@ namespace REPOWildCardMod
             {
                 if (i >= ModConfig.isItemEnabled.Count || ModConfig.isItemEnabled[i].Value)
                 {
-                    REPOLib.Modules.Items.RegisterItem(itemList[i]);
+                    REPOLib.Modules.Items.RegisterItem(itemList[i].GetComponent<ItemAttributes>());
                     log.LogDebug($"{itemList[i].name} item was loaded!");
                 }
                 else
@@ -258,7 +253,8 @@ namespace REPOWildCardMod
             harmony.PatchAll(typeof(SoundPatches));
             if (ModConfig.harmonyPatches.Value && ModConfig.isValEnabled.Find((x) => x.Definition.Key.Contains("Valuable Giwi Worm")).Value)
             {
-                harmony.PatchAll(typeof(PhysGrabberRayCheckPatch));
+                harmony.PatchAll(typeof(PhysGrabberPatch1));
+                harmony.PatchAll(typeof(PhysGrabberPatch2));
             }
             else
             {

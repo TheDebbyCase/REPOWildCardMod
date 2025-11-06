@@ -24,7 +24,7 @@ namespace REPOWildCardMod.Config
         internal readonly ConfigEntry<int> wishCurrencyAmount;
         internal readonly ConfigEntry<int>[] wishValuableAmounts = new ConfigEntry<int>[8];
         internal readonly ConfigEntry<bool> harmonyPatches;
-        internal WildCardConfig(List<GameObject> valList, List<Item> itemList, List<Reskin> reskinList, List<AudioReplacer> audioReplacerList)
+        internal WildCardConfig(List<GameObject> valList, List<GameObject> itemList, List<Reskin> reskinList, List<AudioReplacer> audioReplacerList)
         {
             WildCardMod.instance.Config.SaveOnConfigSet = false;
             for (int i = 0; i < valList.Count; i++)
